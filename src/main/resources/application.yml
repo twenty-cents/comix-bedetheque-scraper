@@ -1,0 +1,149 @@
+application:
+  description: An API to scrap metadatas from the website http://www.bedetheque.com
+  downloads:
+    authors:
+      photo:
+        hd: ${BS_DOWNLOADS_AUTHORS_PHOTO_HD:@project.basedir@/target/classes/static/medias/bedetheque/authors/photo/hd/}
+        thumbs: ${BS_DOWNLOADS_AUTHORS_PHOTO_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/authors/photo/thumbs/}
+    graphic-novels:
+      cover-back:
+        hd: ${BS_DOWNLOADS_GRAPHIC_NOVELS_COVER_BACK_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-back/hd/}
+        thumbs: ${BS_DOWNLOADS_GRAPHIC_NOVELS_COVER_BACK_THUMBS:@project.basedir@/target/classes/medias/bedetheque/static/graphic-novels/cover-back/thumbs/}
+      cover-front:
+        hd: ${BS_DOWNLOADS_GRAPHIC_NOVELS_COVER_FRONT_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-front/hd/}
+        thumbs: ${BS_DOWNLOADS_GRAPHIC_NOVELS_COVER_FRONT_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-front/thumbs/}
+      page-example:
+        hd: ${BS_DOWNLOADS_GRAPHIC_NOVELS_PAGE_EXAMPLE_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/page-example/hd/}
+        thumbs: ${BS_DOWNLOADS_GRAPHIC_NOVELS_PAGE_EXAMPLE_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/page-example/thumbs/}
+    localcache:
+      active: ${BS_CACHE_ACTIVE:false}
+      basepath: ${BS_SHARED_STORAGE_PATH:/mnt/shared/bubbles-manager/dev/medias/bedetheque}
+    series:
+      cover-front:
+        thumbs: ${BS_DOWNLOADS_SERIES_COVER_FRONT_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/series/cover-front/thumbs/}
+      page-example:
+        hd: ${BS_DOWNLOADS_SERIES_PAGE_EXAMPLE_HD:@project.basedir@/target/classes/static/medias/bedetheque/series/page-example/hd/}
+        thumbs: ${BS_DOWNLOADS_SERIES_PAGE_EXAMPLE_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/series/page-example/thumbs/}
+    user:
+      avatar:
+        thumbs: ${BS_DOWNLOADS_RATINGS_AVATARS:@project.basedir@/target/classes/static/medias/bedetheque/ratings/avatar/}
+  http:
+    medias:
+      authors:
+        photo:
+          hd: ${BS_HTTP_MEDIAS_AUTHORS_PHOTO_HD:https://bedetheque-scraper.home.lab/authors/photo/hd/}
+          thumbs: ${BS_HTTP_MEDIAS_AUTHORS_PHOTO_THUMBS:https://bedetheque-scraper.home.lab/authors/photo/thumbs/}
+      default:
+        unavailable: ${BS_HTTP_MEDIAS_DEFAULT_UNAVAILABLE:https://bedetheque-scraper.home.lab/images/na.png}
+      graphic-novels:
+        cover-back:
+          hd: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_BACK_HD:https://bedetheque-scraper.home.lab/graphic-novels/cover-back/hd/}
+          thumbs: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_BACK_THUMBS:https://bedetheque-scraper.home.lab/graphic-novels/cover-back/thumbs/}
+        cover-front:
+          hd: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_FRONT_HD:https://bedetheque-scraper.home.lab/graphic-novels/cover-front/hd/}
+          thumbs: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_FRONT_THUMBS:https://bedetheque-scraper.home.lab/graphic-novels/cover-front/thumbs/}
+        page-example:
+          hd: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_PAGE_EXAMPLE_HD:https://bedetheque-scraper.home.lab/graphic-novels/page-example/hd/}
+          thumbs: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_PAGE_EXAMPLE_THUMBS:https://bedetheque-scraper.home.lab/graphic-novels/page-example/thumbs/}
+      series:
+        cover-front:
+          thumbs: ${BS_HTTP_MEDIAS_SERIES_COVER_FRONT_THUMBS:https://bedetheque-scraper.home.lab/series/cover-front/thumbs/}
+        page-example:
+          hd: ${BS_HTTP_MEDIAS_SERIES_PAGE_EXAMPLE_HD:https://bedetheque-scraper.home.lab/series/page-example/hd/}
+          thumbs: ${BS_HTTP_MEDIAS_SERIES_PAGE_EXAMPLE_THUMBS:https://bedetheque-scraper.home.lab/series/page-example/thumbs/}
+      user:
+        avatar:
+          thumbs: ${BS_HTTP_MEDIAS_RATINGS_AVATARS:https://bedetheque-scraper.home.lab/ratings/avatar/}
+  lang:
+    accepted_languages: en
+    defaultLanguage: en
+  logging:
+    trace:
+      response:
+        active: false
+    web: false
+  maven:
+    version: '@project.version@'
+  name: bedetheque-scraper-service
+  scraping:
+    latency: 1
+  security:
+    front-url: ${BS_FRONT_BASE_URL}
+bedetheque:
+  url:
+    author:
+      prefix: https://www.bedetheque.com/auteur-
+    authors:
+      index-by-letter: https://www.bedetheque.com/liste_auteurs_BD_0.html
+    home: https://www.bedetheque.com
+    search:
+      authors: https://www.bedetheque.com/ajax/auteurs
+      categories: https://www.bedetheque.com/ajax/styles
+      collections: https://www.bedetheque.com/ajax/collections
+      global: https://www.bedetheque.com/search/tout
+      graphic-novels: https://www.bedetheque.com/search/albums
+      publishers: https://www.bedetheque.com/ajax/editeurs
+      series: https://www.bedetheque.com/ajax/series
+    serie:
+      prefix: https://www.bedetheque.com/serie-
+    series:
+      index-by-letter: https://www.bedetheque.com/bandes_dessinees_%s.html
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+spring:
+  application:
+    name: bedetheque-scraper-service
+  config:
+    import: optional:configserver:http://localhost:8888
+  jackson:
+    default-property-inclusion: non_null
+  main:
+    banner-mode: log
+  mustache:
+    check-template-location: false
+  rabbitmq:
+    username: ${BEDETHEQUE_SCRAPER_RABBITMQ_USERNAME:dev}
+    password: ${BEDETHEQUE_SCRAPER_RABBITMQ_PASSWORD:dev}
+  datasource:
+    url: ${BEDETHEQUE_SCRAPER_DB_URL:jdbc:postgresql://localhost:5432/bedetheque_scraper}
+    username: ${BEDETHEQUE_SCRAPER_DB_USERNAME:dev}
+    password: ${BEDETHEQUE_SCRAPER_DB_PASSWORD:dev}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  liquibase:
+    change-log: classpath:db/master.xml
+    enabled: true
+amqp:
+  queue:
+    author:
+      name: ${BEDETHEQUE_SCRAPER_QUEUE_AUTHOR:comix.author.add}
+    comic:
+      name: ${BEDETHEQUE_SCRAPER_QUEUE_COMIC:comix.comic.add}
+    serie:
+      name: ${BEDETHEQUE_SCRAPER_QUEUE_SERIE:comix.serie.add}
+  exchange:
+    author:
+      name: ${BEDETHEQUE_SCRAPER_EXCHANGE_AUTHOR:comix.author.exchange}
+    comic:
+      name: ${BEDETHEQUE_SCRAPER_EXCHANGE_COMIC:comix.comic.exchange}
+    serie:
+      name: ${BEDETHEQUE_SCRAPER_EXCHANGE_SERIE:comix.serie.exchange}
+producer:
+  retry:
+    max-attempts: ${BEDETHEQUE_SCRAPER_MAX_ATTEMPTS:3}
+    initial-interval: ${BEDETHEQUE_SCRAPER_INITIAL_INTERVAL:500}
+    max-interval: ${BEDETHEQUE_SCRAPER_MAX_INTERVAL:10000}
+    multiplier: ${BEDETHEQUE_SCRAPER_MULTIPLIER:2.0}
+outbox:
+  publisher:
+    fixed-delay: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_FIXED_DELAY:10000}
+    lock-at-least-for: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_LOCK_AT_LEAST_FOR:PT5S}
+    lock-at-most-for: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_LOCK_AT_MOST_FOR:PT5M}
+    enabled: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_ENABLED:true}

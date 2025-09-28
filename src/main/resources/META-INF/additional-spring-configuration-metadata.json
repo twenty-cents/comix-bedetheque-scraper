@@ -1,0 +1,213 @@
+{
+  "properties": [
+    {
+      "name": "application.maven.version",
+      "type": "java.lang.String",
+      "description": "Version of the application Bedetheque-Scraper."
+    },
+    {
+      "name": "application.downloads.localcache.active",
+      "type": "java.lang.String",
+      "description": "Boolean to (de)active the preloading of all medias scraped from bedetheque on the application server."
+    },
+    {
+      "name": "application.downloads.authors.photo.thumbs",
+      "type": "java.lang.String",
+      "description": "Download directory for author photos (thumbnails)."
+    },
+    {
+      "name": "application.downloads.authors.photo.hd",
+      "type": "java.lang.String",
+      "description": "Download directory for author photos (HD)."
+    },
+    {
+      "name": "application.downloads.graphic-novels.cover-front.thumbs",
+      "type": "java.lang.String",
+      "description": "Download directory for graphic novels front covers (thumbnails)."
+    },
+    {
+      "name": "application.downloads.graphic-novels.cover-front.hd",
+      "type": "java.lang.String",
+      "description": "Download directory for graphic novels front covers (HD)."
+    },
+    {
+      "name": "application.downloads.graphic-novels.cover-back.thumbs",
+      "type": "java.lang.String",
+      "description": "Download directory for graphic novels back covers (thumbnails)."
+    },
+    {
+      "name": "application.downloads.graphic-novels.cover-back.hd",
+      "type": "java.lang.String",
+      "description": "Download directory for graphic novels back covers (HD)."
+    },
+    {
+      "name": "application.downloads.graphic-novels.page-example.thumbs",
+      "type": "java.lang.String",
+      "description": "Download directory for graphic novels page examples (thumbnails)."
+    },
+    {
+      "name": "application.downloads.graphic-novels.page-example.hd",
+      "type": "java.lang.String",
+      "description": "Download directory for graphic novels page examples (HD)."
+    },
+    {
+      "name": "application.downloads.user.avatar.thumbs",
+      "type": "java.lang.String",
+      "description": "Download directory for user avatars (thumbnails)."
+    },
+    {
+      "name": "application.http.medias.default.unavailable",
+      "type": "java.lang.String",
+      "description": "Server path to the default unavailable media picture."
+    },
+    {
+      "name": "application.http.medias.authors.photo.thumbs",
+      "type": "java.lang.String",
+      "description": "Server path for author photos (thumbnails)."
+    },
+    {
+      "name": "application.http.medias.authors.photo.hd",
+      "type": "java.lang.String",
+      "description": "Server path for author photos (HD)."
+    },
+    {
+      "name": "application.http.medias.graphic-novels.cover-front.thumbs",
+      "type": "java.lang.String",
+      "description": "Server path for graphic novels front covers (thumbnails)."
+    },
+    {
+      "name": "application.http.medias.graphic-novels.cover-front.hd",
+      "type": "java.lang.String",
+      "description": "Server path for graphic novels front covers (HD)."
+    },
+    {
+      "name": "application.http.medias.graphic-novels.cover-back.thumbs",
+      "type": "java.lang.String",
+      "description": "Server path for graphic novels back covers (thumbnails)."
+    },
+    {
+      "name": "application.http.medias.graphic-novels.cover-back.hd",
+      "type": "java.lang.String",
+      "description": "Server path for graphic novels back covers (HD)."
+    },
+    {
+      "name": "application.http.medias.graphic-novels.page-example.thumbs",
+      "type": "java.lang.String",
+      "description": "Server path for graphic novels page examples (thumbnails)."
+    },
+    {
+      "name": "application.http.medias.graphic-novels.page-example.hd",
+      "type": "java.lang.String",
+      "description": "Server path for graphic novels page examples (HD)."
+    },
+    {
+      "name": "application.http.medias.user.avatar.thumbs",
+      "type": "java.lang.String",
+      "description": "Server path for user avatars (thumbnails)."
+    },
+    {
+      "name": "bedetheque.url.authors.index-by-letter",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for authors alphabetical indexes."
+    },
+    {
+      "name": "bedetheque.url.author.prefix",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for an author (prefix)."
+    },
+    {
+      "name": "bedetheque.url.series.index-by-letter",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for series alphabetical indexes."
+    },
+    {
+      "name": "bedetheque.url.serie.prefix",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for a serie (prefix)."
+    },
+    {
+      "name": "bedetheque.url.search.global",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for a global search."
+    },
+    {
+      "name": "bedetheque.url.search.graphic-novels",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for searching graphic-novels."
+    },
+    {
+      "name": "bedetheque.url.search.categories",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for searching categories."
+    },
+    {
+      "name": "bedetheque.url.search.series",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for searching series."
+    },
+    {
+      "name": "bedetheque.url.search.publishers",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for searching publishers."
+    },
+    {
+      "name": "bedetheque.url.search.collections",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for searching collections."
+    },
+    {
+      "name": "bedetheque.url.search.authors",
+      "type": "java.lang.String",
+      "description": "Bedetheque path for searching authors."
+    },
+    {
+      "name": "application.logging.web",
+      "type": "java.lang.String",
+      "description": "Boolean to (de)active the web logging traces."
+    },
+    {
+      "name": "bedetheque.url.home",
+      "type": "java.lang.String",
+      "description": "Bedetheque home path."
+    },
+    {
+      "name": "application.lang.accepted_languages",
+      "type": "java.lang.String",
+      "description": "List of all languages accepted by the API."
+    },
+    {
+      "name": "application.lang.defaultLanguage",
+      "type": "java.lang.String",
+      "description": "Default language used by the API."
+    },
+    {
+      "name": "application.security.jwtSecret",
+      "type": "java.lang.String",
+      "description": "Secret JWT salt text."
+    },
+    {
+      "name": "application.security.jwtExpirationMs",
+      "type": "java.lang.String",
+      "description": "Durability of a JWT token before expiration (in millis)."
+    },
+    {
+      "name": "application.security.front-url",
+      "type": "java.lang.String",
+      "description": "Base url accepted by the API."
+    },
+    {
+      "name": "application.logging.trace.response.active",
+      "type": "java.lang.String",
+      "description": "(De)active the response trace logs."
+    },
+    {
+      "name": "application.scraping.latency",
+      "type": "java.lang.String",
+      "description": "Countdown betwwen two url requests to bedetheque.com."
+    },
+    {
+      "name": "application.downloads.localcache.basepath",
+      "type": "java.lang.String",
+      "description": "Local basepath to store media files"
+    }
+  ] }

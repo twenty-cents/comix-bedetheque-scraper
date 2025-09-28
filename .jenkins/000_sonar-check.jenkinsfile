@@ -1,0 +1,85 @@
+pipeline{
+    agent{
+        label "jenkins-agent-node1"
+    }
+    options {
+        ansiColor('xterm')
+    }
+    tools {
+        jdk 'java21'
+        maven 'maven'
+    }
+    environment {
+        // Jenkins credentials to connect to Github
+        GITHUB_TOKEN = credentials("GITHUB_TOKEN")
+    }
+    parameters {
+      gitParameter branchFilter: 'origin/(.*)', defaultValue: 'master', name: 'BRANCH', type: 'PT_BRANCH'
+    }
+    stages{
+        stage("Cleanup Workspace"){
+            steps {
+                echo '--- STAGE Cleanup workspace ---'
+                cleanWs()
+            }
+        }
+
+        stage('Checkout from SCM') {
+            steps {
+                echo '--- STAGE Checkout from SCM ---'
+
+                checkout([$class: 'GitSCM',
+                          branches: [[name: "${params.BRANCH}"]],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [],
+                          gitTool: 'Default',
+                          submoduleCfg: [],
+                          userRemoteConfigs: [[credentialsId: 'GITHUB_TOKEN', url: 'https://github.com/twenty-cents/comix-bedetheque-scraper']]
+                        ])
+            }
+        }
+
+        stage("Build Application"){
+            steps {
+                echo '--- STAGE Build Application ---'
+
+                sh "mvn clean package -DskipTests=true"
+            }
+
+        }
+
+         stage("Test Application"){
+             steps {
+                echo '--- STAGE Test Application ---'
+
+                 sh "mvn test"
+                 sh "mvn org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent org.jacoco:jacoco-maven-plugin:0.8.12:report"
+             }
+         }
+
+        stage("Sonarqube Analysis") {
+            steps {
+                echo '--- STAGE Sonarqube Analysis ---'
+
+                script {
+                    withSonarQubeEnv(credentialsId: 'SONARQUBE_TOKEN') {
+                        sh "mvn sonar:sonar"
+                    }
+                }
+            }
+
+        }
+
+        stage("Quality Gate") {
+            steps {
+                echo '--- STAGE Quality Gate ---'
+
+                script {
+                    waitForQualityGate abortPipeline: true, credentialsId: 'SONARQUBE_TOKEN'
+                }
+            }
+
+        }
+
+    }
+}

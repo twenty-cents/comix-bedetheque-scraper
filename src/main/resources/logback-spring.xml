@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Add default SpringBoot Console appender -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <springProfile name="!dev">
+        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>${LOGSTASH_URL}:${LOGSTASH_PORT}</destination>
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <timestamp>
+                        <timeZone>UTC</timeZone>
+                    </timestamp>
+                    <pattern>
+                        <pattern>
+                            {
+                            "severity": "%level",
+                            "service": "${springAppName:-}",
+                            "trace": "%X{X-B3-TraceId:-}",
+                            "span": "%X{X-B3-SpanId:-}",
+                            "exportable": "%X{X-Span-Export:-}",
+                            "pid": "${PID:-}",
+                            "thread": "%thread",
+                            "class": "%logger{40}",
+                            "rest": "%message",
+                            "app": "freebds",
+                            "component": "bedetheque-scraper",
+                            "env": "${BEDETHEQUE_SCRAPER_ENV}"
+                            }
+                        </pattern>
+                    </pattern>
+                </providers>
+            </encoder>
+        </appender>
+
+        <!-- LOG everything at INFO level -->
+        <root level="info">
+            <appender-ref ref="LOGSTASH"/>
+            <appender-ref ref="CONSOLE" />
+        </root>
+
+        <!-- LOG "com.freebds.api.scrapers.bedetheque*" at TRACE level -->
+        <logger name="com.freebds*" level="info" additivity="false">
+            <appender-ref ref="LOGSTASH"/>
+            <appender-ref ref="CONSOLE" />
+        </logger>
+        <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG" />
+    </springProfile>
+
+    <springProfile name="dev">
+        <!-- LOG everything at INFO level -->
+        <root level="info">
+            <appender-ref ref="CONSOLE" />
+        </root>
+
+        <!-- LOG "com.freebds.api.scrapers.bedetheque*" at TRACE level -->
+        <logger name="com.freebds*" level="info" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+        <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG"/>
+    </springProfile>
+</configuration>

@@ -1,0 +1,683 @@
+{
+	"info": {
+		"_postman_id": "bc54f219-a7b7-4290-8b2e-bd2c5d289c1f",
+		"name": "Bedetheque-scraper",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46319153",
+		"_collection_link": "https://twenty-cents-3277865.postman.co/workspace/twenty-cents's-Workspace~314eea96-ac66-4cd6-871a-602a51a964e7/collection/46319153-bc54f219-a7b7-4290-8b2e-bd2c5d289c1f?action=share&source=collection_link&creator=46319153"
+	},
+	"item": [
+		{
+			"name": "Authors",
+			"item": [
+				{
+					"name": "Index",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response is an array with at least one element\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response is an array and contains required fields\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+									"    ",
+									"    responseData.forEach(function(item) {",
+									"        pm.expect(item).to.be.an('object');",
+									"        pm.expect(item).to.have.all.keys('letter', 'url');",
+									"        pm.expect(item.letter).to.be.a('string');",
+									"        pm.expect(item.url).to.be.a('string');",
+									"    });",
+									"});",
+									"",
+									"",
+									"pm.test(\"URL is in a valid format\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('array');",
+									"    responseData.forEach(function(author) {",
+									"        pm.expect(author).to.have.property('url').that.is.a('string').and.satisfies(url => {",
+									"            const urlPattern = /^(ftp|http|https):\\/\\/[^ \"]+$/;",
+									"            return urlPattern.test(url);",
+									"        }, \"URL format is invalid\");",
+									"    });",
+									"});",
+									"var responseData = pm.response.json();",
+									"",
+									"// Test the response body structure",
+									"pm.test(\"Response body contains expected data structure\", function () {",
+									"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+									"    ",
+									"    responseData.forEach(function(item) {",
+									"        pm.expect(item).to.be.an('object').that.has.all.keys('letter', 'url');",
+									"        pm.expect(item.letter).to.be.a('string');",
+									"        pm.expect(item.url).to.be.a('string').and.satisfies(url => {",
+									"            const urlPattern = /^(ftp|http|https):\\/\\/[^ \"]+$/;",
+									"            return urlPattern.test(url);",
+									"        }, \"URL format is invalid\");",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/authors/index",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"authors",
+								"index"
+							]
+						},
+						"description": "## Authors Index API\n\nThis endpoint retrieves a list of authors indexed by the specified criteria. It is a simple GET request that does not require any parameters.\n\n### Request\n\n- **Method**: GET\n    \n- **URL**: `http://localhost:8080/api/bedetheque-scraper/v1/authors/index`\n    \n\n### Response\n\n- **Status Code**: 200 OK\n    \n- **Content-Type**: application/json\n    \n- **Body**: The response will return a JSON array containing objects with the following structure:\n    \n    - `letter`: A string representing the initial letter of the author's name.\n        \n    - `url`: A string containing the URL associated with the author.\n        \n\n### Notes\n\n- The response will return an array of authors, which may include empty values for `letter` and `url` if there are no corresponding authors found.\n    \n- Ensure that the API is running and accessible at the specified URL before making a request."
+					},
+					"response": []
+				},
+				{
+					"name": "Index by letter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/authors?letter=Ag&action=SCRAP_AUTHORS_URLS_BY_LETTER",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"authors"
+							],
+							"query": [
+								{
+									"key": "letter",
+									"value": "Ag"
+								},
+								{
+									"key": "action",
+									"value": "SCRAP_AUTHORS_URLS_BY_LETTER"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Author details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "url",
+								"value": "https://www.bedetheque.com/auteur-2015-BD-Azzarello-Brian.html",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/authors/2015",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"authors",
+								"2015"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Preload the author's photo",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "photoUrl",
+								"value": "https://www.bedetheque.com/media/Photos/Photo_2015.jpg",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/authors/2015/photo",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"authors",
+								"2015",
+								"photo"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Filters",
+			"item": [
+				{
+					"name": "Global search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/filters/global?filter=gaston",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"filters",
+								"global"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "gaston"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Graphic novel search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/filters/graphic-novels?serieTitle=gaston&quotationMax&originalEdition",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"filters",
+								"graphic-novels"
+							],
+							"query": [
+								{
+									"key": "serieId",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "authorId",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "serieTitle",
+									"value": "gaston"
+								},
+								{
+									"key": "graphicnovelTitle",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "publisher",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "collection",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "author",
+									"value": "greg",
+									"disabled": true
+								},
+								{
+									"key": "isbn",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "origin",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "language",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "keyword",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "publicationDateFrom",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "publicationDateTo",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "quotationMin",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "quotationMax",
+									"value": null
+								},
+								{
+									"key": "originalEdition",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Serie (autocomplete)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/filters/autocomplete?filter=gaston&type=SERIES",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"filters",
+								"autocomplete"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "gaston"
+								},
+								{
+									"key": "type",
+									"value": "SERIES"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publishers (autocomplete)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/filters/autocomplete?filter=dargaud&type=PUBLISHERS",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"filters",
+								"autocomplete"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "dargaud"
+								},
+								{
+									"key": "type",
+									"value": "PUBLISHERS"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Collections (autocomplete)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/filters/autocomplete?filter=fluide&type=COLLECTIONS",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"filters",
+								"autocomplete"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "fluide"
+								},
+								{
+									"key": "type",
+									"value": "COLLECTIONS"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Categories (autocomplete)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/filters/autocomplete?filter=humour&type=CATEGORIES",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"filters",
+								"autocomplete"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "humour"
+								},
+								{
+									"key": "type",
+									"value": "CATEGORIES"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authors (autocomplete)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/filters/autocomplete?filter=greg&type=AUTHORS",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"filters",
+								"autocomplete"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "greg"
+								},
+								{
+									"key": "type",
+									"value": "AUTHORS"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Graphic novels",
+			"item": [
+				{
+					"name": "Graphic novels of a serie",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "url",
+								"value": "https://www.bedetheque.com/serie-31-BD-Gaston.html",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/graphic-novels?page=1",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"graphic-novels"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Republications of a graphic novel",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "url",
+								"value": "https://www.bedetheque.com/BD-Gaston-Tome-4-Gaffes-en-gros-18788.html#reed",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/graphic-novels/18788",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"graphic-novels",
+								"18788"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Covers of a graphic novel",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "FrontCoverUrl",
+								"value": "https://www.bedetheque.com/media/Couvertures/Couv_18787.jpg",
+								"type": "text"
+							},
+							{
+								"key": "BackCoverUrl",
+								"value": "https://www.bedetheque.com/media/Versos/Verso_18787.jpg",
+								"type": "text"
+							},
+							{
+								"key": "PageExampleUrl",
+								"value": "https://www.bedetheque.com/media/Planches/PlancheA_18787.jpg",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/graphic-novels/18787/covers",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"graphic-novels",
+								"18787",
+								"covers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ratings",
+			"item": [
+				{
+					"name": "Ratings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "url",
+								"value": "https://www.bedetheque.com/avis-59-BD-Asterix.html",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/ratings",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Series",
+			"item": [
+				{
+					"name": "Index",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/series?action=SCRAP_SERIES_URLS_INDEXES",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"series"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "SCRAP_SERIES_URLS_INDEXES"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Index by letter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/series?letter=Z&action=SCRAP_SERIES_URLS_BY_LETTER",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"series"
+							],
+							"query": [
+								{
+									"key": "letter",
+									"value": "Z"
+								},
+								{
+									"key": "action",
+									"value": "SCRAP_SERIES_URLS_BY_LETTER"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Serie details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "url",
+								"value": "https://www.bedetheque.com/serie-31-BD-Gaston.html",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/series/31?page=3",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"series",
+								"31"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Statistics",
+			"item": [
+				{
+					"name": "Global statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{bedetheque-scraper-localhost}}/dashboard",
+							"host": [
+								"{{bedetheque-scraper-localhost}}"
+							],
+							"path": [
+								"dashboard"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

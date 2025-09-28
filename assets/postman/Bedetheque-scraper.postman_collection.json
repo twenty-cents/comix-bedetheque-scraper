@@ -1,0 +1,780 @@
+{
+	"info": {
+		"_postman_id": "388a727d-f34c-4791-8524-393893980c6d",
+		"name": "Bedetheque-scraper",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authors",
+			"item": [
+				{
+					"name": "Get author (Greg)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "url",
+								"value": "https://www.bedetheque.com/auteur-77-BD-Greg.html",
+								"type": "text"
+							},
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/authors/77",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"authors",
+								"77"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Preload photo HD (Greg)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "PhotoUrl",
+								"value": "https://www.bedetheque.com/media/Photos/Photo_77.jpg",
+								"type": "text"
+							},
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/authors/77/photo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"authors",
+								"77",
+								"photo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all authors starting by a given letter",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/authors?letter=S",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"authors"
+							],
+							"query": [
+								{
+									"key": "letter",
+									"value": "S"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all authors indexes",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/authors/index",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"authors",
+								"index"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Graphic novels",
+			"item": [
+				{
+					"name": "Scrap albums from a serie url",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "url",
+								"value": "https://www.bedetheque.com/serie-31-BD-Gaston.html",
+								"type": "text"
+							},
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/graphic-novels",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"graphic-novels"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scrap all republication of a graphic novel",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "url",
+								"value": "https://www.bedetheque.com/BD-Gaston-Tome-0-3742.html#reed",
+								"type": "text"
+							},
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/graphic-novels/3742",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"graphic-novels",
+								"3742"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Preload covers HD",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "FrontCoverUrl",
+								"value": "https://www.bedetheque.com/media/Couvertures/Couv_340944.jpg",
+								"type": "text"
+							},
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							},
+							{
+								"key": "BackCoverUrl",
+								"value": "https://www.bedetheque.com/media/Planches/PlancheA_340944.jpg",
+								"type": "text"
+							},
+							{
+								"key": "PageExampleUrl",
+								"value": "https://www.bedetheque.com/media/Versos/Verso_340944.jpg",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/graphic-novels/3742/covers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"graphic-novels",
+								"3742",
+								"covers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Series",
+			"item": [
+				{
+					"name": "List all series starting by a given letter",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/series?letter=S",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"series"
+							],
+							"query": [
+								{
+									"key": "letter",
+									"value": "S"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all series indexes",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/series/index",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"series",
+								"index"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get serie (Akim)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "url",
+								"value": "https://www.bedetheque.com/serie-13266-BD-Akim-1re-serie.html",
+								"type": "text"
+							},
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/series/13266",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"series",
+								"13266"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get serie (Asterix 10000)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "url",
+								"value": "https://www.bedetheque.com/serie-59-BD-Asterix__10000.html",
+								"type": "text"
+							},
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/series/59",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"series",
+								"59"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ratings",
+			"item": [
+				{
+					"name": "Get ratings (Asterix)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Url",
+								"value": "https://www.bedetheque.com/avis-59-BD-Asterix.html",
+								"type": "text"
+							},
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/ratings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Filters",
+			"item": [
+				{
+					"name": "Categories",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/filters/categories?filter=hum",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"filters",
+								"categories"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "hum"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Series",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/filters/series?filter=gaston",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"filters",
+								"series"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "gaston"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publishers",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/filters/publishers?filter=dupuis",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"filters",
+								"publishers"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "dupuis"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Collections",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/filters/collections?filter=hum",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"filters",
+								"collections"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "hum"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "authors",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/filters/authors?filter=greg",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"filters",
+								"authors"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "greg"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Global search",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/filters/global?filter=greg",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"filters",
+								"global"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "greg"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Graphic novels search",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/filters/graphic-novels?graphicnovelTitle=gaston",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"filters",
+								"graphic-novels"
+							],
+							"query": [
+								{
+									"key": "graphicnovelTitle",
+									"value": "gaston"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Statistics",
+			"item": [
+				{
+					"name": "Statistiques globales",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-B3-TraceId",
+								"value": "8043000a-0ea6-49b9-ab08-9c27ae6b51ec",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/bedetheque-scraper/v1/statistics",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"bedetheque-scraper",
+								"v1",
+								"statistics"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,184 @@
+pipeline{
+    agent{
+        label "jenkins-agent-node1"
+    }
+    options {
+        ansiColor('xterm')
+    }
+    tools {
+        jdk 'java21'
+        maven 'maven'
+    }
+    environment {
+        // Jenkins credentials to connect to Github
+        GITHUB_TOKEN = credentials("GITHUB_TOKEN")
+        // Nexus docker repository url
+        NEXUS_URL = credentials("NEXUS_URL")
+        // Jenkins credentials to connect to Nexus
+        NEXUS_CREDENTIALS = "NEXUS_CREDENTIALS"
+        // Logstash server URL
+        LOGSTASH_URL = credentials("LOGSTASH_URL")
+        // Logstash port for Comix index
+        COMIX_LOGSTASH_PORT = credentials("COMIX_LOGSTASH_PORT")
+        // Application config server url
+        JENKINS_COMIX_CONFIG_SERVER_URL = credentials("COMIX_CONFIG_SERVER_URL_STAGE")
+        // Application config server port
+        JENKINS_COMIX_CONFIG_SERVER_PORT = credentials("COMIX_CONFIG_SERVER_NODEPORT_STAGE")
+        // Application server port
+        JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT = credentials("COMIX_BEDETHEQUE_SCRAPER_PORT_STAGE")
+        // Application external forward port
+        JENKINS_COMIX_BEDETHEQUE_SCRAPER_NODEPORT = credentials("COMIX_BEDETHEQUE_SCRAPER_NODEPORT_STAGE")
+    }
+    parameters {
+      gitParameter branchFilter: 'origin/(.*)', defaultValue: 'master', name: 'BRANCH', type: 'PT_BRANCH'
+    }
+    stages{
+        stage("Cleanup Workspace"){
+            steps {
+                echo '--- STAGE Cleanup workspace ---'
+                cleanWs()
+            }
+        }
+
+        stage('Checkout from SCM') {
+            steps {
+                echo '--- STAGE Checkout from SCM ---'
+
+                checkout([$class: 'GitSCM',
+                          branches: [[name: "${params.BRANCH}"]],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [],
+                          gitTool: 'Default',
+                          submoduleCfg: [],
+                          userRemoteConfigs: [[credentialsId: 'GITHUB_TOKEN', url: 'https://github.com/twenty-cents/comix-bedetheque-scraper']]
+                        ])
+            }
+        }
+
+        stage("Build Application"){
+            steps {
+                echo '--- STAGE Build Application ---'
+
+                sh "mvn clean package -DskipTests=true"
+            }
+
+        }
+
+         stage("Test Application"){
+             steps {
+                echo '--- STAGE Test Application ---'
+
+                 sh "mvn test"
+                 sh "mvn org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent org.jacoco:jacoco-maven-plugin:0.8.12:report"
+             }
+         }
+
+        stage("Sonarqube Analysis") {
+            steps {
+                echo '--- STAGE Sonarqube Analysis ---'
+
+                script {
+                    withSonarQubeEnv(credentialsId: 'SONARQUBE_TOKEN') {
+                        sh "mvn sonar:sonar"
+                    }
+                }
+            }
+
+        }
+
+        stage("Quality Gate") {
+            steps {
+                echo '--- STAGE Quality Gate ---'
+
+                script {
+                    waitForQualityGate abortPipeline: true, credentialsId: 'SONARQUBE_TOKEN'
+                }
+            }
+
+        }
+
+       stage('Docker Login') {
+            steps {
+                echo '--- STAGE Docker login to Nexus repository ---'
+
+                script{
+                    withCredentials([usernamePassword(credentialsId: 'NEXUS_CREDENTIALS', usernameVariable: 'USER', passwordVariable: 'PASS' )]){
+                       sh ' echo $PASS | docker login -u $USER --password-stdin $NEXUS_URL'
+                    }
+
+                }
+            }
+        }
+
+       stage('Docker Build & Push to Nexus') {
+            steps {
+                echo '--- STAGE Docker Build & Push to Nexus ---'
+
+                script {
+                    echo 'Retrieve artifact values'
+                    // Read POM xml file using 'readMavenPom' step , this step 'readMavenPom' is included in: https://plugins.jenkins.io/pipeline-utility-steps
+                    pom = readMavenPom file: "pom.xml";
+                    // Find built artifact under target folder
+                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}");
+                    // Print some info from the artifact found
+                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
+                    // Extract the path from the File found
+                    artifactPath = filesByGlob[0].path;
+                    // Assign to a boolean response verifying If the artifact name exists
+                    artifactExists = fileExists artifactPath;
+                    artifact_id = pom.artifactId;
+                    pom_version = pom.version.toLowerCase();
+
+                    if(artifactExists) {
+                        echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}";
+                        echo "Building docker Image ${artifact_id} - ${pom_version}"
+                        def imageTag = "${BUILD_NUMBER}"
+                        sh "cp /etc/docker/daemon.json ./"
+                        sh "docker build -t $NEXUS_URL/$artifact_id-${pom_version}:$imageTag ."
+
+                        echo 'Pushing image to Nexus repository'
+                        sh "docker push $NEXUS_URL/$artifact_id-${pom_version}:$imageTag"
+                        echo 'Removing image from docker'
+                        sh "docker image rm -f $NEXUS_URL/$artifact_id-${pom_version}:$imageTag"
+                    } else {
+                        error "\031[32m*** File: ${artifactPath}, could not be found\031[0m";
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Kube') {
+            steps {
+                echo "--- STAGE Deploy artifact to Kubernetes for environment: STAGE ---"
+
+                script {
+                    def pom_version = "${pom.version.toLowerCase()}"
+                    def imageTag = "${BUILD_NUMBER}"
+                    def deploymentFile = "./.kube/deployment.yml"
+
+                     // On vérifie que le fichier de déploiement pour l'environnement choisi existe
+                     if (!fileExists(deploymentFile)) {
+                         error("Deployment file not found for environment STAGE': ${deploymentFile}")
+                     }
+
+                     sh "sed -i -E 's/NEXUS_DOCKER_REPOSITORY/$NEXUS_URL/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/POM_VERSION/$pom_version/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_BUILD_NUMBER/$imageTag/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_LOGSTASH_URL/$LOGSTASH_URL/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_LOGSTASH_PORT/$COMIX_LOGSTASH_PORT/g' '${deploymentFile}'"
+
+                     sh "sed -i -E 's/JENKINS_NAMESPACE/comix-stage/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_ENV/stage/g' '${deploymentFile}'"
+
+                     sh "sed -i -E 's/JENKINS_COMIX_CONFIG_SERVER_URL/$JENKINS_COMIX_CONFIG_SERVER_URL/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_CONFIG_SERVER_PORT/$JENKINS_COMIX_CONFIG_SERVER_PORT/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_NODEPORT/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_NODEPORT/g' '${deploymentFile}'"
+
+                     sh "kubectl apply -f ${deploymentFile}"
+                }
+            }
+        }
+
+    }
+}

@@ -1,0 +1,117 @@
+pipeline{
+    agent{
+        label "jenkins-agent-node1"
+    }
+    options {
+        ansiColor('xterm')
+    }
+    tools {
+        jdk 'java21'
+        maven 'maven'
+    }
+    environment {
+        // Jenkins credentials to connect to Github
+        GITHUB_TOKEN = credentials("GITHUB_TOKEN")
+        // Nexus docker repository url
+        NEXUS_URL = credentials("NEXUS_URL")
+        // Jenkins credentials to connect to Nexus
+        NEXUS_CREDENTIALS = "NEXUS_CREDENTIALS"
+        // Logstash server URL
+        LOGSTASH_URL = credentials("LOGSTASH_URL")
+        // Logstash port for Comix index
+        COMIX_LOGSTASH_PORT = credentials("COMIX_LOGSTASH_PORT")
+        // Application config server url
+        JENKINS_COMIX_CONFIG_SERVER_URL = credentials("COMIX_CONFIG_SERVER_URL_STAGE")
+        // Application config server port
+        JENKINS_COMIX_CONFIG_SERVER_PORT = credentials("COMIX_CONFIG_SERVER_NODEPORT_STAGE")
+        // Application server port
+        JENKINS_COMIX_DISCOVERY_SERVER_PORT = credentials("COMIX_DISCOVERY_SERVER_PORT_STAGE")
+        // Application external forward port
+        JENKINS_COMIX_DISCOVERY_SERVER_NODEPORT = credentials("COMIX_DISCOVERY_SERVER_NODEPORT_STAGE")
+    }
+    parameters {
+      gitParameter branchFilter: 'origin/(.*)', defaultValue: 'master', name: 'BRANCH', type: 'PT_BRANCH'
+      string(name: 'BUILD_VERSION', defaultValue: '', description: 'Version du build (ex: 1.0.0). Si vide, le numéro de build Jenkins sera utilisé.')
+    }
+    stages{
+        stage("Cleanup Workspace"){
+            steps {
+                echo '--- STAGE Cleanup workspace ---'
+                cleanWs()
+            }
+        }
+
+        stage('Checkout from SCM') {
+            steps {
+                echo '--- STAGE Checkout from SCM ---'
+
+                checkout([$class: 'GitSCM',
+                          branches: [[name: "${params.BRANCH}"]],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [],
+                          gitTool: 'Default',
+                          submoduleCfg: [],
+                          userRemoteConfigs: [[credentialsId: 'GITHUB_TOKEN', url: 'https://github.com/twenty-cents/comix-config-server']]
+                        ])
+            }
+        }
+
+        stage("Build Application"){
+            steps {
+                echo '--- STAGE Build Application ---'
+
+                sh "mvn clean package -DskipTests=true"
+            }
+
+        }
+
+        stage('Deploy Kube') {
+            steps {
+                echo "--- STAGE Deploy artifact to Kubernetes for environment: STAGE ---"
+
+                script {
+                    echo 'Retrieve artifact values'
+                    // Read POM xml file using 'readMavenPom' step , this step 'readMavenPom' is included in: https://plugins.jenkins.io/pipeline-utility-steps
+                    def pom = readMavenPom file: "pom.xml";
+                    // Find built artifact under target folder
+                    def filesByGlob = findFiles(glob: "target/*.${pom.packaging}");
+                    // Print some info from the artifact found
+                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
+                    // Extract the path from the File found
+                    def artifactPath = filesByGlob[0].path;
+                    // Assign to a boolean response verifying If the artifact name exists
+                    def artifactExists = fileExists artifactPath;
+                    def artifact_id = pom.artifactId;
+
+                    def pom_version = "${pom.version.toLowerCase()}"
+                    // Utilise la version du build fournie en paramètre, sinon utilise le numéro de build Jenkins
+                    def imageTag = params.BUILD_VERSION ? params.BUILD_VERSION : "${BUILD_NUMBER}"
+                    echo "Using image tag: ${imageTag}"
+                    def deploymentFile = "./.kube/deployment.yml"
+
+                     // On vérifie que le fichier de déploiement pour l'environnement choisi existe
+                     if (!fileExists(deploymentFile)) {
+                         error("Deployment file not found for environment STAGE': ${deploymentFile}")
+                     }
+
+                     sh "sed -i -E 's/NEXUS_DOCKER_REPOSITORY/$NEXUS_URL/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/POM_VERSION/$pom_version/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_BUILD_NUMBER/$imageTag/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_LOGSTASH_URL/$LOGSTASH_URL/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_LOGSTASH_PORT/$COMIX_LOGSTASH_PORT/g' '${deploymentFile}'"
+
+                     sh "sed -i -E 's/JENKINS_NAMESPACE/comix-stage/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_ENV/stage/g' '${deploymentFile}'"
+
+                     sh "sed -i -E 's/JENKINS_COMIX_CONFIG_SERVER_URL/$JENKINS_COMIX_CONFIG_SERVER_URL/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_CONFIG_SERVER_PORT/$JENKINS_COMIX_CONFIG_SERVER_PORT/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_DISCOVERY_SERVER_PORT/$JENKINS_COMIX_DISCOVERY_SERVER_PORT/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_DISCOVERY_SERVER_NODEPORT/$JENKINS_COMIX_DISCOVERY_SERVER_NODEPORT/g' '${deploymentFile}'"
+
+                     sh "kubectl apply -f ${deploymentFile}"
+                }
+            }
+        }
+
+    }
+}

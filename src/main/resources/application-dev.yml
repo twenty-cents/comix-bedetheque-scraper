@@ -1,0 +1,32 @@
+application:
+  downloads:
+    localcache:
+      active: true
+      basepath: '@project.basedir@/target/classes/static/medias'
+  http:
+    medias:
+      authors:
+        photo:
+          hd: http://localhost:8091/medias/bedetheque/authors/photo/hd/
+          thumbs: http://localhost:8091/medias/bedetheque/authors/photo/thumbs/
+      default:
+        unavailable: http://localhost:8091/images/na.png
+      graphic-novels:
+        cover-back:
+          hd: http://localhost:8091/medias/bedetheque/graphic-novels/cover-back/hd/
+          thumbs: http://localhost:8091/medias/bedetheque/graphic-novels/cover-back/thumbs/
+        cover-front:
+          hd: http://localhost:8091/medias/bedetheque/graphic-novels/cover-front/hd/
+          thumbs: http://localhost:8091/medias/bedetheque/graphic-novels/cover-front/thumbs/
+        page-example:
+          hd: http://localhost:8091/medias/bedetheque/graphic-novels/page-example/hd/
+          thumbs: http://localhost:8091/medias/bedetheque/graphic-novels/page-example/thumbs/
+      series:
+        cover-front:
+          thumbs: http://localhost:8091/medias/bedetheque/series/cover-front/thumbs/
+        page-example:
+          hd: http://localhost:8091/medias/bedetheque/series/page-example/hd/
+          thumbs: http://localhost:8091/medias/bedetheque/series/page-example/thumbs/
+      user:
+        avatar:
+          thumbs: http://localhost:8091/medias/bedetheque/ratings/avatar/
