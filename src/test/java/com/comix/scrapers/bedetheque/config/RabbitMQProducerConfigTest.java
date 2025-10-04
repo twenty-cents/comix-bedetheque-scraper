@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
     "producer.retry.max-interval=5000",
     "producer.retry.multiplier=2.5"
 })
-class RabbitMQProducerConfigTest {
+class RabbitMQProducerConfigTest extends AbstractIntegrationTest {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
