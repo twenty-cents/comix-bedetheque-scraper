@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.comix.scrapers</groupId>
-    <artifactId>bedetheque-scraper</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>bedetheque-scraper</name>
+    <artifactId>comix-bedetheque-scraper</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>comix-bedetheque-scraper</name>
     <description>An API for scraping metadata from https://www.bedetheque.com</description>
     <url/>
     <licenses>
