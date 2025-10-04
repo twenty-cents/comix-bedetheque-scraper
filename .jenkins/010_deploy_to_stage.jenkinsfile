@@ -28,6 +28,9 @@ pipeline{
         JENKINS_COMIX_DISCOVERY_SERVER_URL = credentials("COMIX_DISCOVERY_SERVER_URL_STAGE")
         // Application server port
         JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT = credentials("COMIX_BEDETHEQUE_SCRAPER_PORT_STAGE")
+        JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_URL = credentials("COMIX_BEDETHEQUE_SCRAPER_DB_URL_STAGE")
+        JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME = credentials("COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME_STAGE")
+        JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD = credentials("COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD_STAGE")
     }
     parameters {
       gitParameter branchFilter: 'origin/(.*)', defaultValue: 'master', name: 'BRANCH', type: 'PT_BRANCH'
@@ -174,6 +177,10 @@ pipeline{
                      sh "sed -i -E 's/JENKINS_COMIX_CONFIG_SERVER_PORT/$JENKINS_COMIX_CONFIG_SERVER_PORT/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_DISCOVERY_SERVER_URL/$JENKINS_COMIX_DISCOVERY_SERVER_URL/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT/g' '${deploymentFile}'"
+
+                     sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_URL/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_URL/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD/g' '${deploymentFile}'"
 
                      sh "kubectl apply -f ${deploymentFile}"
                 }
