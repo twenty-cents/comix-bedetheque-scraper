@@ -24,6 +24,8 @@ pipeline{
         JENKINS_COMIX_CONFIG_SERVER_URL = credentials("COMIX_CONFIG_SERVER_URL_STAGE")
         // Application config server port
         JENKINS_COMIX_CONFIG_SERVER_PORT = credentials("COMIX_CONFIG_SERVER_NODEPORT_STAGE")
+        // Discovery server url
+        JENKINS_COMIX_DISCOVERY_SERVER_URL = credentials("COMIX_DISCOVERY_SERVER_URL_STAGE")
         // Application server port
         JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT = credentials("COMIX_BEDETHEQUE_SCRAPER_PORT_STAGE")
         // Application external forward port
@@ -172,6 +174,7 @@ pipeline{
 
                      sh "sed -i -E 's/JENKINS_COMIX_CONFIG_SERVER_URL/$JENKINS_COMIX_CONFIG_SERVER_URL/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_CONFIG_SERVER_PORT/$JENKINS_COMIX_CONFIG_SERVER_PORT/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_COMIX_DISCOVERY_SERVER_URL/$JENKINS_COMIX_DISCOVERY_SERVER_URL/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_NODEPORT/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_NODEPORT/g' '${deploymentFile}'"
 

@@ -24,6 +24,8 @@ pipeline{
         JENKINS_COMIX_CONFIG_SERVER_URL = credentials("COMIX_CONFIG_SERVER_URL_STAGE")
         // Application config server port
         JENKINS_COMIX_CONFIG_SERVER_PORT = credentials("COMIX_CONFIG_SERVER_NODEPORT_STAGE")
+        // Discovery server url
+        JENKINS_COMIX_DISCOVERY_SERVER_URL = credentials("COMIX_DISCOVERY_SERVER_URL_STAGE")
         // Application server port
         JENKINS_COMIX_DISCOVERY_SERVER_PORT = credentials("COMIX_DISCOVERY_SERVER_PORT_STAGE")
         // Application external forward port

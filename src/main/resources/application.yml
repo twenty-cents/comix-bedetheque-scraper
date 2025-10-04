@@ -97,7 +97,7 @@ spring:
   application:
     name: bedetheque-scraper-service
   config:
-    import: optional:configserver:http://localhost:8888
+    import: optional:configserver:http://${SPRING_CLOUD_CONFIG_URI}
   jackson:
     default-property-inclusion: non_null
   main:
