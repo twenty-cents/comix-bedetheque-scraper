@@ -4,6 +4,7 @@ import com.comix.scrapers.bedetheque.entity.OutboxMessage;
 import com.comix.scrapers.bedetheque.repository.OutboxMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,6 +25,11 @@ public class OutboxMessagePublisher {
     @SchedulerLock(name = "publishPendingOutboxMessages",
             lockAtLeastFor = "${outbox.publisher.lock-at-least-for}",
             lockAtMostFor = "${outbox.publisher.lock-at-most-for}")
+    @ConditionalOnProperty(
+            value = "outbox.publisher.enabled",
+            havingValue = "true",
+            matchIfMissing = false
+    )
     @Transactional
     public void publishPendingMessages() {
         List<OutboxMessage> messages = outboxRepository.findByStatus(OutboxMessage.Status.PENDING);
