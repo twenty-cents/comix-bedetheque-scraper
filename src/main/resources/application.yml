@@ -3,57 +3,54 @@ application:
   downloads:
     authors:
       photo:
-        hd: ${BS_DOWNLOADS_AUTHORS_PHOTO_HD:@project.basedir@/target/classes/static/medias/bedetheque/authors/photo/hd/}
-        thumbs: ${BS_DOWNLOADS_AUTHORS_PHOTO_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/authors/photo/thumbs/}
+        hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_AUTHORS_PHOTO_HD:@project.basedir@/target/classes/static/medias/bedetheque/authors/photo/hd/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_AUTHORS_PHOTO_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/authors/photo/thumbs/}
     graphic-novels:
       cover-back:
-        hd: ${BS_DOWNLOADS_GRAPHIC_NOVELS_COVER_BACK_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-back/hd/}
-        thumbs: ${BS_DOWNLOADS_GRAPHIC_NOVELS_COVER_BACK_THUMBS:@project.basedir@/target/classes/medias/bedetheque/static/graphic-novels/cover-back/thumbs/}
+        hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_COVER_BACK_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-back/hd/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_COVER_BACK_THUMBS:@project.basedir@/target/classes/medias/bedetheque/static/graphic-novels/cover-back/thumbs/}
       cover-front:
-        hd: ${BS_DOWNLOADS_GRAPHIC_NOVELS_COVER_FRONT_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-front/hd/}
-        thumbs: ${BS_DOWNLOADS_GRAPHIC_NOVELS_COVER_FRONT_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-front/thumbs/}
+        hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_COVER_FRONT_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-front/hd/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_COVER_FRONT_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-front/thumbs/}
       page-example:
-        hd: ${BS_DOWNLOADS_GRAPHIC_NOVELS_PAGE_EXAMPLE_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/page-example/hd/}
-        thumbs: ${BS_DOWNLOADS_GRAPHIC_NOVELS_PAGE_EXAMPLE_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/page-example/thumbs/}
-    localcache:
-      active: ${BS_CACHE_ACTIVE:false}
-      basepath: ${BS_SHARED_STORAGE_PATH:/mnt/shared/bubbles-manager/dev/medias/bedetheque}
+        hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_PAGE_EXAMPLE_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/page-example/hd/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_PAGE_EXAMPLE_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/page-example/thumbs/}
     series:
       cover-front:
-        thumbs: ${BS_DOWNLOADS_SERIES_COVER_FRONT_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/series/cover-front/thumbs/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_SERIES_COVER_FRONT_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/series/cover-front/thumbs/}
       page-example:
-        hd: ${BS_DOWNLOADS_SERIES_PAGE_EXAMPLE_HD:@project.basedir@/target/classes/static/medias/bedetheque/series/page-example/hd/}
-        thumbs: ${BS_DOWNLOADS_SERIES_PAGE_EXAMPLE_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/series/page-example/thumbs/}
+        hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_SERIES_PAGE_EXAMPLE_HD:@project.basedir@/target/classes/static/medias/bedetheque/series/page-example/hd/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_SERIES_PAGE_EXAMPLE_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/series/page-example/thumbs/}
     user:
       avatar:
-        thumbs: ${BS_DOWNLOADS_RATINGS_AVATARS:@project.basedir@/target/classes/static/medias/bedetheque/ratings/avatar/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_RATINGS_AVATARS:@project.basedir@/target/classes/static/medias/bedetheque/ratings/avatar/}
   http:
     medias:
       authors:
         photo:
-          hd: ${BS_HTTP_MEDIAS_AUTHORS_PHOTO_HD:https://bedetheque-scraper.home.lab/authors/photo/hd/}
-          thumbs: ${BS_HTTP_MEDIAS_AUTHORS_PHOTO_THUMBS:https://bedetheque-scraper.home.lab/authors/photo/thumbs/}
+          hd: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_AUTHORS_PHOTO_HD:https://bedetheque-scraper.home.lab/authors/photo/hd/}
+          thumbs: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_AUTHORS_PHOTO_THUMBS:https://bedetheque-scraper.home.lab/authors/photo/thumbs/}
       default:
-        unavailable: ${BS_HTTP_MEDIAS_DEFAULT_UNAVAILABLE:https://bedetheque-scraper.home.lab/images/na.png}
+        unavailable: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_DEFAULT_UNAVAILABLE:https://bedetheque-scraper.home.lab/images/na.png}
       graphic-novels:
         cover-back:
-          hd: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_BACK_HD:https://bedetheque-scraper.home.lab/graphic-novels/cover-back/hd/}
-          thumbs: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_BACK_THUMBS:https://bedetheque-scraper.home.lab/graphic-novels/cover-back/thumbs/}
+          hd: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_BACK_HD:https://bedetheque-scraper.home.lab/graphic-novels/cover-back/hd/}
+          thumbs: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_BACK_THUMBS:https://bedetheque-scraper.home.lab/graphic-novels/cover-back/thumbs/}
         cover-front:
-          hd: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_FRONT_HD:https://bedetheque-scraper.home.lab/graphic-novels/cover-front/hd/}
-          thumbs: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_FRONT_THUMBS:https://bedetheque-scraper.home.lab/graphic-novels/cover-front/thumbs/}
+          hd: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_FRONT_HD:https://bedetheque-scraper.home.lab/graphic-novels/cover-front/hd/}
+          thumbs: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_GRAPHIC_NOVELS_COVER_FRONT_THUMBS:https://bedetheque-scraper.home.lab/graphic-novels/cover-front/thumbs/}
         page-example:
-          hd: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_PAGE_EXAMPLE_HD:https://bedetheque-scraper.home.lab/graphic-novels/page-example/hd/}
-          thumbs: ${BS_HTTP_MEDIAS_GRAPHIC_NOVELS_PAGE_EXAMPLE_THUMBS:https://bedetheque-scraper.home.lab/graphic-novels/page-example/thumbs/}
+          hd: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_GRAPHIC_NOVELS_PAGE_EXAMPLE_HD:https://bedetheque-scraper.home.lab/graphic-novels/page-example/hd/}
+          thumbs: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_GRAPHIC_NOVELS_PAGE_EXAMPLE_THUMBS:https://bedetheque-scraper.home.lab/graphic-novels/page-example/thumbs/}
       series:
         cover-front:
-          thumbs: ${BS_HTTP_MEDIAS_SERIES_COVER_FRONT_THUMBS:https://bedetheque-scraper.home.lab/series/cover-front/thumbs/}
+          thumbs: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_SERIES_COVER_FRONT_THUMBS:https://bedetheque-scraper.home.lab/series/cover-front/thumbs/}
         page-example:
-          hd: ${BS_HTTP_MEDIAS_SERIES_PAGE_EXAMPLE_HD:https://bedetheque-scraper.home.lab/series/page-example/hd/}
-          thumbs: ${BS_HTTP_MEDIAS_SERIES_PAGE_EXAMPLE_THUMBS:https://bedetheque-scraper.home.lab/series/page-example/thumbs/}
+          hd: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_SERIES_PAGE_EXAMPLE_HD:https://bedetheque-scraper.home.lab/series/page-example/hd/}
+          thumbs: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_SERIES_PAGE_EXAMPLE_THUMBS:https://bedetheque-scraper.home.lab/series/page-example/thumbs/}
       user:
         avatar:
-          thumbs: ${BS_HTTP_MEDIAS_RATINGS_AVATARS:https://bedetheque-scraper.home.lab/ratings/avatar/}
+          thumbs: ${BEDETHEQUE_SCRAPER_HTTP_MEDIAS_RATINGS_AVATARS:https://bedetheque-scraper.home.lab/ratings/avatar/}
   lang:
     accepted_languages: en
     defaultLanguage: en
@@ -67,8 +64,6 @@ application:
   name: bedetheque-scraper-service
   scraping:
     latency: 1
-  security:
-    front-url: ${BS_FRONT_BASE_URL}
 bedetheque:
   url:
     author:
