@@ -1,6 +1,9 @@
 application:
   description: An API to scrap metadatas from the website http://www.bedetheque.com
   downloads:
+    localcache:
+      active: ${BEDETHEQUE_SCRAPER_CACHE_ACTIVE:false}
+      basepath: ${BEDETHEQUE_SCRAPER_SHARED_STORAGE_PATH:/mnt/shared/comix/dev/medias/bedetheque}
     authors:
       photo:
         hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_AUTHORS_PHOTO_HD:@project.basedir@/target/classes/static/medias/bedetheque/authors/photo/hd/}
