@@ -22,7 +22,7 @@ public class MvcConfig implements WebMvcConfigurer {
     @Value("${application.downloads.localcache.basepath}")
     private String sharedStoragePath;
 
-    @Value("${application.downloads.localcache.mediasUrlPattern")
+    @Value("${application.downloads.localcache.mediasUrlPattern}")
     private String mediasUrlPattern;
 
 
