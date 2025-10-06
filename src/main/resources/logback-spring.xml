@@ -5,6 +5,8 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="unknown-service"/>
+
     <springProfile name="!dev">
         <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
             <destination>${LOGSTASH_URL}:${LOGSTASH_PORT}</destination>
@@ -17,7 +19,7 @@
                         <pattern>
                             {
                             "severity": "%level",
-                            "service": "${springAppName:-}",
+                            "service": "${APP_NAME}",
                             "trace": "%X{X-B3-TraceId:-}",
                             "span": "%X{X-B3-SpanId:-}",
                             "exportable": "%X{X-Span-Export:-}",
@@ -25,9 +27,8 @@
                             "thread": "%thread",
                             "class": "%logger{40}",
                             "rest": "%message",
-                            "app": "freebds",
-                            "component": "bedetheque-scraper",
-                            "env": "${BEDETHEQUE_SCRAPER_ENV}"
+                            "app": "comix",
+                            "env": "${SPRING_PROFILES_ACTIVE:-}"
                             }
                         </pattern>
                     </pattern>
