@@ -22,6 +22,10 @@ public class MvcConfig implements WebMvcConfigurer {
     @Value("${application.downloads.localcache.basepath}")
     private String sharedStoragePath;
 
+    @Value("${application.downloads.localcache.mediasUrlPattern")
+    private String mediasUrlPattern;
+
+
     /**
      * Add a local storage for static files under /medias/**
      *
@@ -38,7 +42,7 @@ public class MvcConfig implements WebMvcConfigurer {
 
         registry
                 // 1. The URL pattern: any request starting with /medias/** will be handled by this handler.
-                .addResourceHandler("/medias/**")
+                .addResourceHandler(mediasUrlPattern)
                 // 2. The physical location: Spring will look for matching files at this location.
                 .addResourceLocations(mediasLocation);
     }
