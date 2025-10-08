@@ -31,6 +31,11 @@ pipeline{
         JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_URL = credentials("COMIX_BEDETHEQUE_SCRAPER_DB_URL_STAGE")
         JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME = credentials("COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME_STAGE")
         JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD = credentials("COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD_STAGE")
+        // RabbitMQ
+        SPRING_RABBITMQ_HOST = credentials("RABBITMQ_HOST")
+        SPRING_RABBITMQ_PORT = credentials("RABBITMQ_PORT")
+        SPRING_RABBITMQ_USERNAME = credentials("RABBITMQ_USERNAME")
+        SPRING_RABBITMQ_PASSWORD = credentials("RABBITMQ_PASSWORD")
     }
     parameters {
       gitParameter branchFilter: 'origin/(.*)', defaultValue: 'master', name: 'BRANCH', type: 'PT_BRANCH'
@@ -181,6 +186,11 @@ pipeline{
                      sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_URL/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_URL/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD/g' '${deploymentFile}'"
+
+                     sh "sed -i -E 's/SPRING_RABBITMQ_HOST/$SPRING_RABBITMQ_HOST/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/SPRING_RABBITMQ_PORT/$SPRING_RABBITMQ_PORT/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/SPRING_RABBITMQ_USERNAME/$SPRING_RABBITMQ_USERNAME/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/SPRING_RABBITMQ_PASSWORD/$SPRING_RABBITMQ_PASSWORD/g' '${deploymentFile}'"
 
                      sh "kubectl apply -f ${deploymentFile}"
                 }

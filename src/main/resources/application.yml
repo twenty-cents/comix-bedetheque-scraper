@@ -104,6 +104,8 @@ spring:
   mustache:
     check-template-location: false
   rabbitmq:
+    host: ${BEDETHEQUE_SCRAPER_RABBITMQ_HOST:localhost}
+    port: ${BEDETHEQUE_SCRAPER_RABBITMQ_PORT:5672}
     username: ${BEDETHEQUE_SCRAPER_RABBITMQ_USERNAME:dev}
     password: ${BEDETHEQUE_SCRAPER_RABBITMQ_PASSWORD:dev}
   datasource:
@@ -122,18 +124,18 @@ spring:
 amqp:
   queue:
     author:
-      name: ${BEDETHEQUE_SCRAPER_QUEUE_AUTHOR:comix.author.add}
+      name: ${AMQP_QUEUE_AUTHOR_NAME:comix.author.add}
     comic:
-      name: ${BEDETHEQUE_SCRAPER_QUEUE_COMIC:comix.comic.add}
+      name: ${AMQP_QUEUE_COMIC_NAME:comix.comic.add}
     serie:
-      name: ${BEDETHEQUE_SCRAPER_QUEUE_SERIE:comix.serie.add}
+      name: ${AMQP_QUEUE_SERIE_NAME:comix.serie.add}
   exchange:
     author:
-      name: ${BEDETHEQUE_SCRAPER_EXCHANGE_AUTHOR:comix.author.exchange}
+      name: ${AMQP_EXCHANGE_AUTHOR_NAME:comix.author.exchange}
     comic:
-      name: ${BEDETHEQUE_SCRAPER_EXCHANGE_COMIC:comix.comic.exchange}
+      name: ${AMQP_EXCHANGE_COMIC_NAME:comix.comic.exchange}
     serie:
-      name: ${BEDETHEQUE_SCRAPER_EXCHANGE_SERIE:comix.serie.exchange}
+      name: ${AMQP_EXCHANGE_SERIE_NAME:comix.serie.exchange}
 producer:
   retry:
     max-attempts: ${BEDETHEQUE_SCRAPER_MAX_ATTEMPTS:3}
