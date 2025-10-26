@@ -1,6 +1,7 @@
 package com.comix.scrapers.bedetheque.client.scraper;
 
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.*;
+import com.comix.scrapers.bedetheque.client.model.serie.Serie;
 import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -268,7 +269,40 @@ public class GraphicNovelScraper extends GenericScraper {
         return count;
     }
 
+    private Serie scrapSerie(String from, Element doc) {
+        Serie serie = new Serie();
+        Element serieElement;
+        if (from.equals("graphicnovel")) {
+            serieElement = doc.selectFirst("div.panier > h1 > a");
+        } else {
+            serieElement = doc.selectFirst("div.serie > h1 > a");
+        }
+        if (serieElement != null) {
+            serie.setName(serieElement.ownText());
+            serie.setUrl(attr(serieElement, HTML.Attribute.HREF));
+            serie.setId(scrapSerieIdFromUrl(serie.getUrl()));
+        }
+        return serie;
+    }
+
+    private String scrapSerieIdFromUrl(String url) {
+        if(url == null) {
+            return null;
+        }
+        String id = null;
+        url = Strings.CS.remove(url, HTML_EXTENSION);
+        String[] parts = StringUtils.split(url, "-");
+        if (parts.length >= 2 && StringUtils.isNumeric(parts[1])) {
+            id = parts[1];
+        }
+        log.debug("Bedetheque serie Id = {} for the url {}", id, url);
+        return id;
+    }
+
     private GraphicNovel scrapElement(String from, String url, Element doc, Element gcElement) {
+        // Serie
+        Serie serie = scrapSerie(from, doc);
+
         // Album main
         Element title;
         if (from.equals("graphicnovel")) {
@@ -291,6 +325,7 @@ public class GraphicNovelScraper extends GenericScraper {
         }
 
         var graphicNovel = new GraphicNovel();
+        graphicNovel.setSerie(serie);
         graphicNovel.setTome(tome);
         graphicNovel.setTomeNum(tomeNum);
         graphicNovel.setNumEdition(getNumEdition(title));

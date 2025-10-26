@@ -310,7 +310,6 @@ public class AuthorScraper extends GenericScraper {
                 serie.setCoverUrl(img.attr("src"));
             }
             serie.setCoverTitle(title);
-            serie.setIsInCollection(false);
 
             seriesToDiscover.add(serie);
         }

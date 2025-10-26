@@ -15,6 +15,4 @@ public class ToReadSerie {
     private String url;
     private String coverUrl;
     private String coverTitle;
-    // FreeBds attributes
-    private Boolean isInCollection;
 }

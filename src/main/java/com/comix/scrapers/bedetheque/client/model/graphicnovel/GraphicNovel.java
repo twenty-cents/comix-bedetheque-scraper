@@ -1,5 +1,6 @@
 package com.comix.scrapers.bedetheque.client.model.graphicnovel;
 
+import com.comix.scrapers.bedetheque.client.model.serie.Serie;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class GraphicNovel {
     private String copyright;
     private String scrapUrl;
     private Ratings ratings;
+    private Serie serie;
 
     public void addAuthor(AuthorRole authorRole) {
         authors.add(authorRole);

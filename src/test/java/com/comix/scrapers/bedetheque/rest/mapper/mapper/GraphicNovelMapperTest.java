@@ -3,6 +3,7 @@ package com.comix.scrapers.bedetheque.rest.mapper.mapper;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.AuthorRole;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovel;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.Ratings;
+import com.comix.scrapers.bedetheque.client.model.serie.Serie;
 import com.comix.scrapers.bedetheque.rest.mapper.GraphicNovelMapper;
 import com.comix.scrapers.bedetheque.rest.v1.dto.GraphicNovelDto;
 import org.junit.jupiter.api.DisplayName;
@@ -53,7 +54,8 @@ class GraphicNovelMapperTest {
         "pageThumbnailUrl",
         "copyright",
         "scrapUrl",
-        new Ratings()
+        new Ratings(),
+                new Serie()
         );
 
         // WHEN: on appelle la méthode de mapping

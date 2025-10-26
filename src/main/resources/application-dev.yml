@@ -1,3 +1,4 @@
+
 spring:
   config:
     import: optional:configserver:http://localhost:8888
@@ -33,3 +34,5 @@ application:
       user:
         avatar:
           thumbs: http://localhost:8091/medias/bedetheque/ratings/avatar/
+server:
+  port: 8091

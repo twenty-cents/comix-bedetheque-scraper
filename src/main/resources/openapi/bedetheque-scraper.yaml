@@ -1026,9 +1026,6 @@ components:
           type: string
           description: The serie cover title.
           maxLength: 255
-        isInCollection:
-          type: boolean
-          description: Indicates if the serie is in the collection.
     AuthorRole:
       title: AuthorRole
       type: object
@@ -1133,6 +1130,8 @@ components:
           type: string
         ratings:
           $ref: '#/components/schemas/Ratings'
+        serie:
+          $ref: '#/components/schemas/Serie'
     Ratings:
       title: Ratings
       type: object
@@ -1258,8 +1257,6 @@ components:
           type: string
         url:
           type: string
-        isInCollection:
-          type: boolean
       x-tags:
         - serie
     SeriePagination:
@@ -1301,8 +1298,6 @@ components:
           type: string
         coverTitle:
           type: string
-        isInCollection:
-          type: boolean
       x-tags:
         - serie
     GraphicNovelSideListItem:
@@ -1321,10 +1316,6 @@ components:
           type: string
         url:
           type: string
-        isInCollection:
-          type: boolean
-        isInWishlist:
-          type: boolean
     AutocompleteSearch:
       title: AutocompleteSearch
       type: object
@@ -2593,7 +2584,6 @@ components:
             url: https://www.bedetheque.com/serie-36209-BD-100-Bullets-albums-cartonnes.html
             coverUrl: https://www.bedetheque.com/media/Couvertures/Couv_158212.jpg
             coverTitle: 100 Bullets (albums cartonnés)
-            isInCollection: false
     ScrapAllRepublicationsResponseExample:
       summary: scrapAllRepublicationsResponseExample
       description: An response example of all republications of a graphic novel scraped from https://www.bedetheque.com
@@ -3611,94 +3601,77 @@ components:
           - externalId: '29545'
             title: Gastoon
             url: https://www.bedetheque.com/serie-29545-BD-Gastoon.html
-            isInCollection: false
           - externalId: '29545'
             title: Gastoon
             url: https://www.bedetheque.com/serie-29545-BD-Gastoon.html
-            isInCollection: false
           - externalId: '56509'
             title: Gaston (2017) (60e anniversaire)
             url: https://www.bedetheque.com/serie-56509-BD-Gaston-2017-60e-anniversaire.html
-            isInCollection: false
           - externalId: '57891'
             title: Gomer Goof (Gaston en anglais)
             url: https://www.bedetheque.com/serie-57891-BD-Gomer-Goof-Gaston-en-anglais.html
-            isInCollection: false
           - externalId: '1243'
             title: Robinsons du rail (Les)
             url: https://www.bedetheque.com/serie-1243-BD-Robinsons-du-rail.html
-            isInCollection: false
           - externalId: '9'
             title: Spirou et Fantasio
             url: https://www.bedetheque.com/serie-9-BD-Spirou-et-Fantasio.html
-            isInCollection: false
         toReadSeries:
           - externalId: '33'
             title: Achille Talon
             url: https://www.bedetheque.com/serie-33-BD-Achille-Talon.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/AchilleTalon_11_13.jpg
             coverTitle: Achille Talon
-            isInCollection: false
           - externalId: '9896'
             title: Baston 5
             url: https://www.bedetheque.com/serie-9896-BD-Baston-5.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/Couv_17795.jpg
             coverTitle: Baston 5
-            isInCollection: false
           - externalId: '83570'
             title: Brêles de la redac' (Les)
             url: https://www.bedetheque.com/serie-83570-BD-Breles-de-la-redac.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/Couv_470390.jpg
             coverTitle: Brêles de la redac' (Les)
-            isInCollection: false
           - externalId: '14757'
             title: C - ©
             url: https://www.bedetheque.com/serie-14757-BD-C.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/PremieresPousses18_27012007.jpg
             coverTitle: C - ©
-            isInCollection: false
           - externalId: '30701'
             title: Gaston (Sélection)
             url: https://www.bedetheque.com/serie-30701-BD-Gaston-Selection.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/Couv_145505.jpg
             coverTitle: Gaston (Sélection)
-            isInCollection: false
           - externalId: '2895'
             title: Génie des Alpages (Le)
             url: https://www.bedetheque.com/serie-2895-BD-Genie-des-Alpages.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/Couv_11144.jpg
             coverTitle: Génie des Alpages (Le)
-            isInCollection: false
           - externalId: '125'
             title: Léonard
             url: https://www.bedetheque.com/serie-125-BD-Leonard.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/leonard1_03112002.jpg
             coverTitle: Léonard
-            isInCollection: false
           - externalId: '8040'
             title: Modeste et Pompon (Franquin)
             url: https://www.bedetheque.com/serie-8040-BD-Modeste-et-Pompon-Franquin.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/ModestePompon60avent.jpg
             coverTitle: Modeste et Pompon (Franquin)
-            isInCollection: false
           - externalId: '41759'
             title: Monde de Minito (Le)
             url: https://www.bedetheque.com/serie-41759-BD-Monde-de-Minito.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/Couv_208081.jpg
             coverTitle: Monde de Minito (Le)
-            isInCollection: false
           - externalId: '32817'
             title: Tato
             url: https://www.bedetheque.com/serie-32817-BD-Tato.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/Couv_158802.jpg
             coverTitle: Tato
-            isInCollection: false
           - externalId: '1097'
             title: Trombone illustré (Le)
             url: https://www.bedetheque.com/serie-1097-BD-Trombone-illustre.html
             coverUrl: https://www.bedetheque.com/cache/thb_couv/Couv_4676.jpg
             coverTitle: Trombone illustré (Le)
-            isInCollection: false
         graphicNovelSideList:
           - externalId: '3742'
             tome: '0'

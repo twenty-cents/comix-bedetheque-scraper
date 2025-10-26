@@ -15,8 +15,6 @@ public class SerieToDiscover implements Comparable<SerieToDiscover> {
     private String url;
     private String coverUrl;
     private String coverTitle;
-    // FreeBds attributes
-    private Boolean isInCollection;
 
     public int compareTo(SerieToDiscover s2){
         if(title.compareTo(s2.title) == 0) {

@@ -381,7 +381,6 @@ public class SerieScraper extends GenericScraper {
                 linkedSerie.setUrl(a.attr("href"));
                 linkedSerie.setTitle(a.attr(HTML.Attribute.TITLE.toString()));
                 linkedSerie.setExternalId(this.getIdBel(a.attr("href")));
-                linkedSerie.setIsInCollection(false);
 
                 linkedSeries.add(linkedSerie);
             }
@@ -404,7 +403,6 @@ public class SerieScraper extends GenericScraper {
                 toReadSerie.setExternalId(this.getIdBel(a.attr("href")));
                 toReadSerie.setCoverUrl(attr(img, HTML.Attribute.SRC));
                 toReadSerie.setCoverTitle(attr(img, HTML.Attribute.ALT));
-                toReadSerie.setIsInCollection(false);
 
                 toReadSeries.add(toReadSerie);
             }

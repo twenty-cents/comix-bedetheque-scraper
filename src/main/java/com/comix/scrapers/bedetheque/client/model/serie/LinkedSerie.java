@@ -13,6 +13,4 @@ public class LinkedSerie {
     private String externalId;
     private String title;
     private String url;
-    // FreeBds attributes
-    private Boolean isInCollection;
 }
