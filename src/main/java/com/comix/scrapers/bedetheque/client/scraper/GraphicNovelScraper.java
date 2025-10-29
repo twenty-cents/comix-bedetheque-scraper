@@ -338,6 +338,7 @@ public class GraphicNovelScraper extends GenericScraper {
         graphicNovel.setPublisher(getPublisher(infos));
         graphicNovel.setCollection(getCollection(infos));
         graphicNovel.setCollectionUrl(getCollectionUrl(infos));
+        graphicNovel.setCycle(getCycle(infos));
         graphicNovel.setIsbn(getIsbn(infos));
         graphicNovel.setTotalPages(getTotalPages(infos));
         graphicNovel.setFormat(getFormat(infos));
@@ -603,6 +604,16 @@ public class GraphicNovelScraper extends GenericScraper {
             LOGGER.debug("Failed to scrap collectionUrl");
         }
         return collectionUrl;
+    }
+
+    private String getCycle(Element e) {
+        String cycle = null;
+        try {
+            cycle = getInfoPropertyValue(e, "Cycle");
+        } catch (Exception ex) {
+            LOGGER.debug("Failed to scrap cycle");
+        }
+        return cycle;
     }
 
     private String getIsbn(Element e) {

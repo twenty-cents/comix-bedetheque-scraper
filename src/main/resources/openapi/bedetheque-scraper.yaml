@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: 'bedetheque-scraper'
-  version: '1.0'
+  version: '1.0.2'
   description: 'An REST API for scraping data from https://www.bedetheque.com'
   contact:
     name: info@bedetheque-scraper
@@ -1091,6 +1091,8 @@ components:
         collection:
           type: string
         collectionUrl:
+          type: string
+        cycle:
           type: string
         isbn:
           type: string

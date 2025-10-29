@@ -25,6 +25,7 @@ public class GraphicNovel {
     private String publisher;
     private String collection;
     private String collectionUrl;
+    private String cycle;
     private String isbn;
     private Integer totalPages;
     private String format;

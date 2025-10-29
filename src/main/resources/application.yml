@@ -124,11 +124,11 @@ spring:
 amqp:
   queue:
     author:
-      name: ${AMQP_QUEUE_AUTHOR_NAME:comix.author.add}
+      name: ${AMQP_QUEUE_AUTHOR_NAME:comix.author.synchronize}
     comic:
-      name: ${AMQP_QUEUE_COMIC_NAME:comix.comic.add}
+      name: ${AMQP_QUEUE_COMIC_NAME:comix.comic.synchronize}
     serie:
-      name: ${AMQP_QUEUE_SERIE_NAME:comix.serie.add}
+      name: ${AMQP_QUEUE_SERIE_NAME:comix.serie.synchronize}
   exchange:
     author:
       name: ${AMQP_EXCHANGE_AUTHOR_NAME:comix.author.exchange}
