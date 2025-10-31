@@ -34,6 +34,7 @@ public class OutboxMessageProducer {
             outboxMessage.setExchange(exchange);
             outboxMessage.setRoutingKey(routingKey);
             outboxMessage.setPayload(objectMapper.writeValueAsString(payload));
+            outboxMessage.setPayloadType(payload.getClass().getName());
             outboxRepository.save(outboxMessage);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize payload for outbox. Message will be lost! Payload class: {}", payload.getClass().getName(), e);

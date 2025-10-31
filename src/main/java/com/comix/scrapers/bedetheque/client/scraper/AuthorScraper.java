@@ -7,6 +7,7 @@ import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -204,10 +205,16 @@ public class AuthorScraper extends GenericScraper {
         optionalNextAuthor.ifPresent(authorDetails::setNextAuthor);
 
         // Generic author
-        if (authorDetails.getId().isEmpty()) {
+        if (authorDetails.getId() == null) {
+            String[] urlSplit = author.getUrl().split("-");
             authorDetails.setId(author.getUrl().split("-")[1]);
             authorDetails.setNickname(author.getName());
-            authorDetails.setLastname(author.getName());
+
+            if(urlSplit.length >= 4) {
+                String lastname = urlSplit[3];
+                lastname = Strings.CS.remove(lastname, ".html");
+                authorDetails.setLastname(lastname);
+            }
         }
 
         // Download all thumbs in the local server

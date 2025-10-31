@@ -2,6 +2,7 @@ package com.comix.scrapers.bedetheque.service;
 
 import com.comix.scrapers.bedetheque.entity.OutboxMessage;
 import com.comix.scrapers.bedetheque.repository.OutboxMessageRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -20,6 +21,7 @@ public class OutboxMessagePublisher {
 
     private final OutboxMessageRepository outboxRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final ObjectMapper objectMapper;
 
     @Scheduled(fixedDelayString = "${outbox.publisher.fixed-delay}") // Exécute toutes les 10 secondes par défaut
     @SchedulerLock(name = "publishPendingOutboxMessages",
@@ -41,7 +43,13 @@ public class OutboxMessagePublisher {
 
         for (OutboxMessage message : messages) {
             try {
-                rabbitTemplate.convertAndSend(message.getExchange(), message.getRoutingKey(), message.getPayload());
+                // Re-crée l'objet Java à partir du JSON stocké et du type stocké
+                Class<?> payloadType = Class.forName(message.getPayloadType());
+                Object payloadObject = objectMapper.readValue(message.getPayload(), payloadType);
+
+                // Envoie l'objet Java, pas la chaîne de caractères JSON
+                rabbitTemplate.convertAndSend(message.getExchange(), message.getRoutingKey(), payloadObject);
+
                 message.setStatus(OutboxMessage.Status.SENT);
                 outboxRepository.save(message);
             } catch (Exception e) {

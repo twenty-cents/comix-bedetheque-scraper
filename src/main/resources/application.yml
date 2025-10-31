@@ -109,7 +109,7 @@ spring:
     username: ${BEDETHEQUE_SCRAPER_RABBITMQ_USERNAME:dev}
     password: ${BEDETHEQUE_SCRAPER_RABBITMQ_PASSWORD:dev}
   datasource:
-    url: ${BEDETHEQUE_SCRAPER_DB_URL:jdbc:postgresql://localhost:5432/bedetheque_scraper}
+    url: ${BEDETHEQUE_SCRAPER_DB_URL:jdbc:postgresql://localhost:5432/comix?currentSchema=bedetheque_scraper}
     username: ${BEDETHEQUE_SCRAPER_DB_USERNAME:dev}
     password: ${BEDETHEQUE_SCRAPER_DB_PASSWORD:dev}
     driver-class-name: org.postgresql.Driver
@@ -126,14 +126,14 @@ amqp:
     author:
       name: ${AMQP_QUEUE_AUTHOR_NAME:comix.author.synchronize}
     comic:
-      name: ${AMQP_QUEUE_COMIC_NAME:comix.comic.synchronize}
+      name: ${AMQP_QUEUE_COMIC_NAME:comix.comic-book.synchronize}
     serie:
       name: ${AMQP_QUEUE_SERIE_NAME:comix.serie.synchronize}
   exchange:
     author:
       name: ${AMQP_EXCHANGE_AUTHOR_NAME:comix.author.exchange}
     comic:
-      name: ${AMQP_EXCHANGE_COMIC_NAME:comix.comic.exchange}
+      name: ${AMQP_EXCHANGE_COMIC_NAME:comix.comic-book.exchange}
     serie:
       name: ${AMQP_EXCHANGE_SERIE_NAME:comix.serie.exchange}
 producer:

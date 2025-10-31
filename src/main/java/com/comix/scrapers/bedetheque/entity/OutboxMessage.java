@@ -29,7 +29,10 @@ public class OutboxMessage {
 
     @Lob
     @Column(columnDefinition = "TEXT")
-    private String payload; // Le message en JSON
+    private String payload;
+
+    @Column(name = "payload_type", nullable = false)
+    private String payloadType;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;

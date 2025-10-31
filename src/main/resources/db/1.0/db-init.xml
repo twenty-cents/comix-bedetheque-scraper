@@ -36,6 +36,7 @@
             <column name="exchange" type="VARCHAR(255)"/>
             <column name="routing_key" type="VARCHAR(255)"/>
             <column name="payload" type="TEXT"/>
+            <column name="payload_type" type="VARCHAR(255)"/>
             <column name="status" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>

@@ -36,6 +36,7 @@ class GraphicNovelMapperTest {
         "publisher",
         "collection",
         "collectionUrl",
+        "cycle",
         "isbn",
         45,
         "format",

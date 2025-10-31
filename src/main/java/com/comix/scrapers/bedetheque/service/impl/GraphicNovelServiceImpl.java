@@ -76,6 +76,10 @@ public class GraphicNovelServiceImpl implements GraphicNovelService {
         List<GraphicNovel> graphicNovels = graphicNovelScraper.scrapWithAllRepublications(graphicNovelUrl);
         ScrapAllRepublicationsResponseDto scrapAllRepublicationsResponseDto = new ScrapAllRepublicationsResponseDto();
         scrapAllRepublicationsResponseDto.setGraphicNovels(graphicNovelMapper.graphicNovelToGraphicNovelsDto(graphicNovels));
+
+        for (GraphicNovelDto graphicNovelDto : scrapAllRepublicationsResponseDto.getGraphicNovels()) {
+            outboxMessageProducer.saveToOutbox(comicExchangeName, comicQueueName, graphicNovelDto);
+        }
         return scrapAllRepublicationsResponseDto;
     }
 }
