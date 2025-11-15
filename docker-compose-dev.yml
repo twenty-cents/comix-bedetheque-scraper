@@ -1,0 +1,93 @@
+services:
+  # --- Service du serveur NFS ---
+  nfs-server:
+    image: erichough/nfs-server
+    container_name: comix-bedetheque-scraper-dev-nfs-server
+    restart: unless-stopped
+    # Le mode privilégié est requis pour que le serveur NFS puisse gérer les exports
+    privileged: true
+    ports:
+      - "2050:2049"
+    volumes:
+      - comix-bedetheque-scraper-dev-nfs_data:/nfs/share
+    environment:
+      # On définit le partage via une variable d'environnement spécifique à cette image.
+      - NFS_EXPORT_0=/nfs/share *(rw,fsid=0,no_subtree_check,no_root_squash)
+    networks:
+      - comix-net-dev
+
+  postgresql:
+    container_name: comix-bedetheque-scraper-dev-postgres
+    image: postgres
+    environment:
+      POSTGRES_DB: comix
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      PGDATA: /data/postgres
+    volumes:
+      - comix-bedetheque-scraper-dev-postgres:/data/postgres
+      - ./docker/postgres:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+    networks:
+      - comix-net-dev
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: comix-bedetheque-scraper-dev-pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - comix-bedetheque-scraper-dev-pgadmin:/var/lib/pgadmin
+    ports:
+      - "5051:80"
+    networks:
+      - comix-net-dev
+    restart: unless-stopped
+
+  rabbitmq:
+    container_name: comix-bedetheque-scraper-dev-rabbitmq
+    image: rabbitmq:3-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=dev
+      - RABBITMQ_DEFAULT_PASS=dev
+    ports:
+      # Port pour le protocole AMQP
+      - '5673:5672'
+      # Port pour l'interface de management web
+      - '15673:15672'
+    networks:
+      - comix-net-dev
+    volumes:
+      - comix-bedetheque-scraper-dev-rabbitmq_data:/var/lib/rabbitmq/
+    restart: unless-stopped
+
+  vault:
+    container_name: comix-bedetheque-scraper-dev-vault
+    image: hashicorp/vault:latest
+    ports:
+      - "8201:8200"
+    restart: unless-stopped
+    environment:
+      # Démarre Vault en mode dev avec un token root prédéfini
+      - 'VAULT_DEV_ROOT_TOKEN_ID=dev-root-token'
+    cap_add:
+      # Requis pour que Vault puisse verrouiller sa mémoire et ne pas swapper sur le disque
+      - IPC_LOCK
+    networks:
+      - comix-net-dev
+
+networks:
+  comix-net-dev:
+    driver: bridge
+
+# --- Définition du volume NFS ---
+volumes:
+  comix-bedetheque-scraper-dev-nfs_data: {}
+  comix-bedetheque-scraper-dev-postgres:
+  comix-bedetheque-scraper-dev-pgadmin:
+  comix-bedetheque-scraper-dev-rabbitmq_data: {}
+  # Pas de volume pour Vault en mode dev car il est en mémoire

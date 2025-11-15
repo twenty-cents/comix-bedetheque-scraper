@@ -5,6 +5,8 @@ LABEL org.opencontainers.image.title="comix-bedetheque-scraper" \
       org.opencontainers.image.source="https://github.com/twenty-cents/comix-bedetheque-scraper.git" \
       owner="twenty-cents"
 
+RUN apk add --no-cache curl
+
 ARG JAR_FILE=target/*.jar
 WORKDIR /opt/app
 

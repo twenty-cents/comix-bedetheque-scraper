@@ -7,7 +7,7 @@
 
     <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="unknown-service"/>
 
-    <springProfile name="!dev">
+    <springProfile name="!dev &amp; !int &amp; !dev-docker-hybrid">
         <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
             <destination>${LOGSTASH_URL}:${LOGSTASH_PORT}</destination>
             <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
@@ -41,25 +41,12 @@
             <appender-ref ref="LOGSTASH"/>
             <appender-ref ref="CONSOLE" />
         </root>
-
-        <!-- LOG "com.freebds.api.scrapers.bedetheque*" at TRACE level -->
-        <logger name="com.freebds*" level="info" additivity="false">
-            <appender-ref ref="LOGSTASH"/>
-            <appender-ref ref="CONSOLE" />
-        </logger>
-        <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG" />
     </springProfile>
 
-    <springProfile name="dev">
+    <springProfile name="dev | int | dev-docker-hybrid">
         <!-- LOG everything at INFO level -->
         <root level="info">
             <appender-ref ref="CONSOLE" />
         </root>
-
-        <!-- LOG "com.freebds.api.scrapers.bedetheque*" at TRACE level -->
-        <logger name="com.freebds*" level="info" additivity="false">
-            <appender-ref ref="CONSOLE" />
-        </logger>
-        <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG"/>
     </springProfile>
 </configuration>

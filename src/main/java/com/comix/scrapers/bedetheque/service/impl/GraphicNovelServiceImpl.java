@@ -26,10 +26,10 @@ public class GraphicNovelServiceImpl implements GraphicNovelService {
 
     private final OutboxMessageProducer outboxMessageProducer;
 
-    @Value("${amqp.queue.comic.name}")
+    @Value("${amqp.queue.comicBook.name}")
     private String comicQueueName;
 
-    @Value("${amqp.exchange.comic.name}")
+    @Value("${amqp.exchange.comicBook.name}")
     private String comicExchangeName;
 
     public GraphicNovelServiceImpl(GraphicNovelScraper graphicNovelScraper,

@@ -36,7 +36,7 @@ class GraphicNovelScraperIT {
         graphicNovelScraper.setLocalCacheActive(isLocalCacheActive);
         List<GraphicNovel> g = graphicNovelScraper.scrapWithAllRepublications("https://www.bedetheque.com/BD-Asterix-Tome-1-Asterix-le-gaulois-22940.html");
         // Verify
-        assertThat(g).hasSize(26);
+        assertThat(g).hasSize(27);
         GraphicNovel g0 = g.getFirst();
         assertThat(g0.getTome()).isEqualTo("1");
         assertThat(g0.getNumEdition()).isNull();

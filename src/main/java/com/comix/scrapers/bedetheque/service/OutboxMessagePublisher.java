@@ -5,8 +5,8 @@ import com.comix.scrapers.bedetheque.repository.OutboxMessageRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,21 +17,21 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        name = "outbox.publisher.enabled",
+        havingValue = "true",
+        matchIfMissing = false
+)
 public class OutboxMessagePublisher {
 
     private final OutboxMessageRepository outboxRepository;
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
 
-    @Scheduled(fixedDelayString = "${outbox.publisher.fixed-delay}") // Exécute toutes les 10 secondes par défaut
+    @Scheduled(fixedDelayString = "${outbox.publisher.fixed-delay}")
     @SchedulerLock(name = "publishPendingOutboxMessages",
             lockAtLeastFor = "${outbox.publisher.lock-at-least-for}",
             lockAtMostFor = "${outbox.publisher.lock-at-most-for}")
-    @ConditionalOnProperty(
-            value = "outbox.publisher.enabled",
-            havingValue = "true",
-            matchIfMissing = false
-    )
     @Transactional
     public void publishPendingMessages() {
         List<OutboxMessage> messages = outboxRepository.findByStatus(OutboxMessage.Status.PENDING);

@@ -1,0 +1,21 @@
+services:
+  comix-bedetheque-scraper-service:
+    container_name: comix-bedetheque-scraper-service
+    image: comix-bedetheque-scraper-service:local
+    environment:
+      SPRING_PROFILES_ACTIVE: int
+      BEDETHEQUE_SCRAPER_RABBITMQ_HOST: rabbitmq
+    ports:
+      - "18091:18091"
+    networks:
+      - comix-net
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:18091/actuator/health/readiness | grep -q '\"status\":\"UP\"'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  comix-net:
+    external: true

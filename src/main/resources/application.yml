@@ -65,7 +65,7 @@ application:
     web: false
   maven:
     version: '@project.version@'
-  name: bedetheque-scraper-service
+  name: comix-bedetheque-scraper-service
   scraping:
     latency: 1
 bedetheque:
@@ -87,20 +87,23 @@ bedetheque:
       prefix: https://www.bedetheque.com/serie-
     series:
       index-by-letter: https://www.bedetheque.com/bandes_dessinees_%s.html
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,refresh,busrefresh,liveness,readiness
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
 spring:
   application:
-    name: bedetheque-scraper-service
-  config:
-    import: optional:configserver:http://${SPRING_CLOUD_CONFIG_URI}
+    name: comix-bedetheque-scraper-service
   jackson:
     default-property-inclusion: non_null
-  main:
-    banner-mode: log
   mustache:
     check-template-location: false
   rabbitmq:
@@ -114,25 +117,26 @@ spring:
     password: ${BEDETHEQUE_SCRAPER_DB_PASSWORD:dev}
     driver-class-name: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
     show-sql: false
+    open-in-view: false
   liquibase:
     change-log: classpath:db/master.xml
-    enabled: true
+    enabled: ${BEDETHEQUE_SCRAPER_LIQUIBASE_ENABLED:true}
+    default-schema: ${BEDETHEQUE_SCRAPER_LIQUIBASE_SCHEMA:bedetheque_scraper}
 amqp:
   queue:
     author:
       name: ${AMQP_QUEUE_AUTHOR_NAME:comix.author.synchronize}
-    comic:
+    comicBook:
       name: ${AMQP_QUEUE_COMIC_NAME:comix.comic-book.synchronize}
     serie:
       name: ${AMQP_QUEUE_SERIE_NAME:comix.serie.synchronize}
   exchange:
     author:
       name: ${AMQP_EXCHANGE_AUTHOR_NAME:comix.author.exchange}
-    comic:
+    comicBook:
       name: ${AMQP_EXCHANGE_COMIC_NAME:comix.comic-book.exchange}
     serie:
       name: ${AMQP_EXCHANGE_SERIE_NAME:comix.serie.exchange}
@@ -146,5 +150,25 @@ outbox:
   publisher:
     fixed-delay: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_FIXED_DELAY:10000}
     lock-at-least-for: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_LOCK_AT_LEAST_FOR:PT5S}
-    lock-at-most-for: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_LOCK_AT_MOST_FOR:PT5M}
+    lock-at-most-for: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_LOCK_AT_MOST_FOR:PT5S}
     enabled: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_ENABLED:true}
+---
+spring.config.activate.on-profile: "dev-docker-hybrid"
+spring:
+  config:
+    import: "optional:configserver:http://localhost:18888"
+---
+spring.config.activate.on-profile: "int"
+spring:
+  config:
+    import: "optional:configserver:http://comix-config-server:18888"
+---
+spring.config.activate.on-profile: "stage"
+spring:
+  config:
+    import: optional:configserver:http://${SPRING_CLOUD_CONFIG_URI}
+---
+spring.config.activate.on-profile: "prod"
+spring:
+  config:
+    import: optional:configserver:http://${SPRING_CLOUD_CONFIG_URI}
