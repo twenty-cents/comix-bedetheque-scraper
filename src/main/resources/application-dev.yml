@@ -1,15 +1,60 @@
-
 spring:
   cloud:
     config:
       enabled: false
+  jackson:
+    default-property-inclusion: non_null
+  mustache:
+    check-template-location: false
+  rabbitmq:
+    host: ${BEDETHEQUE_SCRAPER_RABBITMQ_HOST:localhost}
+    port: ${BEDETHEQUE_SCRAPER_RABBITMQ_PORT:5673}
+    username: ${BEDETHEQUE_SCRAPER_RABBITMQ_USERNAME:dev}
+    password: ${BEDETHEQUE_SCRAPER_RABBITMQ_PASSWORD:dev}
+  datasource:
+    url: ${BEDETHEQUE_SCRAPER_DB_URL:jdbc:postgresql://localhost:5433/comix?currentSchema=bedetheque_scraper}
+    username: ${BEDETHEQUE_SCRAPER_DB_USERNAME:dev}
+    password: ${BEDETHEQUE_SCRAPER_DB_PASSWORD:dev}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+  liquibase:
+    change-log: classpath:db/master.xml
+    enabled: ${BEDETHEQUE_SCRAPER_LIQUIBASE_ENABLED:true}
+    default-schema: ${BEDETHEQUE_SCRAPER_LIQUIBASE_SCHEMA:bedetheque_scraper}
+amqp:
+  queue:
+    author:
+      name: ${AMQP_QUEUE_AUTHOR_NAME:comix.author.synchronize}
+    comicBook:
+      name: ${AMQP_QUEUE_COMIC_NAME:comix.comic-book.synchronize}
+    serie:
+      name: ${AMQP_QUEUE_SERIE_NAME:comix.serie.synchronize}
+  exchange:
+    author:
+      name: ${AMQP_EXCHANGE_AUTHOR_NAME:comix.author.exchange}
+    comicBook:
+      name: ${AMQP_EXCHANGE_COMIC_NAME:comix.comic-book.exchange}
+    serie:
+      name: ${AMQP_EXCHANGE_SERIE_NAME:comix.serie.exchange}
+producer:
+  retry:
+    max-attempts: ${BEDETHEQUE_SCRAPER_MAX_ATTEMPTS:3}
+    initial-interval: ${BEDETHEQUE_SCRAPER_INITIAL_INTERVAL:500}
+    max-interval: ${BEDETHEQUE_SCRAPER_MAX_INTERVAL:10000}
+    multiplier: ${BEDETHEQUE_SCRAPER_MULTIPLIER:2.0}
+outbox:
+  publisher:
+    fixed-delay: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_FIXED_DELAY:10000}
+    lock-at-least-for: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_LOCK_AT_LEAST_FOR:PT5S}
+    lock-at-most-for: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_LOCK_AT_MOST_FOR:PT5S}
+    enabled: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_ENABLED:true}
   main:
     banner-mode: log
-  rabbitmq:
-    host: localhost
-    port: 5673
-  datasource:
-    url: jdbc:postgresql://localhost:5433/comix?currentSchema=bedetheque_scraper
+
 eureka:
   client:
     enabled: false
