@@ -4,12 +4,18 @@ services:
     image: comix-bedetheque-scraper-service:local
     environment:
       SPRING_PROFILES_ACTIVE: int
-      BEDETHEQUE_SCRAPER_RABBITMQ_HOST: rabbitmq
+      # On passe les options de la JVM via une variable d'environnement
+      # Le suspend=y met l'application en pause en attendant qu'un débogueur se connecte
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     ports:
       - "18091:18091"
+      # On expose le port 5005 pour le débogage à distance de la JVM
+      - 5005:5005
     networks:
       - comix-net
     restart: unless-stopped
+    # Le mode privilégié est requis pour que le conteneur client puisse exécuter la commande `mount`.
+    privileged: true
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:18091/actuator/health/readiness | grep -q '\"status\":\"UP\"'" ]
       interval: 10s

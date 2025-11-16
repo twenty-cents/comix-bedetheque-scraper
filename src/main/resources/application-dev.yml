@@ -18,6 +18,30 @@ application:
     localcache:
       active: true
       basepath: '@project.basedir@/target/classes/static/medias'
+      mediasUrlPattern: ${BEDETHEQUE_SCRAPER_MEDIAS_URL_PATTERN:/api/bedetheque-scraper/medias/**}
+    authors:
+      photo:
+        hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_AUTHORS_PHOTO_HD:@project.basedir@/target/classes/static/medias/bedetheque/authors/photo/hd/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_AUTHORS_PHOTO_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/authors/photo/thumbs/}
+    graphic-novels:
+      cover-back:
+        hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_COVER_BACK_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-back/hd/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_COVER_BACK_THUMBS:@project.basedir@/target/classes/medias/bedetheque/static/graphic-novels/cover-back/thumbs/}
+      cover-front:
+        hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_COVER_FRONT_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-front/hd/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_COVER_FRONT_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/cover-front/thumbs/}
+      page-example:
+        hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_PAGE_EXAMPLE_HD:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/page-example/hd/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_GRAPHIC_NOVELS_PAGE_EXAMPLE_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/graphic-novels/page-example/thumbs/}
+    series:
+      cover-front:
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_SERIES_COVER_FRONT_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/series/cover-front/thumbs/}
+      page-example:
+        hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_SERIES_PAGE_EXAMPLE_HD:@project.basedir@/target/classes/static/medias/bedetheque/series/page-example/hd/}
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_SERIES_PAGE_EXAMPLE_THUMBS:@project.basedir@/target/classes/static/medias/bedetheque/series/page-example/thumbs/}
+    user:
+      avatar:
+        thumbs: ${BEDETHEQUE_SCRAPER_DOWNLOADS_RATINGS_AVATARS:@project.basedir@/target/classes/static/medias/bedetheque/ratings/avatar/}
   http:
     medias:
       authors:
@@ -45,5 +69,36 @@ application:
       user:
         avatar:
           thumbs: http://localhost:8091/medias/bedetheque/ratings/avatar/
+  lang:
+    accepted_languages: en
+    defaultLanguage: en
+  logging:
+    trace:
+      response:
+        active: false
+    web: false
+  scraping:
+    latency: 1
+
+bedetheque:
+  url:
+    author:
+      prefix: https://www.bedetheque.com/auteur-
+    authors:
+      index-by-letter: https://www.bedetheque.com/liste_auteurs_BD_0.html
+    home: https://www.bedetheque.com
+    search:
+      authors: https://www.bedetheque.com/ajax/auteurs
+      categories: https://www.bedetheque.com/ajax/styles
+      collections: https://www.bedetheque.com/ajax/collections
+      global: https://www.bedetheque.com/search/tout
+      graphic-novels: https://www.bedetheque.com/search/albums
+      publishers: https://www.bedetheque.com/ajax/editeurs
+      series: https://www.bedetheque.com/ajax/series
+    serie:
+      prefix: https://www.bedetheque.com/serie-
+    series:
+      index-by-letter: https://www.bedetheque.com/bandes_dessinees_%s.html
+
 server:
   port: 8091

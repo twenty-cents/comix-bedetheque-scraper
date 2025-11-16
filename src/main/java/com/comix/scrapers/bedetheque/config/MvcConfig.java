@@ -38,7 +38,7 @@ public class MvcConfig implements WebMvcConfigurer {
         // Example final value: "file:/mnt/shared/bubbles-manager/dev/medias/bedetheque/"
         String mediasLocation = "file:" + sharedStoragePath + "/";
 
-        LOGGER.info("Static resource manager configuration for path: {}", mediasLocation);
+        LOGGER.info("Static resource manager configuration for path: {} -> {}", mediasUrlPattern, mediasLocation);
 
         registry
                 // 1. The URL pattern: any request starting with /medias/** will be handled by this handler.

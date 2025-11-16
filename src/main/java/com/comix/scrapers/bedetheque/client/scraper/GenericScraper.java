@@ -12,6 +12,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 
 @Slf4j
 public class GenericScraper extends Scraper {
@@ -75,6 +76,17 @@ public class GenericScraper extends Scraper {
         } else {
             return httpMediaFilename;
         }
+
+        // --- Définition des permissions ---
+        try {
+            // Sur un système POSIX (Linux), on définit les droits à 777 (rwxrwxrwx)
+            var perms = PosixFilePermissions.fromString("rwxrwxrwx");
+            Files.setPosixFilePermissions(f.toPath(), perms);
+            log.debug("Permissions 777 set on file: {}", mediaFilenamePath);
+        } catch (UnsupportedOperationException | IOException e) {
+            log.warn("Could not set file permissions for {}. This is expected on non-POSIX systems (like Windows).", mediaFilenamePath, e);
+        }
+
         // Download the http media
         try (var fos = new FileOutputStream(mediaFilenamePath)) {
             var url = new URI(httpMediaUrl).toURL();
