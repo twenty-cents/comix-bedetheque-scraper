@@ -107,10 +107,13 @@ class NfsVolumeInitializerTest {
     @Test
     void run_shouldFail_whenDirectoryCreationFails() throws IOException, InterruptedException {
         // Given: Les commandes réussissent, mais la création d'un répertoire échoue.
-        doReturn(0).when(nfsVolumeInitializer).executeCommand(eq("showmount"), any(), any());
-        doReturn(0).when(nfsVolumeInitializer).executeCommand(eq("mount"), any(), any(), any(), any(), any(), any());
+        // On utilise lenient() car l'exception peut être levée avant que tous les mocks ne soient utilisés.
+        lenient().doReturn(0).when(nfsVolumeInitializer).executeCommand(eq("showmount"), any(), any());
+        lenient().doReturn(0).when(nfsVolumeInitializer).executeCommand(eq("mount"), any(), any(), any(), any(), any(), any());
 
         // Simule une IOException lors de la création des répertoires.
+        // La méthode createMediaDirectories attrape l'IOException et la ré-encapsule dans une NfsVolumeInitializationException.
+        // Nous devons donc simuler l'exception que la méthode sous-jacente peut réellement lever.
         filesMockedStatic.when(() -> Files.createDirectories(any(Path.class))).thenThrow(IOException.class);
 
         // When & Then: On s'attend à une exception.

@@ -28,7 +28,7 @@ public class NfsVolumeInitializer implements ApplicationRunner {
     private static final long RETRY_DELAY_SECONDS = 5;
 
     @Override
-    public void run(ApplicationArguments args) throws IOException, InterruptedException {
+    public void run(ApplicationArguments args) throws IOException, InterruptedException, NfsVolumeInitializationException {
         log.info("Profil 'int' détecté. Initialisation du volume NFS...");
 
         waitForNfsServer();
@@ -56,11 +56,15 @@ public class NfsVolumeInitializer implements ApplicationRunner {
         throw new NfsVolumeInitializationException("Le serveur NFS n'est pas devenu disponible après " + MAX_RETRIES + " tentatives.");
     }
 
-    private void mountNfsShare() throws IOException, InterruptedException {
+    private void mountNfsShare() throws IOException, InterruptedException, NfsVolumeInitializationException {
         // Création du point de montage local s'il n'existe pas
         if (!Files.exists(MOUNT_POINT)) {
             log.info("Création du point de montage local : {}", MOUNT_POINT);
-            Files.createDirectories(MOUNT_POINT);
+            try {
+                Files.createDirectories(MOUNT_POINT);
+            } catch (IOException e) {
+                throw new NfsVolumeInitializationException("Impossible de créer le point de montage local " + MOUNT_POINT, e);
+            }
         }
 
         log.info("Montage du partage NFS v4 de '{}' sur '{}'...", NFS_SERVER_HOST, MOUNT_POINT);
