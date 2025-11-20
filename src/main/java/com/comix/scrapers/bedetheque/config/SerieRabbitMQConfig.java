@@ -16,12 +16,16 @@ public class SerieRabbitMQConfig {
         public static final String EXCHANGE = "comix.serie.exchange";
         public static final String DLQ = "comix.serie.synchronize.dlq";
         public static final String DLX = "comix.serie.synchronize.dlx";
+
+        private SerieQueueConfig() {}
     }
 
     public static final class SerieRetryQueueConfig {
         public static final String QUEUE = "comix.serie.synchronize.retry.dlq";
         public static final String EXCHANGE = "comix.serie.synchronize.retry.dlx";
         public static final int TTL = 10000; // 10 secondes
+
+        private SerieRetryQueueConfig() {}
     }
 
     // --- Échanges ---

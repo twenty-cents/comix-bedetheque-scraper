@@ -1,5 +1,6 @@
 package com.comix.scrapers.bedetheque.config;
 
+import com.comix.scrapers.bedetheque.exception.NfsVolumeInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -23,9 +24,11 @@ public class NfsVolumeInitializer implements ApplicationRunner {
     private static final String NFS_SERVER_HOST = "nfs-server";
     private static final Path MOUNT_POINT = Paths.get("/mnt/nfs_share");
     private static final Path MEDIA_ROOT_PATH = MOUNT_POINT.resolve("comix/int/medias/bedetheque");
+    private static final int MAX_RETRIES = 12;
+    private static final long RETRY_DELAY_SECONDS = 5;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) throws IOException, InterruptedException {
         log.info("Profil 'int' détecté. Initialisation du volume NFS...");
 
         waitForNfsServer();
@@ -38,16 +41,19 @@ public class NfsVolumeInitializer implements ApplicationRunner {
 
     private void waitForNfsServer() throws IOException, InterruptedException {
         log.info("En attente du serveur NFS sur l'hôte '{}'...", NFS_SERVER_HOST);
-        while (true) {
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             // La commande `showmount` est l'équivalent de la boucle `until` du script
             int exitCode = executeCommand("showmount", "-e", NFS_SERVER_HOST);
             if (exitCode == 0) {
                 log.info("Serveur NFS détecté !");
                 return;
             }
-            log.warn("Serveur NFS non disponible (code {}), nouvelle tentative dans 5 secondes...", exitCode);
-            TimeUnit.SECONDS.sleep(5);
+            if (attempt < MAX_RETRIES) {
+                log.warn("Serveur NFS non disponible (tentative {}/{}), nouvelle tentative dans {} secondes...", attempt, MAX_RETRIES, RETRY_DELAY_SECONDS);
+                TimeUnit.SECONDS.sleep(RETRY_DELAY_SECONDS);
+            }
         }
+        throw new NfsVolumeInitializationException("Le serveur NFS n'est pas devenu disponible après " + MAX_RETRIES + " tentatives.");
     }
 
     private void mountNfsShare() throws IOException, InterruptedException {
@@ -63,13 +69,12 @@ public class NfsVolumeInitializer implements ApplicationRunner {
 
         if (exitCode != 0) {
             log.error("Échec du montage du volume NFS (code {}). L'application va s'arrêter.", exitCode);
-            // On peut choisir de lancer une exception pour arrêter le démarrage
-            throw new RuntimeException("Impossible de monter le volume NFS.");
+            throw new NfsVolumeInitializationException("Impossible de monter le volume NFS. Code de sortie: " + exitCode);
         }
         log.info("Partage NFS monté avec succès.");
     }
 
-    private void createMediaDirectories() throws IOException {
+    private void createMediaDirectories() throws NfsVolumeInitializationException {
         log.info("Création de l'arborescence des répertoires média dans {}", MEDIA_ROOT_PATH);
         // Liste de tous les sous-répertoires à créer
         Stream<String> pathsToCreate = Stream.of(
@@ -87,7 +92,7 @@ public class NfsVolumeInitializer implements ApplicationRunner {
             try {
                 Files.createDirectories(MEDIA_ROOT_PATH.resolve(subpath));
             } catch (IOException e) {
-                throw new RuntimeException("Impossible de créer le répertoire " + subpath, e);
+                throw new NfsVolumeInitializationException("Impossible de créer le répertoire " + subpath, e);
             }
         });
     }
@@ -96,16 +101,20 @@ public class NfsVolumeInitializer implements ApplicationRunner {
         log.info("Attribution des permissions (777) sur {}", MOUNT_POINT);
         // Ceci est l'équivalent de `chmod -R 777`. C'est une approche simplifiée.
         // Attention : ne pas utiliser en production sans une stratégie de sécurité adéquate.
-        Files.walk(MOUNT_POINT)
-                .forEach(path -> {
-                    try {
-                        path.toFile().setReadable(true, false);
-                        path.toFile().setWritable(true, false);
-                        path.toFile().setExecutable(true, false);
-                    } catch (Exception e) {
-                        log.warn("Impossible de changer les permissions pour {}", path, e);
+        try (Stream<Path> stream = Files.walk(MOUNT_POINT)) {
+            stream.forEach(path -> {
+                try {
+                    boolean readable = path.toFile().setReadable(true, false);
+                    boolean writable = path.toFile().setWritable(true, false);
+                    boolean executable = path.toFile().setExecutable(true, false);
+                    if(!readable || !writable || !executable) {
+                        log.warn("Impossible de changer les permissions pour {}", path);
                     }
-                });
+                } catch (Exception e) {
+                    log.warn("Impossible de changer les permissions pour {}", path, e);
+                }
+            });
+        }
     }
 
     private int executeCommand(String... command) throws IOException, InterruptedException {

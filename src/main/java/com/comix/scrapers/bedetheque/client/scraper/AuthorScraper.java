@@ -308,7 +308,11 @@ public class AuthorScraper extends GenericScraper {
         Elements as = doc.select("div.tab_content ul.gallery-side a");
         for (Element a : as) {
             Element img = a.selectFirst("img");
-            String title = a.parent() != null ? ownText(a.parent().selectFirst("span")) : null;
+            Element e = a.parent();
+            String title = null;
+            if(e != null) {
+                title = ownText(e.selectFirst("span"));
+            }
             SerieToDiscover serie = new SerieToDiscover();
             serie.setUrl(a.attr("href"));
             serie.setTitle(title);

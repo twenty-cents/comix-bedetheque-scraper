@@ -10,20 +10,20 @@ import org.apache.commons.lang3.Strings;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Component
 public class GraphicNovelScraper extends GenericScraper {
 
     private static final String SERIE = "serie";
+    private static final String GRAPHIC_NOVEL = "graphicnovel";
     private static final String UNKNOWN = "<Indéterminé>";
     private static final String HTML_EXTENSION = ".html";
 
@@ -76,8 +76,16 @@ public class GraphicNovelScraper extends GenericScraper {
     @Value("#{new Long('${application.scraping.latency}')}")
     private Long latency;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GraphicNovelScraper.class);
+    private static final Set<String> AUTHOR_ROLES = Set.of(
+            "Scénario", "Dessin", "Couleurs", "Storyboard", "Encrage", "Lettrage",
+            "Couverture", "Autres", "Décors", "Traduction", "Préface", "Adapté de", "Design"
+    );
 
+    /**
+     * Extracts the Bedetheque ID from a graphic novel URL.
+     * @param url The URL of the graphic novel.
+     * @return The extracted ID, or null if not found.
+     */
     public static String scrapIdFromUrl(String url) {
         if(url == null) {
             return null;
@@ -184,7 +192,7 @@ public class GraphicNovelScraper extends GenericScraper {
         Elements eAlbums = doc.select("ul.liste-albums > li");
 
         for (Element li : eAlbums) {
-            graphicNovels.add(scrapElement("graphicnovel", url, doc, li));
+            graphicNovels.add(scrapElement(GRAPHIC_NOVEL, url, doc, li));
         }
 
         log.info("Scraped {} graphic novels republications from the graphic novel url {}",
@@ -199,61 +207,20 @@ public class GraphicNovelScraper extends GenericScraper {
      * @param graphicNovel the graphic novel
      */
     private void downloadMedias(GraphicNovel graphicNovel) {
-        if (!StringUtils.isBlank(graphicNovel.getCoverThumbnailUrl())) {
-            graphicNovel.setCoverThumbnailUrl(
-                    downloadMedia(
-                            outputCoverFrontThumbDirectory,
-                            httpCoverFrontThumbDirectory,
-                            graphicNovel.getCoverThumbnailUrl(),
-                            httpDefaultMediaFilename,
-                            graphicNovel.getExternalId()));
-        }
-        if (!StringUtils.isBlank(graphicNovel.getBackCoverThumbnailUrl())) {
-            graphicNovel.setBackCoverThumbnailUrl(
-                    downloadMedia(
-                            outputCoverBackThumbDirectory,
-                            httpCoverBackThumbDirectory,
-                            graphicNovel.getBackCoverThumbnailUrl(),
-                            httpDefaultMediaFilename,
-                            graphicNovel.getExternalId()));
-        }
-        if (!StringUtils.isBlank(graphicNovel.getPageThumbnailUrl())) {
-            graphicNovel.setPageThumbnailUrl(
-                    downloadMedia(
-                            outputPageExampleThumbDirectory,
-                            httpPageExampleThumbDirectory,
-                            graphicNovel.getPageThumbnailUrl(),
-                            httpDefaultMediaFilename,
-                            graphicNovel.getExternalId()));
-        }
+        graphicNovel.setCoverThumbnailUrl(downloadAndSetMedia(graphicNovel.getCoverThumbnailUrl(), outputCoverFrontThumbDirectory, httpCoverFrontThumbDirectory, graphicNovel.getExternalId()));
+        graphicNovel.setBackCoverThumbnailUrl(downloadAndSetMedia(graphicNovel.getBackCoverThumbnailUrl(), outputCoverBackThumbDirectory, httpCoverBackThumbDirectory, graphicNovel.getExternalId()));
+        graphicNovel.setPageThumbnailUrl(downloadAndSetMedia(graphicNovel.getPageThumbnailUrl(), outputPageExampleThumbDirectory, httpPageExampleThumbDirectory, graphicNovel.getExternalId()));
 
-        if (!StringUtils.isBlank(graphicNovel.getCoverPictureUrl())) {
-            graphicNovel.setCoverPictureUrl(
-                    downloadMedia(
-                            outputCoverFrontHdDirectory,
-                            httpCoverFrontHdDirectory,
-                            graphicNovel.getCoverPictureUrl(),
-                            httpDefaultMediaFilename,
-                            graphicNovel.getExternalId()));
+        graphicNovel.setCoverPictureUrl(downloadAndSetMedia(graphicNovel.getCoverPictureUrl(), outputCoverFrontHdDirectory, httpCoverFrontHdDirectory, graphicNovel.getExternalId()));
+        graphicNovel.setBackCoverPictureUrl(downloadAndSetMedia(graphicNovel.getBackCoverPictureUrl(), outputCoverBackHdDirectory, httpCoverBackHdDirectory, graphicNovel.getExternalId()));
+        graphicNovel.setPagePictureUrl(downloadAndSetMedia(graphicNovel.getPagePictureUrl(), outputPageExampleHdDirectory, httpPageExampleHdDirectory, graphicNovel.getExternalId()));
+    }
+
+    private String downloadAndSetMedia(String url, String outputDir, String httpDir, String externalId) {
+        if (StringUtils.isBlank(url)) {
+            return url;
         }
-        if (!StringUtils.isBlank(graphicNovel.getBackCoverPictureUrl())) {
-            graphicNovel.setBackCoverPictureUrl(
-                    downloadMedia(
-                            outputCoverBackHdDirectory,
-                            httpCoverBackHdDirectory,
-                            graphicNovel.getBackCoverPictureUrl(),
-                            httpDefaultMediaFilename,
-                            graphicNovel.getExternalId()));
-        }
-        if (!StringUtils.isBlank(graphicNovel.getPagePictureUrl())) {
-            graphicNovel.setPagePictureUrl(
-                    downloadMedia(
-                            outputPageExampleHdDirectory,
-                            httpPageExampleHdDirectory,
-                            graphicNovel.getPagePictureUrl(),
-                            httpDefaultMediaFilename,
-                            graphicNovel.getExternalId()));
-        }
+        return downloadMedia(outputDir, httpDir, url, httpDefaultMediaFilename, externalId);
     }
 
     private int getGraphicNovelCount(Document doc) {
@@ -272,7 +239,7 @@ public class GraphicNovelScraper extends GenericScraper {
     private Serie scrapSerie(String from, Element doc) {
         Serie serie = new Serie();
         Element serieElement;
-        if (from.equals("graphicnovel")) {
+        if (GRAPHIC_NOVEL.equals(from)) {
             serieElement = doc.selectFirst("div.panier > h1 > a");
         } else {
             serieElement = doc.selectFirst("div.serie > h1 > a");
@@ -305,7 +272,7 @@ public class GraphicNovelScraper extends GenericScraper {
 
         // Album main
         Element title;
-        if (from.equals("graphicnovel")) {
+        if (GRAPHIC_NOVEL.equals(from)) {
             title = gcElement.selectFirst("h3.titre"); //NOSONAR
         } else {
             title = gcElement.selectFirst("h3 a.titre > span[itemprop='name']");
@@ -321,7 +288,7 @@ public class GraphicNovelScraper extends GenericScraper {
         try {
             tomeNum = Integer.parseInt(tome);
         } catch (Exception ex) {
-            LOGGER.debug("Failed to convert tome in integer");
+            log.debug("Failed to convert tome '{}' to integer", tome);
         }
 
         var graphicNovel = new GraphicNovel();
@@ -340,11 +307,11 @@ public class GraphicNovelScraper extends GenericScraper {
         graphicNovel.setCollectionUrl(getCollectionUrl(infos));
         graphicNovel.setCycle(getCycle(infos));
         graphicNovel.setIsbn(getIsbn(infos));
-        graphicNovel.setTotalPages(getTotalPages(infos));
+        graphicNovel.setTotalPages(getIntegerInfoProperty(infos, "Planches"));
         graphicNovel.setFormat(getFormat(infos));
-        graphicNovel.setIsOriginalPublication(isOriginalPublication(infos));
-        graphicNovel.setIsIntegrale(isIntegrale(infos));
-        graphicNovel.setIsBroche(isBroche(infos));
+        graphicNovel.setIsOriginalPublication(hasIcon(infos, "i.icon-star"));
+        graphicNovel.setIsIntegrale(hasIcon(infos, "i.icon-pause"));
+        graphicNovel.setIsBroche(hasIcon(infos, "i.icon-tag"));
         graphicNovel.setInfoEdition(getInfoEdition(autres));
         graphicNovel.setReeditionUrl(getReeditionUrl(autres));
         graphicNovel.setReeditionCount(getReeditionCount(autres));
@@ -381,7 +348,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 tome = blocTome[0].trim();
             }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap tome");
+            log.debug("Failed to scrap tome", ex);
         }
         return tome;
     }
@@ -391,7 +358,7 @@ public class GraphicNovelScraper extends GenericScraper {
         try {
             numa = ownText(e.selectFirst("span.numa"));
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap numa");
+            log.debug("Failed to scrap numa", ex);
         }
         return numa;
     }
@@ -416,7 +383,7 @@ public class GraphicNovelScraper extends GenericScraper {
             }
 
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap title");
+            log.debug("Failed to scrap title", ex);
         }
         return title;
     }
@@ -432,7 +399,7 @@ public class GraphicNovelScraper extends GenericScraper {
             ratings.setCount(count);
             ratings.setWidth(width);
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap ratings");
+            log.debug("Failed to scrap ratings", ex);
         }
         return ratings;
     }
@@ -445,7 +412,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 externalId = ownText(eId.parent());
             }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap external id");
+            log.debug("Failed to scrap external id", ex);
         }
         return externalId;
     }
@@ -474,12 +441,7 @@ public class GraphicNovelScraper extends GenericScraper {
 
             // Authors roles :
             //  -> Scénario, Dessin, Couleurs, Storyboard, Encrage, Lettrage, Couverture,
-            //     Autres, Décors, Traduction, Préface, Adapté de, Design
-            if (key.equals("Scénario") || key.equals("Dessin") || key.equals("Couleurs") || key.equals("Storyboard") ||
-                    key.equals("Encrage") || key.equals("Lettrage") || key.equals("Couverture") || key.equals("Autres") ||
-                    key.equals("Décors") || key.equals("Traduction") || key.equals("Préface") || key.equals("Adapté de") ||
-                    key.equals("Design")) {
-
+            if (AUTHOR_ROLES.contains(key)) {
                 authors.add(getAuthorRole(li, key, hasLabel));
             }
         }
@@ -565,19 +527,18 @@ public class GraphicNovelScraper extends GenericScraper {
                 }
             }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap release date");
+            log.debug("Failed to scrap release date", ex);
         }
         return releaseDate;
     }
 
     private String getPublisher(Element e) {
-        String publisher = null;
         try {
-            publisher = getInfoPropertyValue(e, "Editeur");
+            return getInfoPropertyValue(e, "Editeur");
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap publisher");
+            log.debug("Failed to scrap publisher", ex);
+            return null;
         }
-        return publisher;
     }
 
     private String getCollection(Element e) {
@@ -588,7 +549,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 collection = ownText(eCollection.parent().selectFirst("a"));
             }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap collection");
+            log.debug("Failed to scrap collection", ex);
         }
         return collection;
     }
@@ -601,37 +562,38 @@ public class GraphicNovelScraper extends GenericScraper {
                 collectionUrl = attr(eCollectionUrl.parent().selectFirst("a"), HTML.Attribute.HREF);
             }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap collectionUrl");
+            log.debug("Failed to scrap collectionUrl", ex);
         }
         return collectionUrl;
     }
 
     private String getCycle(Element e) {
-        String cycle = null;
         try {
-            cycle = getInfoPropertyValue(e, "Cycle");
+            return getInfoPropertyValue(e, "Cycle");
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap cycle");
+            log.debug("Failed to scrap cycle", ex);
+            return null;
         }
-        return cycle;
     }
 
     private String getIsbn(Element e) {
-        String isbn = null;
         try {
-            isbn = getInfoPropertyValue(e, "ISBN");
+            return getInfoPropertyValue(e, "ISBN");
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap isbn");
+            log.debug("Failed to scrap isbn", ex);
+            return null;
         }
-        return isbn;
     }
 
-    private Integer getTotalPages(Element e) {
+    private Integer getIntegerInfoProperty(Element e, String key) {
         Integer pages = null;
         try {
-            pages = Integer.parseInt(getInfoPropertyValue(e, "Planches"));
+            String value = getInfoPropertyValue(e, key);
+            if (StringUtils.isNumeric(value)) {
+                pages = Integer.parseInt(value);
+            }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap page count");
+            log.debug("Failed to scrap integer property {}", key, ex);
         }
         return pages;
     }
@@ -644,67 +606,26 @@ public class GraphicNovelScraper extends GenericScraper {
                 format = eFormat.parent().ownText();
             }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap format");
+            log.debug("Failed to scrap format", ex);
         }
         return format;
     }
 
-    private Boolean isOriginalPublication(Element e) {
-        var isOriginalPublication = false;
-        try {
-            Element eIsOriginalPublication = e.selectFirst("li label:containsOwn(Autres infos)"); //NOSONAR
-            if (eIsOriginalPublication != null && eIsOriginalPublication.parent() != null) {
-                Element icon = eIsOriginalPublication.parent().selectFirst("i.icon-star");
-                if (icon != null) {
-                    isOriginalPublication = true;
-                }
-            }
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap isOriginalPublication");
+    private boolean hasIcon(Element e, String iconCssSelector) {
+        if (e == null) {
+            return false;
         }
-        return isOriginalPublication;
-    }
-
-    private Boolean isIntegrale(Element e) {
-        var isIntegrale = false;
         try {
-            Element eIsIntegrale = e.selectFirst("li label:containsOwn(Autres infos)");
-            if (eIsIntegrale != null && eIsIntegrale.parent() != null) {
-                Element icon = eIsIntegrale.parent().selectFirst("i.icon-pause");
-                if (icon != null) {
-                    isIntegrale = true;
-                }
-            }
+            Element parent = e.selectFirst("li label:containsOwn(Autres infos)");
+            return parent != null && parent.parent() != null && parent.parent().selectFirst(iconCssSelector) != null;
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap isIntegrale");
+            log.debug("Failed to check for icon '{}'", iconCssSelector, ex);
+            return false;
         }
-        return isIntegrale;
-    }
-
-    private Boolean isBroche(Element e) {
-        var isBroche = false;
-        try {
-            Element eIsBroche = e.selectFirst("li label:containsOwn(Autres infos)");
-            if (eIsBroche != null && eIsBroche.parent() != null) {
-                Element icon = eIsBroche.parent().selectFirst("i.icon-tag");
-                if (icon != null) {
-                    isBroche = true;
-                }
-            }
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap isBroche");
-        }
-        return isBroche;
     }
 
     private String getInfoEdition(Element e) {
-        String infos = null;
-        try {
-            infos = ownText(e.selectFirst("p"));
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap infos edition");
-        }
-        return infos;
+        return scrapSafe(e, "p", this::ownText, "infos edition");
     }
 
     private String getReeditionUrl(Element e) {
@@ -715,7 +636,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 reeditionUrl = eReeditionUrl.parent().attr("href");
             }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap reeditionUrl");
+            log.debug("Failed to scrap reeditionUrl", ex);
         }
         return reeditionUrl;
     }
@@ -728,7 +649,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 reeditionCount = ownText(eReeditionCount.parent().selectFirst("strong"));
             }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap reeditionCount");
+            log.debug("Failed to scrap reeditionCount", ex);
         }
         return reeditionCount;
     }
@@ -741,79 +662,41 @@ public class GraphicNovelScraper extends GenericScraper {
                 externalIdOriginalPublication = eExternalIdOriginalPublication.parent().ownText();
             }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap externalIdOriginalPublication");
+            log.debug("Failed to scrap externalIdOriginalPublication", ex);
         }
         return externalIdOriginalPublication;
     }
 
     private String getCoverPictureUrl(Element e) {
-        String coverPictureUrl = null;
-        try {
-            coverPictureUrl = attr(e.selectFirst("div.sous-couv a.browse-couvertures"), HTML.Attribute.HREF);
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap coverPictureUrl");
-        }
-        return coverPictureUrl;
+        return scrapAttribute(e, "div.sous-couv a.browse-couvertures", HTML.Attribute.HREF, "coverPictureUrl");
     }
 
     private String getCoverThumbnailUrl(Element e) {
-        String coverThumbnailUrl = null;
-        try {
-            coverThumbnailUrl = attr(e.selectFirst("div.couv img"), HTML.Attribute.SRC);
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap coverThumbnailUrl");
-        }
-        return coverThumbnailUrl;
+        return scrapAttribute(e, "div.couv img", HTML.Attribute.SRC, "coverThumbnailUrl");
     }
 
     private String getCopyright(Element e) {
-        String copyright = null;
-        try {
-            copyright = ownText(e.selectFirst("div.couv span"));
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap copyright");
-        }
-        return copyright;
+        return scrapSafe(e, "div.couv span", this::ownText, "copyright");
     }
 
     private String getBackCoverPictureUrl(Element e) {
-        String backCoverPictureUrl = null;
-        try {
-            backCoverPictureUrl = attr(e.selectFirst("div.sous-couv a.browse-versos"), HTML.Attribute.HREF);
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap backCoverPictureUrl");
-        }
-        return backCoverPictureUrl;
+        return scrapAttribute(e, "div.sous-couv a.browse-versos", HTML.Attribute.HREF, "backCoverPictureUrl");
     }
 
     private String getBackCoverThumbnailUrl(Element e) {
-        String backCoverThumbnailUrl = null;
-        try {
-            backCoverThumbnailUrl = attr(e.selectFirst("div.sous-couv a.browse-versos img"), HTML.Attribute.SRC);
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap backCoverThumbnailUrl");
-        }
-        return backCoverThumbnailUrl;
+        return scrapAttribute(e, "div.sous-couv a.browse-versos img", HTML.Attribute.SRC, "backCoverThumbnailUrl");
     }
 
     private String getPagePictureUrl(Element e) {
-        String pagePictureUrl = null;
-        try {
-            pagePictureUrl = attr(e.selectFirst("div.sous-couv a.browse-planches"), HTML.Attribute.HREF);
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap pagePictureUrl");
-        }
-        return pagePictureUrl;
+        return scrapAttribute(e, "div.sous-couv a.browse-planches", HTML.Attribute.HREF, "pagePictureUrl");
     }
 
     private String getPageThumbnailUrl(Element e) {
-        String pageThumbnailUrl = null;
-        try {
-            pageThumbnailUrl = attr(e.selectFirst("div.sous-couv a.browse-planches img"), HTML.Attribute.SRC);
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap pageThumbnailUrl");
-        }
-        return pageThumbnailUrl;
+        return scrapAttribute(e, "div.sous-couv a.browse-planches img", HTML.Attribute.SRC, "pageThumbnailUrl");
+    }
+
+    private String scrapAttribute(Element e, String selector, HTML.Attribute attribute, String propertyName) {
+        return scrapSafe(e, selector, el -> attr(el, attribute), propertyName);
     }
 
     private String getInfoPropertyValue(Element e, String key) {
@@ -830,9 +713,21 @@ public class GraphicNovelScraper extends GenericScraper {
                 }
             }
         } catch (Exception ex) {
-            LOGGER.debug("Failed to scrap property : {}", key);
+            log.debug("Failed to scrap property : {}", key, ex);
         }
         return value;
     }
 
+    private <T> T scrapSafe(Element e, String selector, java.util.function.Function<Element, T> extractor, String propertyName) {
+        if (e == null) {
+            return null;
+        }
+        try {
+            Element selectedElement = e.selectFirst(selector);
+            return (selectedElement != null) ? extractor.apply(selectedElement) : null;
+        } catch (Exception ex) {
+            log.debug("Failed to scrap {}: {}", propertyName, ex.getMessage());
+            return null;
+        }
+    }
 }

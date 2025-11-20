@@ -25,6 +25,5 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.datasource.url", postgresqlContainer::getJdbcUrl);
         registry.add("spring.datasource.username", postgresqlContainer::getUsername);
         registry.add("spring.datasource.password", postgresqlContainer::getPassword);
-//        registry.add("spring.liquibase.change-log", () -> "classpath:db/changelog/changelog-master.xml");
     }
 }
