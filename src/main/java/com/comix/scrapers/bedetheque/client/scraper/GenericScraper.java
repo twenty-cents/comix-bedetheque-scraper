@@ -12,7 +12,10 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 public class GenericScraper extends Scraper {
@@ -79,8 +82,18 @@ public class GenericScraper extends Scraper {
 
         // --- Définition des permissions ---
         try {
-            // Sur un système POSIX (Linux), on définit les droits à 777 (rwxrwxrwx)
-            var perms = PosixFilePermissions.fromString("rwxrwxrwx");
+            Set<PosixFilePermission> perms = new HashSet<>();
+            // user permission
+            perms.add(PosixFilePermission.OWNER_READ);
+            perms.add(PosixFilePermission.OWNER_WRITE);
+            perms.add(PosixFilePermission.OWNER_EXECUTE);
+            // group permissions
+            perms.add(PosixFilePermission.GROUP_READ);
+            perms.add(PosixFilePermission.GROUP_EXECUTE);
+            // others permissions removed
+            perms.remove(PosixFilePermission.OTHERS_READ); // Compliant
+            perms.remove(PosixFilePermission.OTHERS_WRITE); // Compliant
+            perms.remove(PosixFilePermission.OTHERS_EXECUTE); // Compliant
             Files.setPosixFilePermissions(f.toPath(), perms);
             log.debug("Permissions 777 set on file: {}", mediaFilenamePath);
         } catch (UnsupportedOperationException | IOException e) {
