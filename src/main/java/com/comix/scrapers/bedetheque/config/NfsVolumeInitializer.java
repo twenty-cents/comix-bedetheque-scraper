@@ -117,7 +117,7 @@ public class NfsVolumeInitializer implements ApplicationRunner {
         }
     }
 
-    private int executeCommand(String... command) throws IOException, InterruptedException {
+    int executeCommand(String... command) throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder(command)
                 .inheritIO(); // Redirige la sortie/erreur standard du processus vers celle du processus Java
         Process process = processBuilder.start();
