@@ -141,6 +141,8 @@ class AuthorScraperTest {
                     "<li><label>Site :</label><a href='http://john.doe'>john.doe</a></li>" +
                     "<li><label>Voir aussi :</label><a href='http://test.com/__AUTEUR-456-Alias.html'>Alias, John</a></li>" +
                     "</ul>" +
+                    "<h1 class='single-title-auteur'><a href='prev.html' rel='prev' title='Prev Author'></a><a href='next.html' rel='next' title='Next Author'></a></h1>" +
+                    "</ul>" +
                     "<div class='auteur-image'><a href='photo.jpg'><img src='photo_thb.jpg'></a></div>" +
                     "<p class='bio'>Une biographie intéressante.</p>" +
                     "</body></html>";
@@ -170,6 +172,10 @@ class AuthorScraperTest {
                 assertThat(details.getOtherAuthorPseudonym()).isNotNull();
                 assertThat(details.getOtherAuthorPseudonym().getId()).isEqualTo("456");
                 assertThat(details.getOtherAuthorPseudonym().getName()).isEqualTo("Alias, John");
+                assertThat(details.getPreviousAuthor()).isNotNull();
+                assertThat(details.getPreviousAuthor().getName()).isEqualTo("Prev Author");
+                assertThat(details.getNextAuthor()).isNotNull();
+                assertThat(details.getNextAuthor().getName()).isEqualTo("Next Author");
             }
         }
 
@@ -207,8 +213,39 @@ class AuthorScraperTest {
         }
     }
 
+    @Nested
+    @DisplayName("Tests for media downloading")
+    class MediaDownloadingTests {
+
+        @Test
+        @DisplayName("ne doit PAS appeler downloadMedias quand le cache local est inactif")
+        void scrap_shouldNotCallDownloadMedias_whenCacheIsInactive() {
+            // GIVEN:
+            AuthorScraper scraperSpy = Mockito.spy(new AuthorScraper());
+            scraperSpy.setLocalCacheActive(false); // Cache inactif
+            scraperSpy.setLatency(0L);
+
+            String html = "<html><body><div class='auteur-image'><a href='photo.jpg'><img src='photo_thb.jpg'></a></div></body></html>";
+            Document doc = Jsoup.parse(html);
+            Author authorToScrap = new Author("123", "DOE, John", "http://test.com/__AUTEUR-123-Doe.html");
+
+            try (MockedStatic<GenericScraperSingleton> mockedSingleton = Mockito.mockStatic(GenericScraperSingleton.class)) {
+                GenericScraperSingleton mockScraper = mock(GenericScraperSingleton.class);
+                mockedSingleton.when(GenericScraperSingleton::getInstance).thenReturn(mockScraper);
+                when(mockScraper.load(anyString(), anyLong())).thenReturn(doc);
+
+                // WHEN:
+                scraperSpy.scrap(authorToScrap);
+
+                // THEN:
+                // On vérifie qu'aucune méthode de téléchargement n'a été appelée.
+                verify(scraperSpy, never()).downloadMedia(anyString(), anyString(), anyString(), anyString(), anyString());
+            }
+        }
+    }
+
     @Test
-    @DisplayName("doit appeler downloadMedias pour chaque image quand le cache local est actif")
+    @DisplayName("doit appeler downloadMedias pour chaque image quand le cache local est actif (legacy test)")
     void scrap_shouldCallDownloadMedias_whenCacheIsActive() {
         // GIVEN:
         // 1. On crée un "espion" de notre scraper pour pouvoir vérifier les appels à ses propres méthodes.

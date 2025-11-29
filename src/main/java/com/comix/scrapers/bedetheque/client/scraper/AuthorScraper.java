@@ -207,7 +207,9 @@ public class AuthorScraper extends GenericScraper {
         // Generic author
         if (authorDetails.getId() == null) {
             String[] urlSplit = author.getUrl().split("-");
-            authorDetails.setId(author.getUrl().split("-")[1]);
+            if(urlSplit.length >= 2) {
+                authorDetails.setId(author.getUrl().split("-")[1]);
+            }
             authorDetails.setNickname(author.getName());
 
             if(urlSplit.length >= 4) {

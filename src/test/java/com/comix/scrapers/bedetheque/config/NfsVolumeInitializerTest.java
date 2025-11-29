@@ -3,6 +3,7 @@ package com.comix.scrapers.bedetheque.config;
 import com.comix.scrapers.bedetheque.exception.NfsVolumeInitializationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,6 +12,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.ApplicationArguments;
+import org.springframework.core.env.Environment;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,13 +36,21 @@ class NfsVolumeInitializerTest {
     private NfsVolumeInitializer nfsVolumeInitializer;
 
     @Mock
+    private Environment environment;
+
+    @Mock
     private ApplicationArguments applicationArguments;
 
     // Mock statique pour toutes les méthodes de la classe `Files`.
     private MockedStatic<Files> filesMockedStatic;
 
+    private static final Path MOUNT_POINT = Paths.get("/mnt/nfs_share");
+
     @BeforeEach
     void setUp() {
+        // Simule le comportement de @PostConstruct qui dépend de l'environnement Spring.
+        // Par défaut, on utilise le profil "int".
+
         // Initialise le mock pour les méthodes statiques de `Files` avant chaque test.
         filesMockedStatic = mockStatic(Files.class);
     }
@@ -54,13 +64,12 @@ class NfsVolumeInitializerTest {
     @Test
     void run_shouldSucceed_whenAllCommandsAndFileOperationsAreSuccessful() throws IOException, InterruptedException {
         // Given: Tous les prérequis sont remplis
-        Path mountPoint = Paths.get("/mnt/nfs_share");
 
         // Simule la commande `showmount` qui réussit du premier coup.
         doReturn(0).when(nfsVolumeInitializer).executeCommand("showmount", "-e", "nfs-server");
 
         // Simule la commande `mount` qui réussit.
-        doReturn(0).when(nfsVolumeInitializer).executeCommand("mount", "-t", "nfs", "-o", "nfsvers=4,rw", "nfs-server:/", mountPoint.toString());
+        doReturn(0).when(nfsVolumeInitializer).executeCommand("mount", "-t", "nfs", "-o", "nfsvers=4,rw", "nfs-server:/", MOUNT_POINT.toString());
 
         // Simule les opérations sur les fichiers
         filesMockedStatic.when(() -> Files.exists(any(Path.class))).thenReturn(true);
@@ -76,7 +85,7 @@ class NfsVolumeInitializerTest {
         // Verify: On vérifie que les méthodes principales ont été appelées.
         verify(nfsVolumeInitializer, times(1)).executeCommand("showmount", "-e", "nfs-server");
         verify(nfsVolumeInitializer, times(1)).executeCommand(eq("mount"), any(), any(), any(), any(), any(), any());
-        filesMockedStatic.verify(() -> Files.walk(mountPoint), times(1));
+        filesMockedStatic.verify(() -> Files.walk(MOUNT_POINT), times(1));
     }
 
     @Test
@@ -118,6 +127,26 @@ class NfsVolumeInitializerTest {
 
         // When & Then: On s'attend à une exception.
         assertThrows(NfsVolumeInitializationException.class, () -> nfsVolumeInitializer.run(applicationArguments));
+    }
+
+    @Test
+    @DisplayName("should create mount point directory if it does not exist")
+    void run_shouldCreateMountPoint_whenItDoesNotExist() throws IOException, InterruptedException {
+        // Given: Le point de montage n'existe pas au début.
+        filesMockedStatic.when(() -> Files.exists(MOUNT_POINT)).thenReturn(false);
+
+        // Simule la réussite des commandes et autres opérations de fichiers.
+        doReturn(0).when(nfsVolumeInitializer).executeCommand(anyString(), any(), any()); // showmount
+        doReturn(0).when(nfsVolumeInitializer).executeCommand(eq("mount"), any(), any(), any(), any(), any(), any());
+        filesMockedStatic.when(() -> Files.createDirectories(any(Path.class))).thenReturn(null);
+        filesMockedStatic.when(() -> Files.walk(any(Path.class))).thenReturn(Stream.empty());
+
+        // When
+        assertDoesNotThrow(() -> nfsVolumeInitializer.run(applicationArguments));
+
+        // Then
+        // On vérifie que la création du répertoire de montage a bien été tentée.
+        filesMockedStatic.verify(() -> Files.createDirectories(MOUNT_POINT));
     }
 
     @Test
