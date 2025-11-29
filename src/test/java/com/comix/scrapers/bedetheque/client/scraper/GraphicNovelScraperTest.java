@@ -268,6 +268,65 @@ class GraphicNovelScraperTest {
             // Verify that downloadMedia was called for all 6 images (3 thumbs, 3 HD)
             verify(scraperSpy, times(6)).downloadMedia(any(), any(), any(), any(), any());
         }
+
+        @Test
+        @DisplayName("should NOT call downloadMedias when local cache is inactive")
+        void shouldNotCallDownloadMediasWhenCacheIsInactive() {
+            // GIVEN
+            GraphicNovelScraper scraperSpy = Mockito.spy(scraper);
+            scraperSpy.setLocalCacheActive(false); // Assurer que le cache est bien inactif
+
+            String fullPageHtml = String.format("<ul class=\"liste-albums\">%s</ul>", albumHtml);
+            Document doc = Jsoup.parse(fullPageHtml);
+
+            // WHEN
+            scraperSpy.scrapElement("https://test.com/serie.html", doc);
+
+            // THEN
+            // On vérifie qu'aucune méthode de téléchargement n'a été appelée.
+            verify(scraperSpy, never()).downloadMedia(any(), any(), any(), any(), any());
+        }
+    }
+
+    @Nested
+    @DisplayName("Tests for scrapWithAllRepublications(url)")
+    class ScrapRepublicationsTests {
+        @Test
+        @DisplayName("should parse republication page correctly")
+        void shouldParseRepublicationPage() {
+            // GIVEN
+            // Sur une page de réédition, la structure du titre et de la série est différente.
+            String republicationHtml = """
+                <div class="panier"><h1><a href="serie-1.html">Le Nom de la Série</a></h1></div>
+                <ul class="liste-albums">
+                    <li>
+                        <h3 class="titre">1<span class="numa">a2007</span>. Gare aux gaffes</h3>
+                        <ul class="infos">
+                            <li><label>Identifiant :</label> 54321</li>
+                        </ul>
+                    </li>
+                </ul>
+                """;
+            Document doc = Jsoup.parse(republicationHtml);
+
+            try (MockedStatic<GenericScraperSingleton> mockedSingleton = Mockito.mockStatic(GenericScraperSingleton.class)) {
+                GenericScraperSingleton mockScraper = mock(GenericScraperSingleton.class);
+                mockedSingleton.when(GenericScraperSingleton::getInstance).thenReturn(mockScraper);
+                when(mockScraper.load(anyString(), anyLong())).thenReturn(doc);
+
+                // WHEN
+                List<GraphicNovel> results = scraper.scrapWithAllRepublications("https://test.com/republication.html");
+
+                // THEN
+                assertThat(results).hasSize(1);
+                GraphicNovel result = results.getFirst();
+
+                assertThat(result.getSerie().getName()).isEqualTo("Le Nom de la Série");
+                assertThat(result.getTitle()).isEqualTo("Gare aux gaffes");
+                assertThat(result.getNumEdition()).isEqualTo("a2007");
+                assertThat(result.getExternalId()).isEqualTo("54321");
+            }
+        }
     }
 
 }
