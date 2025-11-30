@@ -34,8 +34,8 @@ pipeline{
         // RabbitMQ
         JENKINS_SPRING_RABBITMQ_HOST = credentials("RABBITMQ_HOST")
         JENKINS_SPRING_RABBITMQ_PORT = credentials("RABBITMQ_PORT")
-        SPRING_RABBITMQ_USERNAME = credentials("RABBITMQ_USERNAME")
-        SPRING_RABBITMQ_PASSWORD = credentials("RABBITMQ_PASSWORD")
+        JENKINS_SPRING_RABBITMQ_USERNAME = credentials("RABBITMQ_USERNAME")
+        JENKINS_SPRING_RABBITMQ_PASSWORD = credentials("RABBITMQ_PASSWORD")
     }
     parameters {
       gitParameter branchFilter: 'origin/(.*)', defaultValue: 'master', name: 'BRANCH', type: 'PT_BRANCH'
@@ -189,8 +189,8 @@ pipeline{
 
                      sh "sed -i -E 's/JENKINS_SPRING_RABBITMQ_HOST/$JENKINS_SPRING_RABBITMQ_HOST/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_SPRING_RABBITMQ_PORT/$JENKINS_SPRING_RABBITMQ_PORT/g' '${deploymentFile}'"
-                     sh "sed -i -E 's/SPRING_RABBITMQ_USERNAME/$SPRING_RABBITMQ_USERNAME/g' '${deploymentFile}'"
-                     sh "sed -i -E 's/SPRING_RABBITMQ_PASSWORD/$SPRING_RABBITMQ_PASSWORD/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_SPRING_RABBITMQ_USERNAME/$JENKINS_SPRING_RABBITMQ_USERNAME/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_SPRING_RABBITMQ_PASSWORD/$JENKINS_SPRING_RABBITMQ_PASSWORD/g' '${deploymentFile}'"
 
                      sh "kubectl apply -f ${deploymentFile}"
                 }
