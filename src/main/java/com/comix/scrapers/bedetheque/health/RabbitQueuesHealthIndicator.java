@@ -23,7 +23,7 @@ public class RabbitQueuesHealthIndicator implements HealthIndicator {
             RabbitAdmin rabbitAdmin,
             @Value("${amqp.queue.author.name}") String authorQueue,
             @Value("${amqp.queue.serie.name}") String serieQueue,
-            @Value("${amqp.queue.comicBook.name}") String comicBookQueue
+            @Value("${amqp.queue.comic-book.name}") String comicBookQueue
     ) {
         this.rabbitAdmin = rabbitAdmin;
         this.requiredQueues = List.of(authorQueue, serieQueue, comicBookQueue);

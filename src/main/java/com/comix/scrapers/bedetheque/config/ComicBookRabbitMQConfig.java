@@ -9,77 +9,78 @@ import org.springframework.context.annotation.Configuration;
 public class ComicBookRabbitMQConfig {
 
     @Value("${amqp.queue.comic-book.name}")
-    private String comicBookQueueName;
+    private String comicBookQueue;
 
-    // --- Définition des noms pour une meilleure lisibilité ---
-    public static final class ComicBookQueueConfig {
-        public static final String EXCHANGE = "comix.comic-book.exchange";
-        public static final String DLQ = "comix.comic-book.synchronize.dlq";
-        public static final String DLX = "comix.comic-book.synchronize.dlx";
+    @Value("${amqp.exchange.comic-book.name}")
+    private String comicBookExchange;
 
-        private ComicBookQueueConfig() {}
-    }
+    @Value("${amqp.queue.comic-book.dlq.name}")
+    private String comicBookDlq;
 
-    public static final class ComicBookRetryQueueConfig {
-        public static final String QUEUE = "comix.comic-book.synchronize.retry.dlq";
-        public static final String EXCHANGE = "comix.comic-book.synchronize.retry.dlx";
-        public static final int TTL = 10000; // 10 secondes
+    @Value("${amqp.exchange.comic-book.dlx.name}")
+    private String comicBookDlx;
 
-        private ComicBookRetryQueueConfig() {}
-    }
+    @Value("${amqp.queue.comic-book.retry.name}")
+    private String comicBookRetryQueue;
+
+    @Value("${amqp.exchange.comic-book.retry.name}")
+    private String comicBookRetryExchange;
+
+    @Value("${amqp.queue.comic-book.retry.ttl}")
+    private int comicBookRetryTtl;
 
     // --- Échanges ---
     @Bean
     DirectExchange comicBookExchange() {
-        return new DirectExchange(ComicBookQueueConfig.EXCHANGE);
+        return new DirectExchange(comicBookExchange);
     }
 
     @Bean
     DirectExchange comicBookDeadLetterExchange() {
-        return new DirectExchange(ComicBookQueueConfig.DLX);
+        return new DirectExchange(comicBookDlx);
     }
 
     @Bean
     DirectExchange comicBookRetryDeadLetterExchange() {
-        return new DirectExchange(ComicBookRetryQueueConfig.EXCHANGE);
+        return new DirectExchange(comicBookRetryExchange);
     }
 
     // --- File d'attente principale ---
     @Bean
     Queue comicBookQueue() {
-        return QueueBuilder.durable(comicBookQueueName)
-                .withArgument("x-dead-letter-exchange", ComicBookRetryQueueConfig.EXCHANGE) // En cas d'échec, envoyer vers l'échange de retry
+        return QueueBuilder.durable(comicBookQueue)
+                .withArgument("x-dead-letter-exchange", comicBookRetryExchange) // En cas d'échec, envoyer vers l'échange de retry
                 .build();
     }
 
     // --- File d'attente de re-tentative (avec TTL) ---
     @Bean
     Queue comicBookRetryQueue() {
-        return QueueBuilder.durable(ComicBookRetryQueueConfig.QUEUE)
-                .withArgument("x-dead-letter-exchange", ComicBookQueueConfig.EXCHANGE) // Après TTL, renvoyer vers l'échange principal
-                .withArgument("x-message-ttl", ComicBookRetryQueueConfig.TTL)
+        return QueueBuilder.durable(comicBookRetryQueue)
+                .withArgument("x-dead-letter-exchange", comicBookExchange) // Après TTL, renvoyer vers l'échange principal
+                .withArgument("x-message-ttl", comicBookRetryTtl)
                 .build();
     }
 
     // --- File d'attente finale pour les échecs (DLQ) ---
     @Bean
     Queue comicBookDeadLetterQueue() {
-        return new Queue(ComicBookQueueConfig.DLQ);
+        return new Queue(comicBookDlq);
     }
 
     // --- Liaisons (Bindings) ---
     @Bean
     Binding comicBookBinding(Queue comicBookQueue, DirectExchange comicBookExchange) {
-        return BindingBuilder.bind(comicBookQueue).to(comicBookExchange).with(comicBookQueueName);
+        return BindingBuilder.bind(comicBookQueue).to(comicBookExchange).with(this.comicBookQueue);
     }
 
     @Bean
     Binding comicBookRetryBinding(Queue comicBookRetryQueue, DirectExchange comicBookRetryDeadLetterExchange) {
-        return BindingBuilder.bind(comicBookRetryQueue).to(comicBookRetryDeadLetterExchange).with(comicBookQueueName);
+        return BindingBuilder.bind(comicBookRetryQueue).to(comicBookRetryDeadLetterExchange).with(comicBookQueue);
     }
 
     @Bean
     Binding comicBookDlqBinding(Queue comicBookDeadLetterQueue, DirectExchange comicBookDeadLetterExchange) {
-        return BindingBuilder.bind(comicBookDeadLetterQueue).to(comicBookDeadLetterExchange).with(comicBookQueueName);
+        return BindingBuilder.bind(comicBookDeadLetterQueue).to(comicBookDeadLetterExchange).with(comicBookQueue);
     }
 }

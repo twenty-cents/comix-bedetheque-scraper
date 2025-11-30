@@ -9,79 +9,80 @@ import org.springframework.context.annotation.Configuration;
 public class AuthorRabbitMQConfig {
 
     @Value("${amqp.queue.author.name}")
-    private String authorQueueName;
+    private String authorQueue;
 
-    // --- Définition des noms pour une meilleure lisibilité ---
-    public static final class AuthorQueueConfig {
-        public static final String EXCHANGE = "comix.author.exchange";
-        public static final String DLQ = "comix.author.synchronize.dlq";
-        public static final String DLX = "comix.author.synchronize.dlx";
+    @Value("${amqp.exchange.author.name}")
+    private String authorExchange;
 
-        private AuthorQueueConfig() {}
-    }
+    @Value("${amqp.queue.author.dlq.name}")
+    private String authorDlq;
 
-    public static final class AuthorRetryQueueConfig {
-        public static final String QUEUE = "comix.author.synchronize.retry.dlq";
-        public static final String EXCHANGE = "comix.author.synchronize.retry.dlx";
-        public static final int TTL = 10000; // 10 secondes
+    @Value("${amqp.exchange.author.dlx.name}")
+    private String authorDlx;
 
-        private AuthorRetryQueueConfig() {}
-    }
+    @Value("${amqp.queue.author.retry.name}")
+    private String authorRetryQueue;
+
+    @Value("${amqp.exchange.author.retry.name}")
+    private String authorRetryExchange;
+
+    @Value("${amqp.queue.author.retry.ttl}")
+    private int authorRetryTtl;
 
     // --- Échanges ---
     @Bean
     DirectExchange authorExchange() {
-        return new DirectExchange(AuthorQueueConfig.EXCHANGE);
+        return new DirectExchange(authorExchange);
     }
 
     @Bean
     DirectExchange deadLetterExchange() {
-        return new DirectExchange(AuthorQueueConfig.DLX);
+        return new DirectExchange(authorDlx);
     }
 
     @Bean
     DirectExchange retryDeadLetterExchange() {
-        return new DirectExchange(AuthorRetryQueueConfig.EXCHANGE);
+        return new DirectExchange(authorRetryExchange);
     }
 
     // --- File d'attente principale ---
     @Bean
     Queue authorQueue() {
-        return QueueBuilder.durable(authorQueueName)
-                .withArgument("x-dead-letter-exchange", AuthorRetryQueueConfig.EXCHANGE) // En cas d'échec, envoyer vers l'échange de retry
+        return QueueBuilder.durable(authorQueue)
+                .withArgument("x-dead-letter-exchange", authorRetryExchange) // En cas d'échec, envoyer vers l'échange de retry
                 .build();
     }
 
     // --- File d'attente de re-tentative (avec TTL) ---
     @Bean
     Queue retryQueue() {
-        return QueueBuilder.durable(AuthorRetryQueueConfig.QUEUE)
-                .withArgument("x-dead-letter-exchange", AuthorQueueConfig.EXCHANGE) // Après TTL, renvoyer vers l'échange principal
-                .withArgument("x-message-ttl", AuthorRetryQueueConfig.TTL)
+        return QueueBuilder.durable(authorRetryQueue)
+                .withArgument("x-dead-letter-exchange", authorExchange) // Après TTL, renvoyer vers l'échange principal
+                .withArgument("x-message-ttl", authorRetryTtl)
                 .build();
     }
 
     // --- File d'attente finale pour les échecs (DLQ) ---
     @Bean
     Queue deadLetterQueue() {
-        return new Queue(AuthorQueueConfig.DLQ);
+        return new Queue(authorDlq);
     }
 
     // --- Liaisons (Bindings) ---
     @Bean
     Binding authorBinding(Queue authorQueue, DirectExchange authorExchange) {
-        return BindingBuilder.bind(authorQueue).to(authorExchange).with(authorQueueName);
+        return BindingBuilder.bind(authorQueue).to(authorExchange).with(this.authorQueue);
     }
 
     @Bean
     Binding retryBinding(Queue retryQueue, DirectExchange retryDeadLetterExchange) {
         // La clé de routage doit être la même que celle utilisée pour la file principale
-        return BindingBuilder.bind(retryQueue).to(retryDeadLetterExchange).with(authorQueueName);
+        return BindingBuilder.bind(retryQueue).to(retryDeadLetterExchange).with(authorQueue);
     }
 
     @Bean
     Binding dlqBinding(Queue deadLetterQueue, DirectExchange deadLetterExchange) {
         // La clé de routage doit être la même que celle utilisée pour la file principale
-        return BindingBuilder.bind(deadLetterQueue).to(deadLetterExchange).with(authorQueueName);
+        return BindingBuilder.bind(deadLetterQueue).to(deadLetterExchange).with(authorQueue);
     }
 }

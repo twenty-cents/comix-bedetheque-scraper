@@ -9,77 +9,78 @@ import org.springframework.context.annotation.Configuration;
 public class SerieRabbitMQConfig {
 
     @Value("${amqp.queue.serie.name}")
-    private String serieQueueName;
+    private String serieQueue;
 
-    // --- Définition des noms pour une meilleure lisibilité ---
-    public static final class SerieQueueConfig {
-        public static final String EXCHANGE = "comix.serie.exchange";
-        public static final String DLQ = "comix.serie.synchronize.dlq";
-        public static final String DLX = "comix.serie.synchronize.dlx";
+    @Value("${amqp.exchange.serie.name}")
+    private String serieExchange;
 
-        private SerieQueueConfig() {}
-    }
+    @Value("${amqp.queue.serie.dlq.name}")
+    private String serieDlq;
 
-    public static final class SerieRetryQueueConfig {
-        public static final String QUEUE = "comix.serie.synchronize.retry.dlq";
-        public static final String EXCHANGE = "comix.serie.synchronize.retry.dlx";
-        public static final int TTL = 10000; // 10 secondes
+    @Value("${amqp.exchange.serie.dlx.name}")
+    private String serieDlx;
 
-        private SerieRetryQueueConfig() {}
-    }
+    @Value("${amqp.queue.serie.retry.name}")
+    private String serieRetryQueue;
+
+    @Value("${amqp.exchange.serie.retry.name}")
+    private String serieRetryExchange;
+
+    @Value("${amqp.queue.serie.retry.ttl}")
+    private int serieRetryTtl;
 
     // --- Échanges ---
     @Bean
     DirectExchange serieExchange() {
-        return new DirectExchange(SerieQueueConfig.EXCHANGE);
+        return new DirectExchange(serieExchange);
     }
 
     @Bean
     DirectExchange serieDeadLetterExchange() {
-        return new DirectExchange(SerieQueueConfig.DLX);
+        return new DirectExchange(serieDlx);
     }
 
     @Bean
     DirectExchange serieRetryDeadLetterExchange() {
-        return new DirectExchange(SerieRetryQueueConfig.EXCHANGE);
+        return new DirectExchange(serieRetryExchange);
     }
 
     // --- File d'attente principale ---
     @Bean
     Queue serieQueue() {
-        return QueueBuilder.durable(serieQueueName)
-                .withArgument("x-dead-letter-exchange", SerieRetryQueueConfig.EXCHANGE) // En cas d'échec, envoyer vers l'échange de retry
+        return QueueBuilder.durable(serieQueue)
+                .withArgument("x-dead-letter-exchange", serieRetryExchange) // En cas d'échec, envoyer vers l'échange de retry
                 .build();
     }
 
     // --- File d'attente de re-tentative (avec TTL) ---
     @Bean
     Queue serieRetryQueue() {
-        return QueueBuilder.durable(SerieRetryQueueConfig.QUEUE)
-                .withArgument("x-dead-letter-exchange", SerieQueueConfig.EXCHANGE) // Après TTL, renvoyer vers l'échange principal
-                .withArgument("x-message-ttl", SerieRetryQueueConfig.TTL)
+        return QueueBuilder.durable(serieRetryQueue)
+                .withArgument("x-dead-letter-exchange", serieExchange) // Après TTL, renvoyer vers l'échange principal
+                .withArgument("x-message-ttl", serieRetryTtl)
                 .build();
     }
 
     // --- File d'attente finale pour les échecs (DLQ) ---
     @Bean
     Queue serieDeadLetterQueue() {
-        return new Queue(SerieQueueConfig.DLQ);
+        return new Queue(serieDlq);
     }
 
     // --- Liaisons (Bindings) ---
     @Bean
     Binding serieBinding(Queue serieQueue, DirectExchange serieExchange) {
-        return BindingBuilder.bind(serieQueue).to(serieExchange).with(serieQueueName);
+        return BindingBuilder.bind(serieQueue).to(serieExchange).with(this.serieQueue);
     }
 
     @Bean
     Binding serieRetryBinding(Queue serieRetryQueue, DirectExchange serieRetryDeadLetterExchange) {
-        return BindingBuilder.bind(serieRetryQueue).to(serieRetryDeadLetterExchange).with(serieQueueName);
+        return BindingBuilder.bind(serieRetryQueue).to(serieRetryDeadLetterExchange).with(serieQueue);
     }
 
     @Bean
     Binding serieDlqBinding(Queue serieDeadLetterQueue, DirectExchange serieDeadLetterExchange) {
-        return BindingBuilder.bind(serieDeadLetterQueue).to(serieDeadLetterExchange).with(serieQueueName);
+        return BindingBuilder.bind(serieDeadLetterQueue).to(serieDeadLetterExchange).with(serieQueue);
     }
 }

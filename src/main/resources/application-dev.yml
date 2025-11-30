@@ -29,17 +29,44 @@ amqp:
   queue:
     author:
       name: ${AMQP_QUEUE_AUTHOR_NAME:comix.author.synchronize}
-    comicBook:
+      dlq:
+        name: ${AMQP_QUEUE_AUTHOR_DLQ_NAME:comix.author.synchronize.dlq}
+      retry:
+        name: ${AMQP_QUEUE_AUTHOR_RETRY_NAME:comix.author.synchronize.retry.dlq}
+        ttl: ${AMQP_QUEUE_AUTHOR_RETRY_TTL:10000}
+    comic-book:
       name: ${AMQP_QUEUE_COMIC_NAME:comix.comic-book.synchronize}
+      dlq:
+        name: ${AMQP_QUEUE_COMIC_DLQ_NAME:comix.comic-book.synchronize.dlq}
+      retry:
+        name: ${AMQP_QUEUE_COMIC_RETRY_NAME:comix.comic-book.synchronize.retry.dlq}
+        ttl: ${AMQP_QUEUE_COMIC_RETRY_TTL:10000}
     serie:
       name: ${AMQP_QUEUE_SERIE_NAME:comix.serie.synchronize}
+      dlq:
+        name: ${AMQP_QUEUE_SERIE_DLQ_NAME:comix.serie.synchronize.dlq}
+      retry:
+        name: ${AMQP_QUEUE_SERIE_RETRY_NAME:comix.serie.synchronize.retry.dlq}
+        ttl: ${AMQP_QUEUE_SERIE_RETRY_TTL:10000}
   exchange:
     author:
       name: ${AMQP_EXCHANGE_AUTHOR_NAME:comix.author.exchange}
-    comicBook:
+      dlx:
+        name: ${AMQP_EXCHANGE_AUTHOR_DLX_NAME:comix.author.synchronize.dlx}
+      retry:
+        name: ${AMQP_EXCHANGE_AUTHOR_RETRY_NAME:comix.author.synchronize.retry.dlx}
+    comic-book:
       name: ${AMQP_EXCHANGE_COMIC_NAME:comix.comic-book.exchange}
+      dlx:
+        name: ${AMQP_EXCHANGE_COMIC_DLX_NAME:comix.author.synchronize.dlx}
+      retry:
+        name: ${AMQP_EXCHANGE_COMIC_RETRY_NAME:comix.author.synchronize.retry.dlx}
     serie:
       name: ${AMQP_EXCHANGE_SERIE_NAME:comix.serie.exchange}
+      dlx:
+        name: ${AMQP_EXCHANGE_SERIE_DLX_NAME:comix.serie.synchronize.dlx}
+      retry:
+        name: ${AMQP_EXCHANGE_SERIE_RETRY_NAME:comix.serie.synchronize.retry.dlx}
 producer:
   retry:
     max-attempts: ${BEDETHEQUE_SCRAPER_MAX_ATTEMPTS:3}
