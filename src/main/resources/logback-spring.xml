@@ -6,6 +6,7 @@
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
     <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="unknown-service"/>
+    <springProperty scope="context" name="SPRING_PROFILES_ACTIVE" source="spring.profiles.active" defaultValue="default"/>
 
     <springProfile name="!dev &amp; !int &amp; !dev-docker-hybrid">
         <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
@@ -28,7 +29,7 @@
                             "class": "%logger{40}",
                             "rest": "%message",
                             "app": "comix",
-                            "env": "${SPRING_PROFILES_ACTIVE:-}"
+                            "env": "${SPRING_PROFILES_ACTIVE}"
                             }
                         </pattern>
                     </pattern>
