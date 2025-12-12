@@ -16,10 +16,8 @@ pipeline{
         NEXUS_URL = credentials("NEXUS_URL")
         // Jenkins credentials to connect to Nexus
         NEXUS_CREDENTIALS = "NEXUS_CREDENTIALS"
-        // Logstash server URL
-        LOGSTASH_URL = credentials("LOGSTASH_URL")
-        // Logstash port for Comix index
-        COMIX_LOGSTASH_PORT = credentials("COMIX_LOGSTASH_PORT")
+        // NVD API key
+        JENKINS_NVD_API_KEY = credentials("NVD_API_KEY")
         // Application config server url
         JENKINS_COMIX_CONFIG_SERVER_URL = credentials("COMIX_CONFIG_SERVER_URL_STAGE")
         // Application config server port
@@ -28,14 +26,25 @@ pipeline{
         JENKINS_COMIX_DISCOVERY_SERVER_URL = credentials("COMIX_DISCOVERY_SERVER_URL_STAGE")
         // Application server port
         JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT = credentials("COMIX_BEDETHEQUE_SCRAPER_PORT_STAGE")
-        JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_URL = credentials("COMIX_BEDETHEQUE_SCRAPER_DB_URL_STAGE")
-        JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME = credentials("COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME_STAGE")
-        JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD = credentials("COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD_STAGE")
+        // Logstash
+        JENKINS_INIT_CONTAINER_LOGSTASH_URL = credentials("INIT_CONTAINER_LOGSTASH_URL")
+        JENKINS_LOGSTASH_IP = credentials("LOGSTASH_IP")
+        JENKINS_LOGSTASH_HOSTNAME = credentials("LOGSTASH_HOSTNAME")
+        // Postgres
+        JENKINS_INIT_CONTAINER_POSTGRES_URL = credentials("INIT_CONTAINER_POSTGRES_URL")
+        JENKINS_DB_HOSTNAME = credentials("POSTGRES_HOSTNAME")
+        JENKINS_DB_IP = credentials("POSTGRES_IP")
+        JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME = credentials("POSTGRES_USERNAME")
+        JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD = credentials("POSTGRES_PASSWORD")
         // RabbitMQ
-        JENKINS_SPRING_RABBITMQ_HOST = credentials("RABBITMQ_HOST")
-        JENKINS_SPRING_RABBITMQ_PORT = credentials("RABBITMQ_PORT")
+        JENKINS_INIT_CONTAINER_RABBITMQ_URL = credentials("INIT_CONTAINER_RABBITMQ_URL")
+        JENKINS_RABBITMQ_HOSTNAME = credentials("RABBITMQ_HOSTNAME")
+        JENKINS_RABBITMQ_IP = credentials("RABBITMQ_IP")
         JENKINS_SPRING_RABBITMQ_USERNAME = credentials("RABBITMQ_USERNAME")
         JENKINS_SPRING_RABBITMQ_PASSWORD = credentials("RABBITMQ_PASSWORD")
+        // Private DNS for internal services
+        JENKINS_DNS_IP = credentials("DNS_IP")
+        JENKINS_DNS_HOSTNAME = credentials("DNS_HOSTNAME")
     }
     parameters {
       gitParameter branchFilter: 'origin/(.*)', defaultValue: 'master', name: 'BRANCH', type: 'PT_BRANCH'
@@ -78,6 +87,14 @@ pipeline{
 
                  sh "mvn test"
                  sh "mvn org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent org.jacoco:jacoco-maven-plugin:0.8.12:report"
+             }
+         }
+
+         stage("Dependency Check"){
+             steps {
+                echo '--- STAGE Dependency Check ---'
+
+                 sh "mvn -B org.owasp:dependency-check-maven:aggregate -DnvdApiKey='$JENKINS_NVD_API_KEY' -DfailBuildOnCVSS=11 -Dformats=XML,JSON,HTML"
              }
          }
 
@@ -172,8 +189,6 @@ pipeline{
                      sh "sed -i -E 's/NEXUS_DOCKER_REPOSITORY/$NEXUS_URL/g' '${deploymentFile}'"
                      sh "sed -i -E 's/POM_VERSION/$pom_version/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_BUILD_NUMBER/$imageTag/g' '${deploymentFile}'"
-                     sh "sed -i -E 's/JENKINS_LOGSTASH_URL/$LOGSTASH_URL/g' '${deploymentFile}'"
-                     sh "sed -i -E 's/JENKINS_COMIX_LOGSTASH_PORT/$COMIX_LOGSTASH_PORT/g' '${deploymentFile}'"
 
                      sh "sed -i -E 's/JENKINS_NAMESPACE/comix-stage/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_ENV/stage/g' '${deploymentFile}'"
@@ -182,13 +197,23 @@ pipeline{
                      sh "sed -i -E 's/JENKINS_COMIX_CONFIG_SERVER_PORT/$JENKINS_COMIX_CONFIG_SERVER_PORT/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_DISCOVERY_SERVER_URL/$JENKINS_COMIX_DISCOVERY_SERVER_URL/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_PORT/g' '${deploymentFile}'"
-
-                     sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_URL/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_URL/g' '${deploymentFile}'"
+                     // Logstash
+                     sh "sed -i -E 's/JENKINS_INIT_CONTAINER_LOGSTASH_URL/$JENKINS_INIT_CONTAINER_LOGSTASH_URL/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_LOGSTASH_IP/$JENKINS_LOGSTASH_IP/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_LOGSTASH_HOSTNAME/$JENKINS_LOGSTASH_HOSTNAME/g' '${deploymentFile}'"
+                     // Private DNS for internal services
+                     sh "sed -i -E 's/JENKINS_DNS_IP/$JENKINS_DNS_IP/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_DNS_HOSTNAME/$JENKINS_DNS_HOSTNAME/g' '${deploymentFile}'"
+                     // Postgres
+                     sh "sed -i -E 's/JENKINS_INIT_CONTAINER_POSTGRES_URL/$JENKINS_INIT_CONTAINER_POSTGRES_URL/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_DB_IP/$JENKINS_DB_IP/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_DB_HOSTNAME/$JENKINS_DB_HOSTNAME/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_USERNAME/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD/$JENKINS_COMIX_BEDETHEQUE_SCRAPER_DB_PASSWORD/g' '${deploymentFile}'"
-
-                     sh "sed -i -E 's/JENKINS_SPRING_RABBITMQ_HOST/$JENKINS_SPRING_RABBITMQ_HOST/g' '${deploymentFile}'"
-                     sh "sed -i -E 's/JENKINS_SPRING_RABBITMQ_PORT/$JENKINS_SPRING_RABBITMQ_PORT/g' '${deploymentFile}'"
+                     // Rabbit MQ
+                     sh "sed -i -E 's/JENKINS_INIT_CONTAINER_RABBITMQ_URL/$JENKINS_INIT_CONTAINER_RABBITMQ_URL/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_RABBITMQ_IP/$JENKINS_RABBITMQ_IP/g' '${deploymentFile}'"
+                     sh "sed -i -E 's/JENKINS_RABBITMQ_HOSTNAME/$JENKINS_RABBITMQ_HOSTNAME/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_SPRING_RABBITMQ_USERNAME/$JENKINS_SPRING_RABBITMQ_USERNAME/g' '${deploymentFile}'"
                      sh "sed -i -E 's/JENKINS_SPRING_RABBITMQ_PASSWORD/$JENKINS_SPRING_RABBITMQ_PASSWORD/g' '${deploymentFile}'"
 

@@ -13,6 +13,10 @@ management:
       probes:
         enabled: true
 
+  tracing:
+    sampling:
+      probability: 1.0 # En production, vous pourriez vouloir une valeur plus basse comme 0.1
+
 application:
   downloads:
     localcache:

@@ -7,6 +7,8 @@
 
     <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="unknown-service"/>
     <springProperty scope="context" name="SPRING_PROFILES_ACTIVE" source="spring.profiles.active" defaultValue="default"/>
+    <springProperty scope="context" name="LOGSTASH_URL" source="logging.logstash.url" defaultValue="localhost"/>
+    <springProperty scope="context" name="LOGSTASH_PORT" source="logging.logstash.port" defaultValue="5000"/>
 
     <springProfile name="!dev &amp; !int &amp; !dev-docker-hybrid">
         <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
@@ -21,9 +23,8 @@
                             {
                             "severity": "%level",
                             "service": "${APP_NAME}",
-                            "trace": "%X{X-B3-TraceId:-}",
-                            "span": "%X{X-B3-SpanId:-}",
-                            "exportable": "%X{X-Span-Export:-}",
+                            "trace_id": "%X{traceId:-}",
+                            "span_id": "%X{spanId:-}",
                             "pid": "${PID:-}",
                             "thread": "%thread",
                             "class": "%logger{40}",
