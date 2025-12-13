@@ -41,4 +41,7 @@ public class OutboxMessage {
     private LocalDateTime createdAt;
 
     public enum Status { PENDING, SENT, FAILED }
+
+    @Column(name = "content")
+    private String content;
 }

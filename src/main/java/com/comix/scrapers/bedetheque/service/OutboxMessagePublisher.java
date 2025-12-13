@@ -52,8 +52,10 @@ public class OutboxMessagePublisher {
 
                 message.setStatus(OutboxMessage.Status.SENT);
                 outboxRepository.save(message);
+                log.info("Message ID {} published successfully. Exchange: '{}', RoutingKey: '{}', Content: '{}'",
+                        message.getId(), message.getExchange(), message.getRoutingKey(), message.getContent());
             } catch (Exception e) {
-                log.warn("Failed to publish message ID {}. It will be retried later.", message.getId(), e);
+                log.warn("Failed to publish message ID {}. It will be retried later. Content: '{}'", message.getId(), message.getContent(), e);
                 // La transaction sera rollback, le statut restera PENDING
             }
         }

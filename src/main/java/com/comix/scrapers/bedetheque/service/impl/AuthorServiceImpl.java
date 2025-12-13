@@ -75,7 +75,14 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public AuthorDetailsDto scrap(String url) {
         AuthorDetailsDto authorDetailsDto = authorMapper.authorDetailsToAuthorDetailsDto(authorScraper.scrap(url));
-        outboxMessageProducer.saveToOutbox(authorExchangeName, authorQueueName, authorDetailsDto);
+        if(authorDetailsDto != null) {
+            String msg = String.format("Author : (%s) %s - %s - %s",
+                    authorDetailsDto.getId(),
+                    authorDetailsDto.getFirstname(),
+                    authorDetailsDto.getLastname(),
+                    authorDetailsDto.getNickname());
+            outboxMessageProducer.saveToOutbox(authorExchangeName, authorQueueName, authorDetailsDto, msg);
+        }
         return authorDetailsDto;
     }
 }

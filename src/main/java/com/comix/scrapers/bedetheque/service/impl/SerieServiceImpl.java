@@ -73,7 +73,12 @@ public class SerieServiceImpl implements SerieService {
     @Override
     public SerieDetailsDto scrap(String url) {
         SerieDetailsDto serieDetailsDto = serieMapper.serieDetailsToSerieDetailsDto(serieScraper.scrap(url));
-        outboxMessageProducer.saveToOutbox(serieExchangeName, serieQueueName, serieDetailsDto);
+        if(serieDetailsDto != null) {
+            String msg = String.format("Serie : (%s) %s",
+                    serieDetailsDto.getExternalId(),
+                    serieDetailsDto.getTitle());
+            outboxMessageProducer.saveToOutbox(serieExchangeName, serieQueueName, serieDetailsDto, msg);
+        }
         return serieDetailsDto;
     }
 }

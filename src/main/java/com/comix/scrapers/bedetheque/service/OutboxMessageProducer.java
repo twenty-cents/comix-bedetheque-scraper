@@ -24,17 +24,22 @@ public class OutboxMessageProducer {
     private boolean outboxPublisherEnabled;
 
     public void saveToOutbox(String exchange, String routingKey, Object payload) {
+        saveToOutbox(exchange, routingKey, payload, "");
+    }
+
+    public void saveToOutbox(String exchange, String routingKey, Object payload, String label) {
         if (!outboxPublisherEnabled) {
             return;
         }
 
         try {
-            log.info("Saving message to outbox for publishing. Exchange: '{}', RoutingKey: '{}'", exchange, routingKey);
+            log.info("Saving message to outbox for publishing. Exchange: '{}', RoutingKey: '{}', Content: '{}'", exchange, routingKey, label);
             OutboxMessage outboxMessage = new OutboxMessage();
             outboxMessage.setExchange(exchange);
             outboxMessage.setRoutingKey(routingKey);
             outboxMessage.setPayload(objectMapper.writeValueAsString(payload));
             outboxMessage.setPayloadType(payload.getClass().getName());
+            outboxMessage.setContent(label);
             outboxRepository.save(outboxMessage);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize payload for outbox. Message will be lost! Payload class: {}", payload.getClass().getName(), e);

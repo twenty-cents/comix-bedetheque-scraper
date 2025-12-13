@@ -59,7 +59,14 @@ public class GraphicNovelServiceImpl implements GraphicNovelService {
         scrapGraphicNovelsResponseDto.setTotalPages(graphicNovelPage.getTotalPages());
 
         for (GraphicNovelDto graphicNovelDto : scrapGraphicNovelsResponseDto.getGraphicNovels()) {
-            outboxMessageProducer.saveToOutbox(comicExchangeName, comicQueueName, graphicNovelDto);
+            if(graphicNovelDto != null) {
+                String msg = String.format("Comic book : (%s) %s - %s - %s",
+                        graphicNovelDto.getExternalId(),
+                        graphicNovelDto.getTome(),
+                        graphicNovelDto.getNumEdition(),
+                        graphicNovelDto.getTitle());
+                outboxMessageProducer.saveToOutbox(comicExchangeName, comicQueueName, graphicNovelDto, msg);
+            }
         }
 
         return scrapGraphicNovelsResponseDto;
@@ -78,7 +85,14 @@ public class GraphicNovelServiceImpl implements GraphicNovelService {
         scrapAllRepublicationsResponseDto.setGraphicNovels(graphicNovelMapper.graphicNovelToGraphicNovelsDto(graphicNovels));
 
         for (GraphicNovelDto graphicNovelDto : scrapAllRepublicationsResponseDto.getGraphicNovels()) {
-            outboxMessageProducer.saveToOutbox(comicExchangeName, comicQueueName, graphicNovelDto);
+            if(graphicNovelDto != null) {
+                String msg = String.format("Comic book : (%s) %s - %s - %s",
+                        graphicNovelDto.getExternalId(),
+                        graphicNovelDto.getTome(),
+                        graphicNovelDto.getNumEdition(),
+                        graphicNovelDto.getTitle());
+                outboxMessageProducer.saveToOutbox(comicExchangeName, comicQueueName, graphicNovelDto, msg);
+            }
         }
         return scrapAllRepublicationsResponseDto;
     }
