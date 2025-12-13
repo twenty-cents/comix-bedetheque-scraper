@@ -249,6 +249,10 @@ public class GraphicNovelScraper extends GenericScraper {
             serie.setUrl(attr(serieElement, HTML.Attribute.HREF));
             serie.setId(scrapSerieIdFromUrl(serie.getUrl()));
         }
+        // Add complete url if needed
+        if(serie.getUrl() != null && serie.getUrl().startsWith("serie-")) {
+            serie.setUrl("https://www.bedetheque.com/" + serie.getUrl());
+        }
         return serie;
     }
 
