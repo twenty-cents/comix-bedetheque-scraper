@@ -10,6 +10,7 @@ import com.comix.scrapers.bedetheque.rest.v1.dto.ScrapGraphicNovelsResponseDto;
 import com.comix.scrapers.bedetheque.service.GraphicNovelService;
 import com.comix.scrapers.bedetheque.service.OutboxMessageProducer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -60,16 +61,26 @@ public class GraphicNovelServiceImpl implements GraphicNovelService {
 
         for (GraphicNovelDto graphicNovelDto : scrapGraphicNovelsResponseDto.getGraphicNovels()) {
             if(graphicNovelDto != null) {
-                String msg = String.format("Comic book : (%s) %s - %s - %s",
+                String msg = String.format("Comic book : (%s) %s",
                         graphicNovelDto.getExternalId(),
-                        graphicNovelDto.getTome(),
-                        graphicNovelDto.getNumEdition(),
-                        graphicNovelDto.getTitle());
+                        buildTomeLabel(graphicNovelDto.getTome(), graphicNovelDto.getNumEdition(), graphicNovelDto.getTitle()));
                 outboxMessageProducer.saveToOutbox(comicExchangeName, comicQueueName, graphicNovelDto, msg);
             }
         }
 
         return scrapGraphicNovelsResponseDto;
+    }
+
+    private String buildTomeLabel(String tome, String numEdition, String title) {
+        String label = "";
+        if(!StringUtils.isEmpty(tome)) {
+            label = "T" + tome;
+        }
+        if(!StringUtils.isEmpty(numEdition)) {
+            label +=  numEdition;
+        }
+        label += ". " + title;
+        return label;
     }
 
     /**
@@ -86,11 +97,9 @@ public class GraphicNovelServiceImpl implements GraphicNovelService {
 
         for (GraphicNovelDto graphicNovelDto : scrapAllRepublicationsResponseDto.getGraphicNovels()) {
             if(graphicNovelDto != null) {
-                String msg = String.format("Comic book : (%s) %s - %s - %s",
+                String msg = String.format("Comic book : (%s) %s",
                         graphicNovelDto.getExternalId(),
-                        graphicNovelDto.getTome(),
-                        graphicNovelDto.getNumEdition(),
-                        graphicNovelDto.getTitle());
+                        buildTomeLabel(graphicNovelDto.getTome(), graphicNovelDto.getNumEdition(), graphicNovelDto.getTitle()));
                 outboxMessageProducer.saveToOutbox(comicExchangeName, comicQueueName, graphicNovelDto, msg);
             }
         }
