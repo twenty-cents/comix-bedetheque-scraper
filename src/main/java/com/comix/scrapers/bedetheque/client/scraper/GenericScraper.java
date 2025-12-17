@@ -4,6 +4,7 @@ import com.comix.scrapers.bedetheque.exception.BusinessException;
 import com.comix.scrapers.bedetheque.exception.TechnicalException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.*;
 import java.net.URI;
@@ -19,7 +20,8 @@ import java.util.Set;
 @Slf4j
 public class GenericScraper extends Scraper {
 
-    public static final int HASHED_DIRECTORY_STEP = 10000;
+    @Value("${application.downloads.localcache.hashed-directory-step:5000}")
+    private int hashedDirectoryStep;
 
     /**
      * Download a media from a http source to a local file
@@ -142,7 +144,7 @@ public class GenericScraper extends Scraper {
         String hashedDir = idMedia;
         if (StringUtils.isNumeric(idMedia)) {
             int id = Integer.parseInt(idMedia);
-            int hashedDirRange = id / HASHED_DIRECTORY_STEP;
+            int hashedDirRange = id / hashedDirectoryStep;
             hashedDir = String.valueOf(hashedDirRange);
         }
         return hashedDir;

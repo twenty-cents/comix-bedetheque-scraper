@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +46,7 @@ class GenericScraperTest {
     @BeforeEach
     void setUp() {
         genericScraper = new GenericScraper();
+        ReflectionTestUtils.setField(genericScraper, "hashedDirectoryStep", 5000);
     }
 
     @Nested

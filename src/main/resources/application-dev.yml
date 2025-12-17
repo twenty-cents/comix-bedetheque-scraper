@@ -91,6 +91,7 @@ application:
       active: true
       basepath: '@project.basedir@/target/classes/static/medias'
       mediasUrlPattern: ${BEDETHEQUE_SCRAPER_MEDIAS_URL_PATTERN:/api/bedetheque-scraper/medias/**}
+      hashed-directory-step: ${BEDETHEQUE_SCRAPER_HASHED_DIRECTORY_STEP:5000}
     authors:
       photo:
         hd: ${BEDETHEQUE_SCRAPER_DOWNLOADS_AUTHORS_PHOTO_HD:@project.basedir@/target/classes/static/medias/bedetheque/authors/photo/hd/}
