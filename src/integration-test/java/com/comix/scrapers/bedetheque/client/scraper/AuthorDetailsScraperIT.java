@@ -5,10 +5,13 @@ import com.comix.scrapers.bedetheque.client.model.author.AuthorDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +31,22 @@ class AuthorDetailsScraperIT {
     @Value("#{new Long('${application.scraping.latency}')}")
     private Long latency;
 
+    private String outputAuthorThumbDirectory;
+    private String outputAuthorHdDirectory;
+
+    @Value("${application.http.medias.authors.photo.thumbs}")
+    private String httpAuthorThumbPath;
+
+    @Value("${application.http.medias.authors.photo.hd}")
+    private String httpAuthorHdPath;
+
+    @Value("${application.http.medias.graphic-novels.cover-front.thumbs}")
+    private String httpCoverFrontThumbDirectory;
+
     private AuthorScraper authorScraper;
+
+    @TempDir
+    Path tempDir;
 
     @BeforeEach
     void setup() {
@@ -37,6 +55,18 @@ class AuthorDetailsScraperIT {
         authorScraper.setBedethequeAuthorsListByLetter(bedethequeAuthorsListByLetter);
         authorScraper.setBedethequeAuthorPrefixUrl(bedethequeAuthorPrefixUrl);
         authorScraper.setLatency(latency);
+        // On construit un chemin sûr à l'intérieur du répertoire temporaire
+        outputAuthorThumbDirectory = tempDir.resolve("path/author/thumbs").toString();
+        outputAuthorHdDirectory = tempDir.resolve("path/author/hd").toString();
+        String outputCoverFrontThumbDirectory = tempDir.resolve("path/cover/thumbs").toString();
+
+        ReflectionTestUtils.setField(authorScraper, "hashedDirectoryStep", 5000);
+        ReflectionTestUtils.setField(authorScraper, "outputAuthorThumbDirectory", outputAuthorThumbDirectory);
+        ReflectionTestUtils.setField(authorScraper, "outputAuthorHdDirectory", outputAuthorHdDirectory);
+        ReflectionTestUtils.setField(authorScraper, "httpAuthorThumbPath", httpAuthorThumbPath);
+        ReflectionTestUtils.setField(authorScraper, "httpAuthorHdPath", httpAuthorHdPath);
+        ReflectionTestUtils.setField(authorScraper, "outputCoverFrontThumbDirectory", outputCoverFrontThumbDirectory);
+        ReflectionTestUtils.setField(authorScraper, "httpCoverFrontThumbDirectory", httpCoverFrontThumbDirectory);
     }
 
     @Test
@@ -85,9 +115,19 @@ class AuthorDetailsScraperIT {
         assertThat(scrapAuthorDetails.getOtherAuthorPseudonym().getId()).isEqualTo("3729");
         assertThat(scrapAuthorDetails.getOtherAuthorPseudonym().getName()).isEqualTo("Albert, Louis");
         assertThat(scrapAuthorDetails.getOtherAuthorPseudonym().getUrl()).isEqualTo("https://www.bedetheque.com/auteur-3729-BD-Albert-Louis.html");
-        assertThat(scrapAuthorDetails.getPhotoUrl()).isEqualToIgnoringCase("https://www.bedetheque.com/media/Photos/Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getOriginalPhotoUrl()).isEqualToIgnoringCase("https://www.bedetheque.com/media/Photos/Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getPhotoUrl()).isEqualToIgnoringCase("http:/localhost:8080/authors/photo/hd/0/Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getPhotoPath()).isEqualToIgnoringCase(outputAuthorHdDirectory + "/0/Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getPhotoFilename()).isEqualToIgnoringCase("Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getIsPhotoUrlChecked()).isFalse();
+        assertThat(scrapAuthorDetails.getPhotoSize()).isEqualTo(0);
         assertThat(scrapAuthorDetails.getBiography()).isGreaterThan("");
         assertThat(scrapAuthorDetails.getAuthorUrl()).isEqualToIgnoringCase("https://www.bedetheque.com/auteur-77-BD-Greg.html");
-        assertThat(scrapAuthorDetails.getPhotoThbUrl()).isEqualToIgnoringCase("https://www.bedetheque.com/media/Photos/Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getOriginalPhotoThbUrl()).isEqualToIgnoringCase("https://www.bedetheque.com/media/Photos/Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getPhotoThbUrl()).isEqualToIgnoringCase("http:/localhost:8080/authors/photo/thumbs/0/Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getPhotoThbPath()).isEqualToIgnoringCase(outputAuthorThumbDirectory + "/0/Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getPhotoThbFilename()).isEqualToIgnoringCase("Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getIsPhotoThbUrlChecked()).isFalse();
+        assertThat(scrapAuthorDetails.getPhotoThbSize()).isEqualTo(0);
     }
 }

@@ -13,16 +13,15 @@ public class SerieToDiscover implements Comparable<SerieToDiscover> {
     private String id;
     private String title;
     private String url;
+    private String originalCoverUrl;
     private String coverUrl;
+    private String coverPath;
+    private String coverFilename;
+    private Long coverSize;
+    private Boolean isCoverChecked;
     private String coverTitle;
 
     public int compareTo(SerieToDiscover s2){
-        if(title.compareTo(s2.title) == 0) {
-            return 0;
-        } else if(title.compareTo(s2.title) > 0) {
-            return 1;
-        } else {
-            return -1;
-        }
+        return Integer.compare(title.compareTo(s2.title), 0);
     }
 }

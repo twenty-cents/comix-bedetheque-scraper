@@ -23,8 +23,21 @@ public class AuthorDetails {
     private String biography;
     private String siteUrl;
     private Author otherAuthorPseudonym;
+
+    private String originalPhotoUrl;
     private String photoUrl;
+    private Boolean isPhotoUrlChecked;
+    private String photoPath;
+    private String photoFilename;
+    private Long photoSize;
+
+    private String originalPhotoThbUrl;
     private String photoThbUrl;
+    private Boolean isPhotoThbUrlChecked;
+    private String photoThbPath;
+    private String photoThbFilename;
+    private Long photoThbSize;
+
     private String authorUrl;
     private List<Author> authorsToDiscover;
     private List<SerieToDiscover> seriesToDiscover;
