@@ -20,13 +20,16 @@ class SerieToDiscoverTest {
 
         // When & Then
         // "Asterix" vient avant "Blacksad" -> négatif
-        assertThat(serieA.compareTo(serieB)).isNegative();
+        int r = serieA.compareTo(serieB);
+        assertThat(r).isNegative();
 
         // "Blacksad" vient après "Asterix" -> positif
-        assertThat(serieB.compareTo(serieA)).isPositive();
+        r = serieB.compareTo(serieA);
+        assertThat(r).isPositive();
 
         // "Asterix" est égal à "Asterix" -> zéro
-        assertThat(serieA.compareTo(serieAClone)).isZero();
+        r = serieA.compareTo(serieAClone);
+        assertThat(r).isZero();
     }
 
     @Test
@@ -57,7 +60,7 @@ class SerieToDiscoverTest {
         differentSerie.setId("2");
 
         assertThat(serie).isEqualTo(sameSerie);
-        assertThat(serie.hashCode()).isEqualTo(sameSerie.hashCode());
+        assertThat(serie.hashCode()).hasSameHashCodeAs(sameSerie.hashCode());
         assertThat(serie).isNotEqualTo(differentSerie);
 
         // Test ToString
