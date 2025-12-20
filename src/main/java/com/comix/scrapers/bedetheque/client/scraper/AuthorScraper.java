@@ -466,7 +466,7 @@ public class AuthorScraper extends GenericScraper {
      *
      * @param author the author
      */
-    protected void downloadPhotoHd(AuthorDetails author) {
+    void downloadPhotoHd(AuthorDetails author) {
         if (!StringUtils.isBlank(author.getPhotoUrl())) {
             try {
                 download(author.getOriginalPhotoUrl(), author.getPhotoPath());
@@ -485,7 +485,7 @@ public class AuthorScraper extends GenericScraper {
      *
      * @param author the author
      */
-    protected void downloadPhotoThumbnail(AuthorDetails author) {
+    void downloadPhotoThumbnail(AuthorDetails author) {
         if (!StringUtils.isBlank(author.getPhotoThbUrl())) {
             try {
                 download(author.getOriginalPhotoThbUrl(), author.getPhotoThbPath());
@@ -504,7 +504,7 @@ public class AuthorScraper extends GenericScraper {
      *
      * @param author the author
      */
-    protected void downloadSerieCovers(AuthorDetails author) {
+    void downloadSerieCovers(AuthorDetails author) {
         for (SerieToDiscover s : author.getSeriesToDiscover()) {
             if (!StringUtils.isBlank(s.getCoverUrl())) {
                 try {

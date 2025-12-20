@@ -298,9 +298,7 @@ class AuthorScraperTest {
 
         // 4. On "stub" les méthodes download... pour qu'elles ne fassent pas de vrai téléchargement.
         // On utilise doReturn().when(spy) pour les espions.
-        doNothing().when(scraperSpy).downloadPhotoHd(any());
-        doNothing().when(scraperSpy).downloadPhotoThumbnail(any());
-        doNothing().when(scraperSpy).downloadSerieCovers(any());
+        doNothing().when(scraperSpy).download(anyString(), anyString());
 
         // 5. On mock le singleton pour qu'il retourne notre document contrôlé.
         try (MockedStatic<GenericScraperSingleton> mockedSingleton = Mockito.mockStatic(GenericScraperSingleton.class)) {
