@@ -29,14 +29,7 @@ public class AuthorDetails {
     private Boolean isPhotoUrlChecked;
     private String photoPath;
     private String photoFilename;
-    private Long photoSize;
-
-    private String originalPhotoThbUrl;
-    private String photoThbUrl;
-    private Boolean isPhotoThbUrlChecked;
-    private String photoThbPath;
-    private String photoThbFilename;
-    private Long photoThbSize;
+    private Long photoFileSize;
 
     private String authorUrl;
     private List<Author> authorsToDiscover;

@@ -36,7 +36,6 @@ class AuthorScraperTest {
     void setUp() {
         authorScraper = new AuthorScraper();
         // On construit un chemin sûr à l'intérieur du répertoire temporaire
-        String outputAuthorThumbDirectory = tempDir.resolve("path/author/thumbs").toString();
         String outputAuthorHdDirectory = tempDir.resolve("path/author/hd").toString();
         String outputCoverFrontThumbDirectory = tempDir.resolve("path/cover/thumbs").toString();
         // On injecte manuellement les valeurs de configuration pour le test
@@ -45,9 +44,7 @@ class AuthorScraperTest {
         authorScraper.setLocalCacheActive(false); // Désactivé par défaut pour les tests unitaires
         authorScraper.setLatency(0L);
         ReflectionTestUtils.setField(authorScraper, "hashedDirectoryStep", 5000);
-        ReflectionTestUtils.setField(authorScraper, "outputAuthorThumbDirectory", outputAuthorThumbDirectory);
         ReflectionTestUtils.setField(authorScraper, "outputAuthorHdDirectory", outputAuthorHdDirectory);
-        ReflectionTestUtils.setField(authorScraper, "httpAuthorThumbPath", "http://localhost:8080/authors/photo/thumbs");
         ReflectionTestUtils.setField(authorScraper, "httpAuthorHdPath", "http://localhost:8080/authors/photo/hd");
         ReflectionTestUtils.setField(authorScraper, "outputCoverFrontThumbDirectory", outputCoverFrontThumbDirectory);
         ReflectionTestUtils.setField(authorScraper, "httpCoverFrontThumbDirectory", "http://localhost:8080/series/cover-front/thumbs/");
@@ -180,7 +177,6 @@ class AuthorScraperTest {
                 assertThat(details.getSiteUrl()).isEqualTo("http://john.doe");
                 assertThat(details.getBiography()).isEqualTo("Une biographie intéressante.");
                 assertThat(details.getPhotoUrl()).isEqualTo("http:/localhost:8080/authors/photo/hd/0/photo.jpg");
-                assertThat(details.getPhotoThbUrl()).isEqualTo("http:/localhost:8080/authors/photo/thumbs/0/photo_thb.jpg");
                 assertThat(details.getOtherAuthorPseudonym()).isNotNull();
                 assertThat(details.getOtherAuthorPseudonym().getId()).isEqualTo("456");
                 assertThat(details.getOtherAuthorPseudonym().getName()).isEqualTo("Alias, John");
@@ -237,9 +233,7 @@ class AuthorScraperTest {
             scraperSpy.setLocalCacheActive(false); // Cache inactif
             scraperSpy.setLatency(0L);
             ReflectionTestUtils.setField(scraperSpy, "hashedDirectoryStep", 5000);
-            ReflectionTestUtils.setField(scraperSpy, "outputAuthorThumbDirectory", "./src/test/resources/static/authors/photo/thumbs/");
             ReflectionTestUtils.setField(scraperSpy, "outputAuthorHdDirectory", "./src/test/resources/static/authors/photo/hd/");
-            ReflectionTestUtils.setField(scraperSpy, "httpAuthorThumbPath", "http://localhost:8080/authors/photo/thumbs");
             ReflectionTestUtils.setField(scraperSpy, "httpAuthorHdPath", "http://localhost:8080/authors/photo/hd");
             ReflectionTestUtils.setField(scraperSpy, "outputCoverFrontThumbDirectory", "./src/test/resources/static/series/cover-front/thumbs/");
             ReflectionTestUtils.setField(scraperSpy, "httpCoverFrontThumbDirectory", "http://localhost:8080/series/cover-front/thumbs/");
@@ -275,12 +269,9 @@ class AuthorScraperTest {
         scraperSpy.setLatency(0L);
         // On injecte les valeurs des champs privés via la réflexion.
         // On construit un chemin sûr à l'intérieur du répertoire temporaire
-        String outputAuthorThumbDirectory = tempDir.resolve("path/author/thumbs").toString();
         String outputAuthorHdDirectory = tempDir.resolve("path/author/hd").toString();
         String outputCoverFrontThumbDirectory = tempDir.resolve("path/cover/thumbs").toString();
 
-        ReflectionTestUtils.setField(scraperSpy, "outputAuthorThumbDirectory", outputAuthorThumbDirectory);
-        ReflectionTestUtils.setField(scraperSpy, "httpAuthorThumbPath", "http://media/author/thumbs");
         ReflectionTestUtils.setField(scraperSpy, "outputAuthorHdDirectory", outputAuthorHdDirectory);
         ReflectionTestUtils.setField(scraperSpy, "httpAuthorHdPath", "http://media/author/hd");
         ReflectionTestUtils.setField(scraperSpy, "outputCoverFrontThumbDirectory", outputCoverFrontThumbDirectory);
@@ -312,9 +303,7 @@ class AuthorScraperTest {
             // THEN:
             // On vérifie que downloadMedia a été appelé pour chaque image avec les bons paramètres.
             // Photo de l'auteur (HD)
-            verify(scraperSpy, times(1)).downloadPhotoHd(any());
-            // Photo de l'auteur (miniature)
-            verify(scraperSpy, times(1)).downloadPhotoThumbnail(any());
+            verify(scraperSpy, times(1)).downloadPhoto(any());
             // Couverture de la série à découvrir
             verify(scraperSpy, times(1)).downloadSerieCovers(any());
         }

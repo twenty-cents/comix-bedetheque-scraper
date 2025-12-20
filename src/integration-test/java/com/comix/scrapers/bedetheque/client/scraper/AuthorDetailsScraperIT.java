@@ -31,11 +31,7 @@ class AuthorDetailsScraperIT {
     @Value("#{new Long('${application.scraping.latency}')}")
     private Long latency;
 
-    private String outputAuthorThumbDirectory;
     private String outputAuthorHdDirectory;
-
-    @Value("${application.http.medias.authors.photo.thumbs}")
-    private String httpAuthorThumbPath;
 
     @Value("${application.http.medias.authors.photo.hd}")
     private String httpAuthorHdPath;
@@ -56,14 +52,11 @@ class AuthorDetailsScraperIT {
         authorScraper.setBedethequeAuthorPrefixUrl(bedethequeAuthorPrefixUrl);
         authorScraper.setLatency(latency);
         // On construit un chemin sûr à l'intérieur du répertoire temporaire
-        outputAuthorThumbDirectory = tempDir.resolve("path/author/thumbs").toString();
         outputAuthorHdDirectory = tempDir.resolve("path/author/hd").toString();
         String outputCoverFrontThumbDirectory = tempDir.resolve("path/cover/thumbs").toString();
 
         ReflectionTestUtils.setField(authorScraper, "hashedDirectoryStep", 5000);
-        ReflectionTestUtils.setField(authorScraper, "outputAuthorThumbDirectory", outputAuthorThumbDirectory);
         ReflectionTestUtils.setField(authorScraper, "outputAuthorHdDirectory", outputAuthorHdDirectory);
-        ReflectionTestUtils.setField(authorScraper, "httpAuthorThumbPath", httpAuthorThumbPath);
         ReflectionTestUtils.setField(authorScraper, "httpAuthorHdPath", httpAuthorHdPath);
         ReflectionTestUtils.setField(authorScraper, "outputCoverFrontThumbDirectory", outputCoverFrontThumbDirectory);
         ReflectionTestUtils.setField(authorScraper, "httpCoverFrontThumbDirectory", httpCoverFrontThumbDirectory);
@@ -120,14 +113,8 @@ class AuthorDetailsScraperIT {
         assertThat(scrapAuthorDetails.getPhotoPath()).isEqualToIgnoringCase(outputAuthorHdDirectory + "/0/Photo_77.jpg");
         assertThat(scrapAuthorDetails.getPhotoFilename()).isEqualToIgnoringCase("Photo_77.jpg");
         assertThat(scrapAuthorDetails.getIsPhotoUrlChecked()).isFalse();
-        assertThat(scrapAuthorDetails.getPhotoSize()).isEqualTo(0);
+        assertThat(scrapAuthorDetails.getPhotoFileSize()).isZero();
         assertThat(scrapAuthorDetails.getBiography()).isGreaterThan("");
         assertThat(scrapAuthorDetails.getAuthorUrl()).isEqualToIgnoringCase("https://www.bedetheque.com/auteur-77-BD-Greg.html");
-        assertThat(scrapAuthorDetails.getOriginalPhotoThbUrl()).isEqualToIgnoringCase("https://www.bedetheque.com/media/Photos/Photo_77.jpg");
-        assertThat(scrapAuthorDetails.getPhotoThbUrl()).isEqualToIgnoringCase("http:/localhost:8080/authors/photo/thumbs/0/Photo_77.jpg");
-        assertThat(scrapAuthorDetails.getPhotoThbPath()).isEqualToIgnoringCase(outputAuthorThumbDirectory + "/0/Photo_77.jpg");
-        assertThat(scrapAuthorDetails.getPhotoThbFilename()).isEqualToIgnoringCase("Photo_77.jpg");
-        assertThat(scrapAuthorDetails.getIsPhotoThbUrlChecked()).isFalse();
-        assertThat(scrapAuthorDetails.getPhotoThbSize()).isEqualTo(0);
     }
 }

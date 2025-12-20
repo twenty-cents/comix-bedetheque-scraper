@@ -47,7 +47,7 @@ class SerieToDiscoverTest {
         assertThat(serie.getCoverUrl()).isEqualTo("http://cover");
         assertThat(serie.getCoverPath()).isEqualTo("/path");
         assertThat(serie.getCoverFilename()).isEqualTo("file.jpg");
-        assertThat(serie.getCoverSize()).isEqualTo(100L);
+        assertThat(serie.getCoverFileSize()).isEqualTo(100L);
         assertThat(serie.getIsCoverChecked()).isTrue();
         assertThat(serie.getCoverTitle()).isEqualTo("CoverTitle");
 

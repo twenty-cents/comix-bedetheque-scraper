@@ -104,7 +104,6 @@ class AuthorServiceImplTest {
         authorDetails.setSiteUrl("Site URL");
         authorDetails.setOtherAuthorPseudonym(null);
         authorDetails.setPhotoUrl("Photo URL");
-        authorDetails.setPhotoThbUrl("Photo Thb URL");
         authorDetails.setAuthorUrl("Author URL");
         authorDetails.setPreviousAuthor(null);
         authorDetails.setNextAuthor(null);
@@ -124,7 +123,6 @@ class AuthorServiceImplTest {
                 .siteUrl("Site URL")
                 .otherAuthorPseudonym(null)
                 .photoUrl("Photo URL")
-                .photoThbUrl("Photo Thb URL")
                 .authorUrl("Author URL")
                 .previousAuthor(null)
                 .nextAuthor(null)

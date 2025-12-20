@@ -910,14 +910,28 @@ components:
           maxLength: 255
         otherAuthorPseudonym:
           $ref: '#/components/schemas/Author'
+        originalPhotoUrl:
+          type: string
+          description: The author's photo url.
+          maxLength: 255
         photoUrl:
           type: string
           description: The author's photo url.
           maxLength: 255
-        photoThbUrl:
+        isPhotoUrlChecked:
+          type: boolean
+          description: A flag to verify if the author's photo url exists on local server.
+        photoPath:
           type: string
-          description: The author's photo thumbnail url.
+          description: The author's photo path on local server.
           maxLength: 255
+        photoFilename:
+          type: string
+          description: The author's photo filename on local server.
+          maxLength: 255
+        photoFileSize:
+          type: number
+          description: The author's photo file size (in bytes) on local server.
         authorUrl:
           type: string
           description: The author url at https://www.bedetheque.com.
@@ -1018,10 +1032,28 @@ components:
           type: string
           description: The serie url at https://www.bedetheque.com.
           maxLength: 255
+        originalCoverUrl:
+          type: string
+          description: The serie cover url at https://www.bedetheque.com.
+          maxLength: 255
         coverUrl:
           type: string
-          description: The serie cover url.
+          description: The serie cover url on local webapp.
           maxLength: 255
+        isCoverUrlChecked:
+          type: boolean
+          description: A flag to verify if the serie cover url exists on local server.
+        coverPath:
+          type: string
+          description: The serie cover path on local server.
+          maxLength: 255
+        coverFilename:
+          type: string
+          description: The serie cover filename on local server.
+          maxLength: 255
+        coverFileSize:
+          type: number
+          description: The serie cover file size (in bytes) on local server.
         coverTitle:
           type: string
           description: The serie cover title.
