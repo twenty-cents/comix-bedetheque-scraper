@@ -285,7 +285,6 @@ class AuthorScraperTest {
         ReflectionTestUtils.setField(scraperSpy, "httpAuthorHdPath", "http://media/author/hd");
         ReflectionTestUtils.setField(scraperSpy, "outputCoverFrontThumbDirectory", outputCoverFrontThumbDirectory);
         ReflectionTestUtils.setField(scraperSpy, "httpCoverFrontThumbDirectory", "http://media/cover/thumbs");
-        ReflectionTestUtils.setField(scraperSpy, "httpDefaultMediaFilename", "default.jpg");
         ReflectionTestUtils.setField(scraperSpy, "hashedDirectoryStep", 5000);
 
         // 3. On prépare un document HTML simple avec les images à télécharger.
