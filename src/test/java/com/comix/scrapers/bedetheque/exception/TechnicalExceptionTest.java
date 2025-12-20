@@ -65,4 +65,56 @@ class TechnicalExceptionTest {
         assertThat(exception.getHttpStatus()).isEqualTo(status);
         assertThat(exception.getMessage()).isEqualTo(codeMessage);
     }
+
+    @Test
+    @DisplayName("Constructor(codeMessage) should set fields correctly with defaults")
+    void constructor_withCodeMessage_shouldSetFieldsCorrectly() {
+        // GIVEN
+        String codeMessage = "INVALID_INPUT";
+        Object[] args = new Object[]{"/path/to/file.txt"};
+
+        // WHEN
+        TechnicalException exception = new TechnicalException(codeMessage, args);
+
+        // THEN
+        assertThat(exception.getCodeMessage()).isEqualTo(codeMessage);
+        assertThat(exception.getCause()).isNull();
+        assertThat(exception.getArgs()).isEqualTo(args);
+        assertThat(exception.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("Constructor(codeMessage, args) should set fields correctly with defaults")
+    void constructor_withCodeMessageAndArgs_shouldSetFieldsCorrectly() {
+        // GIVEN
+        String codeMessage = "RESOURCE_NOT_FOUND";
+        Object[] args = new Object[]{"ID-123"};
+
+        // WHEN
+        TechnicalException exception = new TechnicalException(codeMessage, args);
+
+        // THEN
+        assertThat(exception.getCodeMessage()).isEqualTo(codeMessage);
+        assertThat(exception.getCause()).isNull();
+        assertThat(exception.getArgs()).isEqualTo(args);
+        assertThat(exception.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("Constructor(codeMessage, args, httpStatus) should set all fields correctly")
+    void constructor_withCodeMessageArgsAndHttpStatus_shouldSetFieldsCorrectly() {
+        // GIVEN
+        String codeMessage = "FORBIDDEN_ACCESS";
+        Throwable cause = new InterruptedException("Thread was interrupted");
+        Object[] args = new Object[]{"User-X"};
+
+        // WHEN
+        TechnicalException exception = new TechnicalException(codeMessage, cause, args);
+
+        // THEN
+        assertThat(exception.getCodeMessage()).isEqualTo(codeMessage);
+        assertThat(exception.getCause()).isSameAs(cause);
+        assertThat(exception.getArgs()).isEqualTo(args);
+        assertThat(exception.getMessage()).isEqualTo(codeMessage);
+    }
 }

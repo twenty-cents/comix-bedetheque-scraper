@@ -21,6 +21,8 @@ import java.util.Set;
 @Slf4j
 public class GenericScraper extends Scraper {
 
+    public static final String ERR_SCR_002 = "ERR-SCR-002";
+
     @Value("${application.downloads.localcache.hashed-directory-step:5000}")
     private int hashedDirectoryStep;
 
@@ -81,11 +83,11 @@ public class GenericScraper extends Scraper {
                 boolean isCreated = f.createNewFile();
                 if (!isCreated) {
                     log.debug("Can't create file for an unknown reason : {}", hashedOutputMediaPath);
-                    throw new TechnicalException("ERR-SCR-002", new Object[]{hashedOutputMediaPath});
+                    throw new TechnicalException(ERR_SCR_002, new Object[]{hashedOutputMediaPath});
                 }
             } catch (IOException e) {
                 log.debug("Can't create file : {}", hashedOutputMediaPath);
-                throw new TechnicalException("ERR-SCR-002", e, new Object[]{hashedOutputMediaPath});
+                throw new TechnicalException(ERR_SCR_002, e, new Object[]{hashedOutputMediaPath});
             }
         } else {
             return;
@@ -184,11 +186,11 @@ public class GenericScraper extends Scraper {
                 boolean isCreated = f.createNewFile();
                 if (!isCreated) {
                     log.debug("Can't create file for an unknown reason : {}", mediaFilenamePath);
-                    throw new BusinessException("ERR-SCR-002", new Object[]{mediaFilenamePath});
+                    throw new BusinessException(ERR_SCR_002, new Object[]{mediaFilenamePath});
                 }
             } catch (IOException e) {
                 log.debug("Can't create file : {}", mediaFilenamePath);
-                throw new TechnicalException("ERR-SCR-002", e, new Object[]{mediaFilenamePath});
+                throw new TechnicalException(ERR_SCR_002, e, new Object[]{mediaFilenamePath});
             }
         } else {
             return httpMediaFilename;

@@ -1,12 +1,15 @@
 package com.comix.scrapers.bedetheque.service.impl;
 
 import com.comix.scrapers.bedetheque.client.model.author.Author;
+import com.comix.scrapers.bedetheque.client.model.author.AuthorDetails;
 import com.comix.scrapers.bedetheque.client.model.author.AuthorsByLetter;
 import com.comix.scrapers.bedetheque.client.scraper.AuthorScraper;
 import com.comix.scrapers.bedetheque.rest.mapper.AuthorMapper;
+import com.comix.scrapers.bedetheque.rest.v1.dto.AuthorDetailsDto;
 import com.comix.scrapers.bedetheque.rest.v1.dto.AuthorUrlDto;
 import com.comix.scrapers.bedetheque.rest.v1.dto.AuthorsByLetterDto;
 import com.comix.scrapers.bedetheque.rest.v1.dto.AuthorsUrlsResponseDto;
+import com.comix.scrapers.bedetheque.service.OutboxMessageProducer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,6 +33,9 @@ class AuthorServiceImplTest {
 
     @Mock
     private AuthorMapper authorMapper;
+
+    @Mock
+    private OutboxMessageProducer outboxMessageProducer;
 
     @InjectMocks
     private AuthorServiceImpl authorService;
@@ -81,60 +88,60 @@ class AuthorServiceImplTest {
         assertEquals("https://url.com/1", result.getAuthorsUrls().getFirst().getUrl());
     }
 
-//    @Test
-//    void scrap_shouldReturnAuthorDetails() {
-//        // Given
-//        String url = "https://url.com/author/1";
-//        AuthorDetails authorDetails = new AuthorDetails();
-//        authorDetails.setId("1");
-//        authorDetails.setLastname("Lastname");
-//        authorDetails.setFirstname("Firstname");
-//        authorDetails.setNickname("Nickname");
-//        authorDetails.setNationality("Nationality");
-//        authorDetails.setBirthdate("Birthdate");
-//        authorDetails.setDeceaseDate("Decease Date");
-//        authorDetails.setBiography("Biography");
-//        authorDetails.setSiteUrl("Site URL");
-//        authorDetails.setOtherAuthorPseudonym(null);
-//        authorDetails.setPhotoUrl("Photo URL");
-//        authorDetails.setPhotoThbUrl("Photo Thb URL");
-//        authorDetails.setAuthorUrl("Author URL");
-//        authorDetails.setPreviousAuthor(null);
-//        authorDetails.setNextAuthor(null);
-//        authorDetails.setAuthorsToDiscover(Collections.emptyList());
-//        authorDetails.setBibliography(Collections.emptyList());
-//        authorDetails.setSeriesToDiscover(Collections.emptyList());
-//
-//        AuthorDetailsDto authorDetailsDto = new AuthorDetailsDto()
-//                .id("1")
-//                .lastname("Lastname")
-//                .firstname("Firstname")
-//                .nickname("Nickname")
-//                .nationality("Nationality")
-//                .birthdate("Birthdate")
-//                .deceaseDate("Decease Date")
-//                .biography("Biography")
-//                .siteUrl("Site URL")
-//                .otherAuthorPseudonym(null)
-//                .photoUrl("Photo URL")
-//                .photoThbUrl("Photo Thb URL")
-//                .authorUrl("Author URL")
-//                .previousAuthor(null)
-//                .nextAuthor(null)
-//                .authorsToDiscover(Collections.emptyList())
-//                .bibliography(Collections.emptyList())
-//                .seriesToDiscover(Collections.emptyList());
-//
-//        when(authorScraper.scrap(url)).thenReturn(authorDetails);
-//        when(authorMapper.authorDetailsToAuthorDetailsDto(authorDetails)).thenReturn(authorDetailsDto);
-//
-//        // When
-//        AuthorDetailsDto result = authorService.scrap(url);
-//
-//        // Then
-//        assertNotNull(result);
-//        assertEquals("1", result.getId());
-//        assertEquals("Lastname", result.getLastname());
-//        assertEquals("Firstname", result.getFirstname());
-//    }
+    @Test
+    void scrap_shouldReturnAuthorDetails() {
+        // Given
+        String url = "https://url.com/author/1";
+        AuthorDetails authorDetails = new AuthorDetails();
+        authorDetails.setId("1");
+        authorDetails.setLastname("Lastname");
+        authorDetails.setFirstname("Firstname");
+        authorDetails.setNickname("Nickname");
+        authorDetails.setNationality("Nationality");
+        authorDetails.setBirthdate("Birthdate");
+        authorDetails.setDeceaseDate("Decease Date");
+        authorDetails.setBiography("Biography");
+        authorDetails.setSiteUrl("Site URL");
+        authorDetails.setOtherAuthorPseudonym(null);
+        authorDetails.setPhotoUrl("Photo URL");
+        authorDetails.setPhotoThbUrl("Photo Thb URL");
+        authorDetails.setAuthorUrl("Author URL");
+        authorDetails.setPreviousAuthor(null);
+        authorDetails.setNextAuthor(null);
+        authorDetails.setAuthorsToDiscover(Collections.emptyList());
+        authorDetails.setBibliography(Collections.emptyList());
+        authorDetails.setSeriesToDiscover(Collections.emptyList());
+
+        AuthorDetailsDto authorDetailsDto = new AuthorDetailsDto()
+                .id("1")
+                .lastname("Lastname")
+                .firstname("Firstname")
+                .nickname("Nickname")
+                .nationality("Nationality")
+                .birthdate("Birthdate")
+                .deceaseDate("Decease Date")
+                .biography("Biography")
+                .siteUrl("Site URL")
+                .otherAuthorPseudonym(null)
+                .photoUrl("Photo URL")
+                .photoThbUrl("Photo Thb URL")
+                .authorUrl("Author URL")
+                .previousAuthor(null)
+                .nextAuthor(null)
+                .authorsToDiscover(Collections.emptyList())
+                .bibliography(Collections.emptyList())
+                .seriesToDiscover(Collections.emptyList());
+
+        when(authorScraper.scrap(url)).thenReturn(authorDetails);
+        when(authorMapper.authorDetailsToAuthorDetailsDto(authorDetails)).thenReturn(authorDetailsDto);
+
+        // When
+        AuthorDetailsDto result = authorService.scrap(url);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("1", result.getId());
+        assertEquals("Lastname", result.getLastname());
+        assertEquals("Firstname", result.getFirstname());
+    }
 }

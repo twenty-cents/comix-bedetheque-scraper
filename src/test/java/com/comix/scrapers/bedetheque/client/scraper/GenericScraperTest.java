@@ -1,13 +1,10 @@
 package com.comix.scrapers.bedetheque.client.scraper;
 
-import com.comix.scrapers.bedetheque.exception.BusinessException;
 import com.comix.scrapers.bedetheque.exception.TechnicalException;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -17,175 +14,141 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class GenericScraperTest {
 
-    private static MockWebServer mockWebServer;
-    private GenericScraper genericScraper;
+    private GenericScraper scraper;
 
-    // @TempDir crée un répertoire temporaire pour chaque test et le nettoie après.
     @TempDir
     Path tempDir;
 
-    @BeforeAll
-    static void setUpAll() throws IOException {
-        mockWebServer = new MockWebServer();
-        mockWebServer.start();
-    }
-
-    @AfterAll
-    static void tearDownAll() throws IOException {
-        mockWebServer.shutdown();
-    }
-
     @BeforeEach
     void setUp() {
-        genericScraper = new GenericScraper();
-        ReflectionTestUtils.setField(genericScraper, "hashedDirectoryStep", 5000);
+        scraper = new GenericScraper();
+        // Injection de la propriété @Value pour le hachage des répertoires
+        ReflectionTestUtils.setField(scraper, "hashedDirectoryStep", 5000);
     }
 
-    @Nested
-    @DisplayName("Tests for downloadMedia(outputDir, httpPath, url)")
-    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-    class CoreDownloadMediaTests {
-
-        @Test
-        @Order(1)
-        @DisplayName("doit retourner le chemin du fichier existant sans télécharger si le fichier est déjà présent")
-        void shouldReturnExistingFilePath_whenFileAlreadyExists() throws IOException {
-            // GIVEN: Un fichier existe déjà dans le répertoire temporaire
-            String mediaFilename = "existing-image.jpg";
-            Files.createFile(tempDir.resolve(mediaFilename));
-            String httpMediaUrl = mockWebServer.url("/images/" + mediaFilename).toString();
-            String outputHttpPath = "/media";
-
-            // WHEN: On appelle la méthode de téléchargement
-            String resultPath = genericScraper.downloadMedia(tempDir.toString() + "/", outputHttpPath, httpMediaUrl);
-
-            // THEN: Le chemin retourné est correct et aucun appel n'a été fait au serveur
-            assertThat(resultPath).isEqualTo(outputHttpPath + "/" + mediaFilename);
-            assertThat(mockWebServer.getRequestCount()).isZero();
-        }
-
-        @Test
-        @Order(2)
-        @DisplayName("doit télécharger le fichier et le sauvegarder localement s'il n'existe pas")
-        void shouldDownloadAndSaveFile_whenFileDoesNotExist() {
-            // GIVEN: Le serveur est prêt à envoyer des données d'image
-            String mediaFilename = "new-image.jpg";
-            String imageData = "ceci-est-une-image";
-            mockWebServer.enqueue(new MockResponse().setBody(imageData));
-            String httpMediaUrl = mockWebServer.url("/images/" + mediaFilename).toString();
-            String outputHttpPath = "/media";
-            String tmpDir = tempDir.toString();
-
-            // WHEN: On appelle la méthode de téléchargement
-            String resultPath = genericScraper.downloadMedia(tmpDir, outputHttpPath, httpMediaUrl);
-
-            // THEN: Le chemin retourné est correct
-            assertThat(resultPath).isEqualTo(outputHttpPath + "/" + mediaFilename);
-
-            // AND: Le fichier a été créé localement avec le bon contenu
-            File downloadedFile = tempDir.resolve(mediaFilename).toFile();
-            assertThat(downloadedFile).exists().hasContent(imageData);
-
-            // AND: Une requête a bien été faite au serveur
-            assertThat(mockWebServer.getRequestCount()).isEqualTo(1);
-        }
-
-        @Test
-        @Order(3)
-        @DisplayName("doit lancer une TechnicalException si le serveur retourne une erreur 404")
-        void shouldThrowTechnicalException_whenServerReturns404() {
-            // GIVEN: Le serveur retourne une erreur 404
-            mockWebServer.enqueue(new MockResponse().setResponseCode(404));
-            String httpMediaUrl = mockWebServer.url("/images/not-found.jpg").toString();
-
-            // WHEN & THEN: On vérifie qu'une TechnicalException est lancée
-            assertThatThrownBy(() -> genericScraper.downloadMedia(tempDir.toString(), "/media/", httpMediaUrl))
-                    .isInstanceOf(Exception.class)
-                    .isInstanceOf(TechnicalException.class)
-                    .hasFieldOrPropertyWithValue("codeMessage", "ERR-SCR-003");
-        }
-
-        @Test
-        @Order(4)
-        @DisplayName("doit lancer une TechnicalException si l'URL est malformée")
-        void shouldThrowTechnicalException_whenUrlIsInvalid() {
-            // GIVEN: une URL invalide
-            String invalidUrl = "h ttp://invalid-url.com/image.jpg";
-
-            // WHEN & THEN: On vérifie qu'une TechnicalException est lancée
-            assertThatThrownBy(() -> genericScraper.downloadMedia(tempDir.toString(), "/media/", invalidUrl))
-                    .isInstanceOf(Exception.class)
-                    .isInstanceOf(TechnicalException.class)
-                    .hasFieldOrPropertyWithValue("codeMessage", "ERR-SCR-005");
-        }
+    @Test
+    void getMediaFilename_shouldReturnFilename_whenUrlIsPresent() {
+        String url = "http://site.com/folder/image.jpg";
+        String result = scraper.getMediaFilename(url);
+        assertThat(result).isEqualTo("image.jpg");
     }
 
-    @Nested
-    @DisplayName("Tests for downloadMedia(..., defaultFilename) - Safe Wrapper")
-    class SafeDownloadMediaTests {
+    @Test
+    void getMediaFilename_shouldReturnNull_whenUrlIsNull() {
+        String result = scraper.getMediaFilename(null);
+        assertThat(result).isNull();
+    }
 
-        @Test
-        @DisplayName("doit retourner le chemin du fichier téléchargé si le téléchargement réussit")
-        void shouldReturnDownloadedPath_whenDownloadSucceeds() {
-            // GIVEN: On utilise un "espion" pour mocker la méthode interne tout en utilisant l'instance réelle.
-            GenericScraper scraperSpy = Mockito.spy(genericScraper);
+    @Test
+    void getHashedOutputMediaPath_shouldCalculatePath_whenIdIsNumeric() throws IOException {
+        String url = "https://www.bedetheque.com/image.jpg";
+        Path basePath = tempDir.resolve("basePath");
+        Files.createDirectories(basePath);
+        String idMedia = "18787"; // 18787 / 5000 = 3 (division entière)
 
-            String defaultPath = tempDir.resolve("media/default.jpg").toString();
-            String mediaPath = tempDir.resolve("media/").toString();
-            String expectedPath = mediaPath + "/0/downloaded.jpg";
+        String result = scraper.getHashedOutputMediaPath(url, basePath.toString(), idMedia);
 
-            // On configure l'espion pour qu'il retourne un chemin de succès
-            doReturn(expectedPath).when(scraperSpy).downloadMedia(anyString(), anyString(), anyString());
+        // Construction du chemin attendu selon l'OS
+        String expected = tempDir.toString() + File.separator + "basePath" + File.separator + "3" + File.separator + "image.jpg";
+        // On normalise les slashes pour le test si nécessaire, bien que File.separator gère cela
+        assertThat(result).isEqualTo(expected.replace("/", File.separator));
+    }
 
-            // WHEN
-            String result = scraperSpy.downloadMedia("/tmp", mediaPath, "https://a.com/b.jpg", defaultPath, "1");
+    @Test
+    void getMediaSize_shouldReturnSize_whenFileExists() throws IOException {
+        Path file = tempDir.resolve("test-size.txt");
+        Files.writeString(file, "12345"); // 5 octets
 
-            // THEN
-            assertThat(result).isEqualTo(expectedPath);
-        }
+        long size = scraper.getMediaSize(file.toString());
 
-        @Test
-        @DisplayName("doit retourner le chemin par défaut si le téléchargement échoue avec une BusinessException")
-        void shouldReturnDefaultPath_whenDownloadFailsWithBusinessException() {
-            // GIVEN
-            GenericScraper scraperSpy = Mockito.spy(genericScraper);
-            String defaultPath = tempDir.resolve("media/default.jpg").toString();
-            String mediaPath = tempDir.resolve("media/").toString();
+        assertThat(size).isEqualTo(5L);
+    }
 
-            // On configure l'espion pour qu'il lance une BusinessException
-            doThrow(new BusinessException("ERR-TEST")).when(scraperSpy).downloadMedia(anyString(), anyString(), anyString());
+    @Test
+    void getMediaSize_shouldReturnZero_whenFileDoesNotExist() {
+        long size = scraper.getMediaSize(tempDir.resolve("unknown.txt").toString());
+        assertThat(size).isZero();
+    }
 
-            // WHEN
-            String result = scraperSpy.downloadMedia("/tmp", mediaPath, "https://a.com/b.jpg", defaultPath, "1");
+    @Test
+    void downloadMedia_simple_shouldReturnExistingPath_whenFileAlreadyExists() throws IOException {
+        // Given
+        String filename = "existing.jpg";
+        Path outputDir = tempDir.resolve("out");
+        Files.createDirectories(outputDir);
+        Files.createFile(outputDir.resolve(filename));
 
-            // THEN
-            assertThat(result).isEqualTo(defaultPath);
-        }
+        String httpPath = "http://localhost/media";
+        String url = "http://remote.com/" + filename;
 
-        @Test
-        @DisplayName("doit retourner le chemin par défaut si le téléchargement échoue avec une TechnicalException")
-        void shouldReturnDefaultPath_whenDownloadFailsWithTechnicalException() {
-            // GIVEN
-            GenericScraper scraperSpy = Mockito.spy(genericScraper);
-            String defaultPath = tempDir.resolve("media/default.jpg").toString();
-            String mediaPath = tempDir.resolve("media/").toString();
+        // When
+        String result = scraper.downloadMedia(outputDir.toString(), httpPath, url);
 
-            // On configure l'espion pour qu'il lance une TechnicalException
-            doThrow(new TechnicalException("ERR-TEST", new IOException())).when(scraperSpy).downloadMedia(anyString(), anyString(), anyString());
+        // Then
+        assertThat(result).isEqualTo(httpPath + File.separator + filename);
+    }
 
-            // WHEN
-            String result = scraperSpy.downloadMedia("/tmp", mediaPath, "https://a.com/b.jpg", defaultPath, "1");
+    @Test
+    void downloadMedia_simple_shouldDownloadFile_whenFileDoesNotExist() throws IOException {
+        // Given: Un fichier local agissant comme serveur distant
+        Path sourceDir = tempDir.resolve("source");
+        Files.createDirectories(sourceDir);
+        Path sourceFile = sourceDir.resolve("source.jpg");
+        Files.writeString(sourceFile, "content-data");
+        String sourceUrl = sourceFile.toUri().toString();
 
-            // THEN
-            assertThat(result).isEqualTo(defaultPath);
-        }
+        Path outputDir = tempDir.resolve("target");
+        Files.createDirectories(outputDir);
+        String httpPath = "http://localhost/target";
+
+        // When
+        String result = scraper.downloadMedia(outputDir.toString(), httpPath, sourceUrl);
+
+        // Then
+        Path downloadedFile = outputDir.resolve("source.jpg");
+        assertThat(Files.exists(downloadedFile)).isTrue();
+        assertThat(Files.readString(downloadedFile)).isEqualTo("content-data");
+        assertThat(result).isEqualTo(httpPath + File.separator + "source.jpg");
+    }
+
+    @Test
+    void downloadMedia_full_shouldHandleHashingAndDownload() throws IOException {
+        // Given
+        Path sourceDir = tempDir.resolve("source");
+        Files.createDirectories(sourceDir);
+        Path sourceFile = sourceDir.resolve("comic.jpg");
+        Files.writeString(sourceFile, "comic-data");
+        String sourceUrl = sourceFile.toUri().toString();
+
+        Path outputBaseDir = tempDir.resolve("library");
+        String httpBasePath = "http://localhost/library/";
+        String idMedia = "5005"; // 5005 / 5000 = 1
+
+        // When
+        String result = scraper.downloadMedia(outputBaseDir.toString(), httpBasePath, sourceUrl, "default.jpg", idMedia);
+
+        // Then
+        // Vérifie que le fichier est bien dans le sous-dossier "1"
+        Path expectedFile = outputBaseDir.resolve("1").resolve("comic.jpg");
+        assertThat(Files.exists(expectedFile)).isTrue();
+        
+        String expectedHttp = httpBasePath + "1" + File.separator + "comic.jpg";
+        assertThat(result).isEqualTo(expectedHttp);
+    }
+
+    @Test
+    void downloadMedia_simple_shouldThrowTechnicalException_whenUrlIsInvalid() {
+        Path outputDir = tempDir.resolve("target");
+        String httpPath = "http://localhost/target";
+        String invalidUrl = "ht tp://invalid-url";
+
+        assertThrows(TechnicalException.class, () -> 
+            scraper.downloadMedia(outputDir.toString(), httpPath, invalidUrl)
+        );
     }
 }

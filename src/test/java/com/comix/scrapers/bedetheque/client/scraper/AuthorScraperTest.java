@@ -296,11 +296,11 @@ class AuthorScraperTest {
         Document doc = Jsoup.parse(html);
         Author authorToScrap = new Author("123", "DOE, John", "http://test.com/__AUTEUR-123-Doe.html");
 
-        // 4. On "stub" la méthode downloadMedia pour qu'elle ne fasse pas de vrai téléchargement.
+        // 4. On "stub" les méthodes download... pour qu'elles ne fassent pas de vrai téléchargement.
         // On utilise doReturn().when(spy) pour les espions.
-//        doNothing().when(scraperSpy).downloadPhotoHd(any());
-//        doNothing().when(scraperSpy).downloadPhotoThumbnail(any());
-//        doNothing().when(scraperSpy).downloadSerieCovers(any());
+        doNothing().when(scraperSpy).downloadPhotoHd(any());
+        doNothing().when(scraperSpy).downloadPhotoThumbnail(any());
+        doNothing().when(scraperSpy).downloadSerieCovers(any());
 
         // 5. On mock le singleton pour qu'il retourne notre document contrôlé.
         try (MockedStatic<GenericScraperSingleton> mockedSingleton = Mockito.mockStatic(GenericScraperSingleton.class)) {
