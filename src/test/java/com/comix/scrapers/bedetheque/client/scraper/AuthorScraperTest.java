@@ -176,7 +176,7 @@ class AuthorScraperTest {
                 assertThat(details.getNationality()).isEqualTo("France");
                 assertThat(details.getSiteUrl()).isEqualTo("http://john.doe");
                 assertThat(details.getBiography()).isEqualTo("Une biographie intéressante.");
-                assertThat(details.getPhotoUrl()).isEqualTo("http:/localhost:8080/authors/photo/hd/0/photo.jpg");
+                assertThat(details.getPhotoUrl()).isEqualTo("http://localhost:8080/authors/photo/hd/0/photo.jpg");
                 assertThat(details.getOtherAuthorPseudonym()).isNotNull();
                 assertThat(details.getOtherAuthorPseudonym().getId()).isEqualTo("456");
                 assertThat(details.getOtherAuthorPseudonym().getName()).isEqualTo("Alias, John");

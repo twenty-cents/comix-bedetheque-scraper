@@ -22,8 +22,21 @@ public class SerieDetails {
     private String origin;
     private String language;
     private String synopsys;
+
+    private String originalPictureUrl;
     private String pictureUrl;
+    private String picturePath;
+    private String pictureFilename;
+    private Long pictureFileSize;
+    private Boolean isPictureChecked;
+
+    private String originalPictureThbUrl;
     private String pictureThbUrl;
+    private String pictureThbPath;
+    private String pictureThbFilename;
+    private Long pictureThbFileSize;
+    private Boolean isPictureThbChecked;
+
     private String scrapUrl;
     private Integer graphicNovelCount;
     private String period;

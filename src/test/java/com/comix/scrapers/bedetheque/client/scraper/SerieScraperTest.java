@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -19,6 +20,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,14 +51,17 @@ class SerieScraperTest {
             </ul>
             <div class="single-content serie"><p>Ceci est le synopsis.</p></div>
             <div class="serie-image">
-                <a href="image_hd.jpg"><img src="image_thumb.jpg"></a>
+                <a href="https://www.bedetheque.com/media/Planches/PlancheS_31.jpg"><img src="https://www.bedetheque.com/cache/thb_series/PlancheS_31.jpg"></a>
             </div>
             <div class="copyrightserie">© Dargaud 2024</div>
             <div class="bandeau-menu"><ul><li><a href="avis.html">Avis <span>10</span></a></li></ul></div>
             <ul class="liste-albums"><li itemtype="https://schema.org/Book">...un album...</li></ul>
-            <div class="alire"><div class="wrapper"><a href="serie-alire-1.html" title="Série à lire"><img src="cover_alire.jpg"></a></div></div>
+            <div class="alire"><div class="wrapper"><a href="serie-12345-1.html" title="Série à lire"><img src="cover_12345.jpg"></a></div></div>
         </body></html>
         """;
+
+    @TempDir
+    Path tempDir;
 
     @BeforeEach
     void setUp() {
@@ -66,14 +71,19 @@ class SerieScraperTest {
         serieScraper.setLocalCacheActive(false);
         serieScraper.setLatency(0L);
 
+        String outputPageExampleThumbDirectory = tempDir.resolve("serie/page-example/thumbs").toString();
+        String outputPageExampleHdDirectory = tempDir.resolve("serie/page-example/hd").toString();
+        String outputCoverFrontThumbDirectory = tempDir.resolve("media/serie/thumbs/cover").toString();
+
         // Injection des chemins pour le téléchargement des médias
-        ReflectionTestUtils.setField(serieScraper, "outputPageExampleThumbDirectory", "/tmp/thumbs/page/");
-        ReflectionTestUtils.setField(serieScraper, "httpPageExampleThumbDirectory", "/media/thumbs/page/");
-        ReflectionTestUtils.setField(serieScraper, "outputPageExampleHdDirectory", "/tmp/hd/page/");
-        ReflectionTestUtils.setField(serieScraper, "httpPageExampleHdDirectory", "/media/hd/page/");
-        ReflectionTestUtils.setField(serieScraper, "outputCoverFrontThumbDirectory", "/tmp/thumbs/cover/");
-        ReflectionTestUtils.setField(serieScraper, "httpCoverFrontThumbDirectory", "/media/thumbs/cover/");
+        ReflectionTestUtils.setField(serieScraper, "outputPageExampleThumbDirectory", outputPageExampleThumbDirectory);
+        ReflectionTestUtils.setField(serieScraper, "httpPageExampleThumbDirectory", "http://localhost:8080/media/serie/page-example/thumbs/");
+        ReflectionTestUtils.setField(serieScraper, "outputPageExampleHdDirectory", outputPageExampleHdDirectory);
+        ReflectionTestUtils.setField(serieScraper, "httpPageExampleHdDirectory", "http://localhost:8080/media/serie/page-example/hd/");
+        ReflectionTestUtils.setField(serieScraper, "outputCoverFrontThumbDirectory", outputCoverFrontThumbDirectory);
+        ReflectionTestUtils.setField(serieScraper, "httpCoverFrontThumbDirectory", "http://localhost:8080/media/serie/cover-front/thumbs/");
         ReflectionTestUtils.setField(serieScraper, "httpDefaultMediaFilename", "default.jpg");
+        ReflectionTestUtils.setField(serieScraper, "hashedDirectoryStep", 5000);
     }
 
     @Nested
@@ -162,8 +172,8 @@ class SerieScraperTest {
                 assertThat(result.getLanguage()).isEqualTo("Français");
                 assertThat(result.getSiteUrl()).isEqualTo("https://site-officiel.com");
                 assertThat(result.getSynopsys()).isEqualTo("Ceci est le synopsis.");
-                assertThat(result.getPictureUrl()).isEqualTo("image_hd.jpg");
-                assertThat(result.getPictureThbUrl()).isEqualTo("image_thumb.jpg");
+                assertThat(result.getPictureUrl()).isEqualTo("http://localhost:8080/media/serie/page-example/hd/2/PlancheS_31.jpg");
+                assertThat(result.getPictureThbUrl()).isEqualTo("http://localhost:8080/media/serie/page-example/thumbs/2/PlancheS_31.jpg");
                 assertThat(result.getCopyright()).isEqualTo("© Dargaud 2024");
                 assertThat(result.getScrapUrl()).isEqualTo(url);
                 assertThat(result.getTomeCount()).isEqualTo(12);
@@ -208,7 +218,7 @@ class SerieScraperTest {
             // GIVEN
             SerieScraper scraperSpy = spy(serieScraper); // On espionne l'objet injecté
             scraperSpy.setLocalCacheActive(true);
-            doReturn("local/path/image.jpg").when(scraperSpy).downloadMedia(anyString(), anyString(), anyString(), anyString(), anyString());
+            lenient().doNothing().when(scraperSpy).download(anyString(), anyString());
 
             Document doc = Jsoup.parse(fullSerieHtml);
             String url = "https://test.com/serie-12345.html";
@@ -226,13 +236,9 @@ class SerieScraperTest {
                 scraperSpy.scrap(url);
 
                 // THEN
-                // On vérifie que downloadMedia a été appelé pour l'image de la série (thumb + hd) et la couverture "à lire"
-                verify(scraperSpy, times(3)).downloadMedia(anyString(), anyString(), anyString(), anyString(), anyString());
-
-                // Vérifications plus spécifiques
-                verify(scraperSpy).downloadMedia(any(), any(), eq("image_thumb.jpg"), any(), any());
-                verify(scraperSpy).downloadMedia(any(), any(), eq("image_hd.jpg"), any(), any());
-                verify(scraperSpy).downloadMedia(any(), any(), eq("cover_alire.jpg"), any(), any());
+                verify(scraperSpy, times(1)).downloadToReadSeriesCovers(any());
+                verify(scraperSpy, times(1)).downloadExamplePageThumbnail(any());
+                verify(scraperSpy, times(1)).downloadExamplePage(any());
             }
         }
     }

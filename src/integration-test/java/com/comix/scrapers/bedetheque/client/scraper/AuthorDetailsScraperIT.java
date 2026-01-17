@@ -109,7 +109,7 @@ class AuthorDetailsScraperIT {
         assertThat(scrapAuthorDetails.getOtherAuthorPseudonym().getName()).isEqualTo("Albert, Louis");
         assertThat(scrapAuthorDetails.getOtherAuthorPseudonym().getUrl()).isEqualTo("https://www.bedetheque.com/auteur-3729-BD-Albert-Louis.html");
         assertThat(scrapAuthorDetails.getOriginalPhotoUrl()).isEqualToIgnoringCase("https://www.bedetheque.com/media/Photos/Photo_77.jpg");
-        assertThat(scrapAuthorDetails.getPhotoUrl()).isEqualToIgnoringCase("http:/localhost:8080/authors/photo/hd/0/Photo_77.jpg");
+        assertThat(scrapAuthorDetails.getPhotoUrl()).isEqualToIgnoringCase("http://localhost:8080/authors/photo/hd/0/Photo_77.jpg");
         assertThat(scrapAuthorDetails.getPhotoPath()).isEqualToIgnoringCase(outputAuthorHdDirectory + "/0/Photo_77.jpg");
         assertThat(scrapAuthorDetails.getPhotoFilename()).isEqualToIgnoringCase("Photo_77.jpg");
         assertThat(scrapAuthorDetails.getIsPhotoUrlChecked()).isFalse();

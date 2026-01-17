@@ -5,6 +5,7 @@ import com.comix.scrapers.bedetheque.exception.TechnicalException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.*;
@@ -54,8 +55,16 @@ public class GenericScraper extends Scraper {
         String hashedOutputMediaUrl;
         String mediaFilename = getMediaFilename(originalMediaUrl);
         String hashedDir = getHashedRelativeDirectory(idMedia);
-        String hashedOutputMediaDirectory = getHashedPath(outputMediaBaseUrl, hashedDir);
-        hashedOutputMediaUrl = hashedOutputMediaDirectory + File.separator + mediaFilename;
+        if(Strings.CI.startsWith(outputMediaBaseUrl, "http")) {
+            if(!Strings.CS.endsWith(outputMediaBaseUrl, File.separator)) {
+                outputMediaBaseUrl += File.separator;
+            }
+            hashedOutputMediaUrl = outputMediaBaseUrl + hashedDir + File.separator + mediaFilename;
+        } else {
+            String hashedOutputMediaDirectory = getHashedPath(outputMediaBaseUrl, hashedDir);
+            hashedOutputMediaUrl = hashedOutputMediaDirectory + File.separator + mediaFilename;
+        }
+
         return hashedOutputMediaUrl;
     }
 

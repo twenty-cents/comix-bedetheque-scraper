@@ -7,10 +7,13 @@ import com.comix.scrapers.bedetheque.client.model.serie.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,8 +30,26 @@ class SerieScraperIT {
     @Value("${bedetheque.url.serie.prefix}")
     private String bedethequeSeriePrefixUrl;
 
+    @Value("${application.http.medias.series.cover-front.thumbs}")
+    private String httpCoverFrontThumbDirectory;
+
+    @Value("${application.http.medias.series.page-example.thumbs}")
+    private String httpPageExampleThumbDirectory;
+
+    @Value("${application.http.medias.default.unavailable}")
+    private String httpDefaultMediaFilename;
+
+    @Value("${application.http.medias.series.page-example.hd}")
+    private String httpPageExampleHdDirectory;
+
     @Value("#{new Long('${application.scraping.latency}')}")
     private Long latency;
+
+    @Value("${application.downloads.localcache.hashed-directory-step:5000}")
+    private int hashedDirectoryStep;
+
+    @TempDir
+    Path tempDir;
 
     private SerieScraper serieScraper;
 
@@ -42,6 +63,15 @@ class SerieScraperIT {
         serieScraper.setBedethequeSerieIndexByLetterUrl(bedethequeSerieIndexByLetterUrl);
         serieScraper.setBedethequeSeriePrefixUrl(bedethequeSeriePrefixUrl);
         serieScraper.setLatency(latency);
+
+        ReflectionTestUtils.setField(serieScraper, "hashedDirectoryStep", hashedDirectoryStep);
+        ReflectionTestUtils.setField(serieScraper, "outputCoverFrontThumbDirectory", tempDir.resolve("media/serie/cover-front/thb").toString());
+        ReflectionTestUtils.setField(serieScraper, "outputPageExampleThumbDirectory", tempDir.resolve("media/serie/page-example/thb").toString());
+        ReflectionTestUtils.setField(serieScraper, "outputPageExampleHdDirectory", tempDir.resolve("media/serie/page-example/hd").toString());
+        ReflectionTestUtils.setField(serieScraper, "httpCoverFrontThumbDirectory", httpCoverFrontThumbDirectory);
+        ReflectionTestUtils.setField(serieScraper, "httpPageExampleThumbDirectory", httpPageExampleThumbDirectory);
+        ReflectionTestUtils.setField(serieScraper, "httpPageExampleHdDirectory", httpPageExampleHdDirectory);
+        ReflectionTestUtils.setField(serieScraper, "httpDefaultMediaFilename", httpDefaultMediaFilename);
     }
 
     @Test
@@ -83,8 +113,8 @@ class SerieScraperIT {
         assertThat(s.getTomeCount()).isEqualTo(1);
         assertThat(s.getSynopsys()).isNull();
         assertThat(s.getGraphicNovelSideList()).isEmpty();
-        assertThat(s.getPictureThbUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_series/Bienvenueauxterriens_06062003.jpg");
-        assertThat(s.getPictureUrl()).isEqualTo("https://www.bedetheque.com/media/Planches/Bienvenueauxterriens_06062003.jpg");
+        assertThat(s.getPictureThbUrl()).isEqualTo("http://localhost:8080/series/page-example/thumbs/1/Bienvenueauxterriens_06062003.jpg");
+        assertThat(s.getPictureUrl()).isEqualTo("http://localhost:8080/series/page-example/hd/1/Bienvenueauxterriens_06062003.jpg");
         assertThat(s.getRatings().getCount()).isZero();
         assertThat(s.getRatings().getUrl()).isEqualTo("https://www.bedetheque.com/avis-6637-BD-Douglas-Ferblanc-et-Vaseline-agents-spatiaux-speciaux.html");
         // Verify associated series
@@ -111,8 +141,8 @@ class SerieScraperIT {
         assertThat(s.getTomeCount()).isGreaterThanOrEqualTo(756);
         assertThat(s.getSynopsys()).startsWith("- 756 Numéros");
         assertThat(s.getGraphicNovelSideList()).hasSizeGreaterThanOrEqualTo(846);
-        assertThat(s.getPictureThbUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_series/PlancheS_13266.jpg");
-        assertThat(s.getPictureUrl()).isEqualTo("https://www.bedetheque.com/media/Planches/PlancheS_13266.jpg");
+        assertThat(s.getPictureThbUrl()).isEqualTo("http://localhost:8080/series/page-example/thumbs/2/PlancheS_13266.jpg");
+        assertThat(s.getPictureUrl()).isEqualTo("http://localhost:8080/series/page-example/hd/2/PlancheS_13266.jpg");
         assertThat(s.getRatings().getCount()).isZero();
         assertThat(s.getRatings().getUrl()).isEqualTo("https://www.bedetheque.com/avis-13266-BD-Akim-1re-serie-Aventures-et-Voyages.html");
         // Verify associated series
@@ -129,10 +159,10 @@ class SerieScraperIT {
         for(ToReadSerie ts : s.getToReadSeries()) {
             if(ts.getExternalId().equals("7389")) {
                 assertThat(ts.getExternalId()).isEqualTo("7389");
-                assertThat(ts.getTitle()).isEqualTo("Tarzan (Azur)");
-                assertThat(ts.getUrl()).isEqualTo("https://www.bedetheque.com/serie-7389-BD-Tarzan-Azur.html");
-                assertThat(ts.getCoverUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_couv/Couv_32506.jpg");
-                assertThat(ts.getCoverTitle()).isEqualTo("Tarzan (Azur)");
+                assertThat(ts.getTitle()).isEqualTo("Tarzan (Editions Azur)");
+                assertThat(ts.getUrl()).isEqualTo("https://www.bedetheque.com/serie-7389-BD-Tarzan-Editions-Azur.html");
+                assertThat(ts.getCoverUrl()).isEqualTo("http://localhost:8080/series/cover-front/thumbs/1/Couv_32506.jpg");
+                assertThat(ts.getCoverTitle()).isEqualTo("Tarzan (Editions Azur)");
             }
         }
         // Verify graphic novel side list
@@ -166,8 +196,8 @@ class SerieScraperIT {
         assertThat(s.getTomeCount()).isGreaterThanOrEqualTo(38);
         assertThat(s.getSynopsys()).startsWith("Cette série regroupe");
         assertThat(s.getGraphicNovelSideList()).hasSizeGreaterThanOrEqualTo(38);
-        assertThat(s.getPictureThbUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_series/PlancheS_59.jpg");
-        assertThat(s.getPictureUrl()).isEqualTo("https://www.bedetheque.com/media/Planches/PlancheS_59.jpg");
+        assertThat(s.getPictureThbUrl()).isEqualTo("http://localhost:8080/series/page-example/thumbs/0/PlancheS_59.jpg");
+        assertThat(s.getPictureUrl()).isEqualTo("http://localhost:8080/series/page-example/hd/0/PlancheS_59.jpg");
         assertThat(s.getCopyright()).isNotBlank();
         assertThat(s.getRatings().getCount()).isGreaterThan(389);
         assertThat(s.getRatings().getUrl()).isEqualTo("https://www.bedetheque.com/avis-59-BD-Asterix.html");
