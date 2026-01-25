@@ -172,8 +172,8 @@ class SerieScraperTest {
                 assertThat(result.getLanguage()).isEqualTo("Français");
                 assertThat(result.getSiteUrl()).isEqualTo("https://site-officiel.com");
                 assertThat(result.getSynopsys()).isEqualTo("Ceci est le synopsis.");
-                assertThat(result.getPictureUrl()).isEqualTo("http://localhost:8080/media/serie/page-example/hd/2/PlancheS_31.jpg");
-                assertThat(result.getPictureThbUrl()).isEqualTo("http://localhost:8080/media/serie/page-example/thumbs/2/PlancheS_31.jpg");
+                assertThat(result.getPageExampleUrl()).isEqualTo("http://localhost:8080/media/serie/page-example/hd/2/PlancheS_31.jpg");
+                assertThat(result.getPageExampleThumbnailUrl()).isEqualTo("http://localhost:8080/media/serie/page-example/thumbs/2/PlancheS_31.jpg");
                 assertThat(result.getCopyright()).isEqualTo("© Dargaud 2024");
                 assertThat(result.getScrapUrl()).isEqualTo(url);
                 assertThat(result.getTomeCount()).isEqualTo(12);

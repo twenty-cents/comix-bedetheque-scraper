@@ -4,10 +4,13 @@ import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +24,9 @@ class GraphicNovelScraperIT {
     @Value("#{new Long('${application.scraping.latency}')}")
     private Long latency;
 
+    @TempDir
+    Path tempDir;
+
     private GraphicNovelScraper graphicNovelScraper;
 
     @BeforeEach
@@ -28,6 +34,29 @@ class GraphicNovelScraperIT {
         graphicNovelScraper = new GraphicNovelScraper();
         graphicNovelScraper.setLocalCacheActive(isLocalCacheActive);
         graphicNovelScraper.setLatency(latency);
+
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpCoverFrontHdDirectory", "http://localhost:8080/media/graphic-novels/cover-front/hd/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpCoverFrontThumbDirectory", "http://localhost:8080/media/graphic-novels/cover-front/thb/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpCoverBackHdDirectory", "http://localhost:8080/media/graphic-novels/cover-back/hd/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpCoverBackThumbDirectory", "http://localhost:8080/media/graphic-novels/cover-back/thb/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpPageExampleHdDirectory", "http://localhost:8080/media/graphic-novels/page-example/hd/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpPageExampleThumbDirectory", "http://localhost:8080/media/graphic-novels/page-example/thb/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpDefaultMediaFilename", "default.jpg");
+
+        String outputCoverFrontHdDirectory = tempDir.resolve("graphic-novels/cover-front/hd").toString();
+        String outputCoverFrontThumbnailDirectory = tempDir.resolve("graphic-novels/cover-front/thb").toString();
+        String outputBackCoverHdDirectory = tempDir.resolve("graphic-novels/cover-back/hd").toString();
+        String outputBackCoverThumbnailDirectory = tempDir.resolve("graphic-novels/cover-back/thb").toString();
+        String outputPageExampleHdDirectory = tempDir.resolve("graphic-novels/page-example/hd").toString();
+        String outputPageExampleThumbnailDirectory = tempDir.resolve("graphic-novels/page-example/thb").toString();
+
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputCoverFrontHdDirectory", outputCoverFrontHdDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputCoverFrontThumbDirectory", outputCoverFrontThumbnailDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputCoverBackThumbDirectory", outputBackCoverHdDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputCoverBackHdDirectory", outputBackCoverThumbnailDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputPageExampleHdDirectory", outputPageExampleHdDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputPageExampleThumbDirectory", outputPageExampleThumbnailDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "hashedDirectoryStep", 5000);
     }
 
     @DisplayName("Scrap Astérix with all republications -> OK")

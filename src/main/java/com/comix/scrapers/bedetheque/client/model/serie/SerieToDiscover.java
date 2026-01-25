@@ -18,7 +18,7 @@ public class SerieToDiscover implements Comparable<SerieToDiscover> {
     private String coverPath;
     private String coverFilename;
     private Long coverFileSize;
-    private Boolean isCoverChecked;
+    private Boolean coverAvailable;
     private String coverTitle;
 
     public int compareTo(SerieToDiscover s2){

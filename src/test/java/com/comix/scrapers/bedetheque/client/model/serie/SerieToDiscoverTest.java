@@ -48,7 +48,7 @@ class SerieToDiscoverTest {
         assertThat(serie.getCoverPath()).isEqualTo("/path");
         assertThat(serie.getCoverFilename()).isEqualTo("file.jpg");
         assertThat(serie.getCoverFileSize()).isEqualTo(100L);
-        assertThat(serie.getIsCoverChecked()).isTrue();
+        assertThat(serie.getCoverAvailable()).isTrue();
         assertThat(serie.getCoverTitle()).isEqualTo("CoverTitle");
 
         // Test Equals et HashCode

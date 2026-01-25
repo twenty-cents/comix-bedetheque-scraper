@@ -23,19 +23,21 @@ public class SerieDetails {
     private String language;
     private String synopsys;
 
-    private String originalPictureUrl;
-    private String pictureUrl;
-    private String picturePath;
-    private String pictureFilename;
-    private Long pictureFileSize;
-    private Boolean isPictureChecked;
+    private String pageExampleOriginalUrl;
+    private String pageExampleUrl;
+    private String pageExamplePath;
+    private String pageExampleFilename;
+    private Long pageExampleFileSize;
+    private Boolean pageExampleAvailable;
+    private String pageExampleTitle;
 
-    private String originalPictureThbUrl;
-    private String pictureThbUrl;
-    private String pictureThbPath;
-    private String pictureThbFilename;
-    private Long pictureThbFileSize;
-    private Boolean isPictureThbChecked;
+    private String pageExampleThumbnailOriginalUrl;
+    private String pageExampleThumbnailUrl;
+    private String pageExampleThumbnailPath;
+    private String pageExampleThumbnailFilename;
+    private Long pageExampleThumbnailFileSize;
+    private Boolean pageExampleThumbnailAvailable;
+    private String pageExampleThumbnailTitle;
 
     private String scrapUrl;
     private Integer graphicNovelCount;

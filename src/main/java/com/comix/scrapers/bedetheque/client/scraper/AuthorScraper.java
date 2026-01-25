@@ -173,6 +173,7 @@ public class AuthorScraper extends GenericScraper {
         authorDetails.setSiteUrl(scrap(doc, "ul.auteur-info li:contains(Site) > a", "href"));
         authorDetails.setBiography(scrap(doc, "p.bio", null));
         authorDetails.setOriginalPhotoUrl(scrap(doc, "div.auteur-image > a", "href"));
+        authorDetails.setPhotoTitle(scrap(doc, "div.auteur-image > a", "title"));
         authorDetails.setAuthorUrl(author.getUrl());
         // Other pseudonym (to be refactored if more than one is possible)
         String otherPseudonymName = scrap(doc, "ul.auteur-info li:contains(Voir) > a", null);
@@ -214,7 +215,7 @@ public class AuthorScraper extends GenericScraper {
             authorDetails.setPhotoFilename(getMediaFilename(authorDetails.getOriginalPhotoUrl()));
             authorDetails.setPhotoUrl(getHashedOutputMediaUrl(authorDetails.getOriginalPhotoUrl(), httpAuthorHdPath, authorDetails.getId()));
             authorDetails.setPhotoPath(getHashedOutputMediaPath(authorDetails.getOriginalPhotoUrl(), outputAuthorHdDirectory, author.getId()));
-            authorDetails.setIsPhotoUrlChecked(false);
+            authorDetails.setPhotoAvailable(false);
             authorDetails.setPhotoFileSize(0L);
         }
 
@@ -324,8 +325,9 @@ public class AuthorScraper extends GenericScraper {
                 serie.setCoverFilename(getMediaFilename(serie.getOriginalCoverUrl()));
                 serie.setCoverUrl(getHashedOutputMediaUrl(serie.getOriginalCoverUrl(), httpCoverFrontThumbDirectory, serie.getId()));
                 serie.setCoverPath(getHashedOutputMediaUrl(serie.getOriginalCoverUrl(), outputCoverFrontThumbDirectory, serie.getId()));
-                serie.setIsCoverChecked(false);
+                serie.setCoverAvailable(false);
                 serie.setCoverFileSize(0L);
+                serie.setCoverTitle(img.attr("alt"));
             }
             serie.setCoverTitle(title);
 
@@ -454,10 +456,10 @@ public class AuthorScraper extends GenericScraper {
         if (!StringUtils.isBlank(author.getOriginalPhotoUrl())) {
             try {
                 download(author.getOriginalPhotoUrl(), author.getPhotoPath());
-                author.setIsPhotoUrlChecked(true);
+                author.setPhotoAvailable(true);
                 author.setPhotoFileSize(getMediaSize(author.getPhotoPath()));
             } catch (TechnicalException e) {
-                author.setIsPhotoUrlChecked(false);
+                author.setPhotoAvailable(false);
                 author.setPhotoFileSize(0L);
                 log.error(e.getMessage(), e);
             }
@@ -474,10 +476,10 @@ public class AuthorScraper extends GenericScraper {
             if (!StringUtils.isBlank(s.getOriginalCoverUrl())) {
                 try {
                     download(s.getOriginalCoverUrl(), s.getCoverPath());
-                    s.setIsCoverChecked(true);
+                    s.setCoverAvailable(true);
                     s.setCoverFileSize(getMediaSize(s.getCoverPath()));
                 } catch (TechnicalException e) {
-                    s.setIsCoverChecked(false);
+                    s.setCoverAvailable(false);
                     s.setCoverFileSize(0L);
                     log.error(e.getMessage(), e);
                 }

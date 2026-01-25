@@ -1,9 +1,7 @@
 package com.comix.scrapers.bedetheque.rest.mapper.mapper;
 
-import com.comix.scrapers.bedetheque.client.model.graphicnovel.AuthorRole;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovel;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.Ratings;
-import com.comix.scrapers.bedetheque.client.model.serie.Serie;
 import com.comix.scrapers.bedetheque.rest.mapper.GraphicNovelMapper;
 import com.comix.scrapers.bedetheque.rest.v1.dto.GraphicNovelDto;
 import org.junit.jupiter.api.DisplayName;
@@ -24,40 +22,41 @@ class GraphicNovelMapperTest {
     @DisplayName("Should map GraphicNovel to GraphicNovelDto correctly")
     void shouldMapGraphicNovelToDto() {
         // GIVEN: un objet source avec des données de test
-        GraphicNovel source = new GraphicNovel(
-        "externalId",
-        "tome",
-        1,
-        "numEdition",
-        "title",
-                List.of(new AuthorRole()),
-        "publicationDate",
-        "releaseDate",
-        "publisher",
-        "collection",
-        "collectionUrl",
-        "cycle",
-        "isbn",
-        45,
-        "format",
-        true,
-        false,
-        false,
-        "infoEdition",
-        "reeditionUrl",
-        "reeditionCount",
-        "externalIdOriginalPublication",
-        "coverPictureUrl",
-        "coverThumbnailUrl",
-        "backCoverPictureUrl",
-        "backCoverThumbnailUrl",
-        "pagePictureUrl",
-        "pageThumbnailUrl",
-        "copyright",
-        "scrapUrl",
-        new Ratings(),
-                new Serie()
-        );
+        GraphicNovel source = new GraphicNovel();
+        source.setCoverTitle("coverTitle");
+        source.setCoverThumbnailTitle("coverThumbnailTitle");
+        source.setBackCoverTitle("backCoverTitle");
+        source.setBackCoverThumbnailTitle("backCoverThumbnailTitle");
+        source.setExternalId("externalId");
+        source.setTitle("title");
+        source.setTome("tome");
+        source.setPublisher("publisher");
+        source.setPublicationDate("publicationDate");
+        source.setIsbn("isbn");
+        source.setCoverOriginalUrl("coverOriginalUrl");
+        source.setCoverThumbnailOriginalUrl("coverThumbnailOriginalUrl");
+        source.setBackCoverOriginalUrl("backCoverOriginalUrl");
+        source.setBackCoverThumbnailOriginalUrl("backCoverThumbnailOriginalUrl");
+        source.setPageExampleOriginalUrl("pageExampleOriginalUrl");
+        source.setPageExampleThumbnailOriginalUrl("pageExampleThumbnailOriginalUrl");
+        source.setScrapUrl("scrapUrl");
+        source.setInfoEdition("infoEdition");
+        source.setReeditionUrl("reeditionUrl");
+        source.setReeditionCount("reeditionCount");
+        source.setCycle("cycle");
+        source.setCollection("collection");
+        source.setCollectionUrl("collectionUrl");
+        source.setIsOriginalPublication(true);
+        source.setIsIntegrale(true);
+        source.setIsBroche(true);
+        source.setFormat("format");
+        source.setTotalPages(10);
+        source.setCopyright("copyright");
+        source.setNumEdition("numEdition");
+        source.setExternalIdOriginalPublication("externalIdOriginalPublication");
+        source.setRatings(new Ratings());
+        source.setAuthors(null);
+        source.setSerie(null);
 
         // WHEN: on appelle la méthode de mapping
         GraphicNovelDto destination = graphicNovelMapper.graphicNovelToGraphicNovelDto(source);
@@ -70,12 +69,12 @@ class GraphicNovelMapperTest {
         assertThat(destination.getPublisher()).isEqualTo(source.getPublisher());
         assertThat(destination.getPublicationDate()).isEqualTo(source.getPublicationDate());
         assertThat(destination.getIsbn()).isEqualTo(source.getIsbn());
-        assertThat(destination.getCoverPictureUrl()).isEqualTo(source.getCoverPictureUrl());
-        assertThat(destination.getCoverThumbnailUrl()).isEqualTo(source.getCoverThumbnailUrl());
-        assertThat(destination.getBackCoverPictureUrl()).isEqualTo(source.getBackCoverPictureUrl());
-        assertThat(destination.getBackCoverThumbnailUrl()).isEqualTo(source.getBackCoverThumbnailUrl());
-        assertThat(destination.getPagePictureUrl()).isEqualTo(source.getPagePictureUrl());
-        assertThat(destination.getPageThumbnailUrl()).isEqualTo(source.getPageThumbnailUrl());
+        assertThat(destination.getCoverOriginalUrl()).isEqualTo(source.getCoverOriginalUrl());
+        assertThat(destination.getCoverThumbnailOriginalUrl()).isEqualTo(source.getCoverThumbnailOriginalUrl());
+        assertThat(destination.getBackCoverOriginalUrl()).isEqualTo(source.getBackCoverOriginalUrl());
+        assertThat(destination.getBackCoverThumbnailOriginalUrl()).isEqualTo(source.getBackCoverThumbnailOriginalUrl());
+        assertThat(destination.getPageExampleOriginalUrl()).isEqualTo(source.getPageExampleOriginalUrl());
+        assertThat(destination.getPageExampleThumbnailOriginalUrl()).isEqualTo(source.getPageExampleThumbnailOriginalUrl());
         assertThat(destination.getTitle()).isEqualTo(source.getTitle());
         assertThat(destination.getScrapUrl()).isEqualTo(source.getScrapUrl());
         assertThat(destination.getRatings()).isNotNull();

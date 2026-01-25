@@ -76,51 +76,29 @@ class SerieMapperTest {
     @DisplayName("Should map SerieDetails to SerieDetailsDto correctly")
     void shouldMapSerieDetailsToDto() {
         // GIVEN
-        SerieDetails source = new SerieDetails(
-        "externalId",
-        "title",
-        "category",
-        "status",
-        "origin",
-        "language",
-        "synopsys",
-        "originalPictureUrl",
-        "pictureUrl",
-        "picturePath",
-        "pictureFilename",
-        1L,
-        true,
-        "originalPictureThbUrl",
-        "pictureThbUrl",
-        "pictureThbPath",
-        "pictureThbFilename",
-        2L,
-        true,
-        "scrapUrl",
-        4,
-        "period",
-        1984,
-        1986,
-        "siteUrl",
-        "copyright",
-        new Serie(),
-        new Serie(),
-        1,
-        new SeriePagination(),
-        new SerieRatings(),
-        "linkedSeriesPictureUrl",
-        List.of( new LinkedSerie()),
-        List.of(new ToReadSerie()),
-        List.of(new GraphicNovelSideListItem()),
-        List.of(new GraphicNovel())
-        );
+        SerieDetails source = new SerieDetails();
+        source.setPageExampleUrl("pageExampleUrl");
+        source.setTitle("title");
+        source.setStatus("status");
+        source.setOrigin("origin");
+        source.setLanguage("language");
+        source.setSynopsys("synopsys");
+        source.setCategory("category");
+        source.setPeriod("period");
+        source.setPeriodFrom(1);
+        source.setPeriodTo(2);
+        source.setGraphicNovels(List.of(new GraphicNovel()));
+        source.setGraphicNovelSideList(List.of(new GraphicNovelSideListItem()));
+        source.setLinkedSeries(List.of(new LinkedSerie()));
+        source.setToReadSeries(List.of(new ToReadSerie()));
+        source.setRatings(new SerieRatings());
 
         // WHEN
         SerieDetailsDto destination = serieMapper.serieDetailsToSerieDetailsDto(source);
 
         // THEN
         assertThat(destination).isNotNull();
-        assertThat(destination.getPictureUrl()).isEqualTo(source.getPictureUrl());
+        assertThat(destination.getPageExampleUrl()).isEqualTo(source.getPageExampleUrl());
         assertThat(destination.getTitle()).isEqualTo(source.getTitle());
         assertThat(destination.getStatus()).isEqualTo(source.getStatus());
         assertThat(destination.getOrigin()).isEqualTo(source.getOrigin());

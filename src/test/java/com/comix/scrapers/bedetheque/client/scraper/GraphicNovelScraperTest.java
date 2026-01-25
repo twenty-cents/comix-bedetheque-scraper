@@ -9,11 +9,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,11 +52,11 @@ class GraphicNovelScraperTest {
                 <a href="reedition-1.html"><em>Rééditions</em> (<strong>3</strong>)</a>
             </div>
             <div class="album-side">
-                <div class="couv"><img src="couv_thumb.jpg"><span>© Dargaud</span></div>
+                <div class="couv"><img src="https://www.bedetheque.com/cache/thb_couv/couv_thumb.jpg"><span>© Dargaud</span></div>
                 <div class="sous-couv">
-                    <a class="browse-couvertures" href="couv_hd.jpg"></a>
-                    <a class="browse-versos" href="verso_hd.jpg"><img src="verso_thumb.jpg"></a>
-                    <a class="browse-planches" href="planche_hd.jpg"><img src="planche_thumb.jpg"></a>
+                    <a class="browse-couvertures" href="https://www.bedetheque.com/media/Couvertures/couv_hd.jpg"></a>
+                    <a class="browse-versos" href="https://www.bedetheque.com/media/Versos/verso_hd.jpg"><img src="https://www.bedetheque.com/cache/thb_versos/verso_thumb.jpg"></a>
+                    <a class="browse-planches" href="https://www.bedetheque.com/media/Planches/planche_hd.jpg"><img src="https://www.bedetheque.com/cache/thb_planches/planche_thumb.jpg"></a>
                 </div>
             </div>
             <div class="eval">
@@ -64,6 +66,9 @@ class GraphicNovelScraperTest {
         </li>
         """;
 
+    @TempDir
+    Path tempDir;
+
     @BeforeEach
     void setUp() {
         scraper = new GraphicNovelScraper();
@@ -71,20 +76,30 @@ class GraphicNovelScraperTest {
         scraper.setLatency(0L);
         scraper.setLocalCacheActive(false);
 
+        String outputCoverFrontHdDirectory = tempDir.resolve("graphic-novels/cover-front/hd").toString();
+        String outputCoverFrontThumbnailDirectory = tempDir.resolve("graphic-novels/cover-front/thb").toString();
+        String outputBackCoverHdDirectory = tempDir.resolve("graphic-novels/cover-back/hd").toString();
+        String outputBackCoverThumbnailDirectory = tempDir.resolve("graphic-novels/cover-back/thb").toString();
+        String outputPageExampleHdDirectory = tempDir.resolve("graphic-novels/page-example/hd").toString();
+        String outputPageExampleThumbnailDirectory = tempDir.resolve("graphic-novels/page-example/thb").toString();
+
+
         // On utilise ReflectionTestUtils car les champs n'ont pas de setters publics.
-        ReflectionTestUtils.setField(scraper, "outputCoverFrontThumbDirectory", "/tmp/thumbs/front/");
-        ReflectionTestUtils.setField(scraper, "httpCoverFrontThumbDirectory", "/media/thumbs/front/");
-        ReflectionTestUtils.setField(scraper, "outputCoverBackThumbDirectory", "/tmp/thumbs/back/");
-        ReflectionTestUtils.setField(scraper, "httpCoverBackThumbDirectory", "/media/thumbs/back/");
-        ReflectionTestUtils.setField(scraper, "outputPageExampleThumbDirectory", "/tmp/thumbs/page/");
-        ReflectionTestUtils.setField(scraper, "httpPageExampleThumbDirectory", "/media/thumbs/page/");
-        ReflectionTestUtils.setField(scraper, "outputCoverFrontHdDirectory", "/tmp/hd/front/");
-        ReflectionTestUtils.setField(scraper, "httpCoverFrontHdDirectory", "/media/hd/front/");
-        ReflectionTestUtils.setField(scraper, "outputCoverBackHdDirectory", "/tmp/hd/back/");
-        ReflectionTestUtils.setField(scraper, "httpCoverBackHdDirectory", "/media/hd/back/");
-        ReflectionTestUtils.setField(scraper, "outputPageExampleHdDirectory", "/tmp/hd/page/");
-        ReflectionTestUtils.setField(scraper, "httpPageExampleHdDirectory", "/media/hd/page/");
+        ReflectionTestUtils.setField(scraper, "httpCoverFrontHdDirectory", "http://localhost:8080/media/graphic-novels/cover-front/hd/");
+        ReflectionTestUtils.setField(scraper, "httpCoverFrontThumbDirectory", "http://localhost:8080/media/graphic-novels/cover-front/thb/");
+        ReflectionTestUtils.setField(scraper, "httpCoverBackHdDirectory", "http://localhost:8080/media/graphic-novels/cover-back/hd/");
+        ReflectionTestUtils.setField(scraper, "httpCoverBackThumbDirectory", "http://localhost:8080/media/graphic-novels/cover-back/thb/");
+        ReflectionTestUtils.setField(scraper, "httpPageExampleHdDirectory", "http://localhost:8080/media/graphic-novels/page-example/hd/");
+        ReflectionTestUtils.setField(scraper, "httpPageExampleThumbDirectory", "http://localhost:8080/media/graphic-novels/page-example/thb/");
         ReflectionTestUtils.setField(scraper, "httpDefaultMediaFilename", "default.jpg");
+
+        ReflectionTestUtils.setField(scraper, "outputCoverFrontHdDirectory", outputCoverFrontHdDirectory);
+        ReflectionTestUtils.setField(scraper, "outputCoverFrontThumbDirectory", outputCoverFrontThumbnailDirectory);
+        ReflectionTestUtils.setField(scraper, "outputCoverBackThumbDirectory", outputBackCoverHdDirectory);
+        ReflectionTestUtils.setField(scraper, "outputCoverBackHdDirectory", outputBackCoverThumbnailDirectory);
+        ReflectionTestUtils.setField(scraper, "outputPageExampleHdDirectory", outputPageExampleHdDirectory);
+        ReflectionTestUtils.setField(scraper, "outputPageExampleThumbDirectory", outputPageExampleThumbnailDirectory);
+        ReflectionTestUtils.setField(scraper, "hashedDirectoryStep", 5000);
     }
 
     @Nested
@@ -211,12 +226,12 @@ class GraphicNovelScraperTest {
             assertThat(result.getInfoEdition()).isEqualTo("Info édition");
             assertThat(result.getReeditionUrl()).isEqualTo("reedition-1.html");
             assertThat(result.getReeditionCount()).isEqualTo("3");
-            assertThat(result.getCoverPictureUrl()).isEqualTo("couv_hd.jpg");
-            assertThat(result.getCoverThumbnailUrl()).isEqualTo("couv_thumb.jpg");
-            assertThat(result.getBackCoverPictureUrl()).isEqualTo("verso_hd.jpg");
-            assertThat(result.getBackCoverThumbnailUrl()).isEqualTo("verso_thumb.jpg");
-            assertThat(result.getPagePictureUrl()).isEqualTo("planche_hd.jpg");
-            assertThat(result.getPageThumbnailUrl()).isEqualTo("planche_thumb.jpg");
+            assertThat(result.getCoverOriginalUrl()).isEqualTo("https://www.bedetheque.com/media/Couvertures/couv_hd.jpg");
+            assertThat(result.getCoverThumbnailOriginalUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_couv/couv_thumb.jpg");
+            assertThat(result.getBackCoverOriginalUrl()).isEqualTo("https://www.bedetheque.com/media/Versos/verso_hd.jpg");
+            assertThat(result.getBackCoverThumbnailOriginalUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_versos/verso_thumb.jpg");
+            assertThat(result.getPageExampleOriginalUrl()).isEqualTo("https://www.bedetheque.com/media/Planches/planche_hd.jpg");
+            assertThat(result.getPageExampleOriginalUrl()).isEqualTo("https://www.bedetheque.com/media/Planches/planche_hd.jpg");
             assertThat(result.getCopyright()).isEqualTo("© Dargaud");
             assertThat(result.getScrapUrl()).isEqualTo("https://test.com/serie.html");
         }
@@ -253,20 +268,29 @@ class GraphicNovelScraperTest {
             // GIVEN
             GraphicNovelScraper scraperSpy = Mockito.spy(scraper);
             scraperSpy.setLocalCacheActive(true);
-            doReturn("local/path")
-                    .when(scraperSpy)
-                    .downloadMedia(any(), any(), any(), any(), any());
+            lenient().doNothing().when(scraperSpy).download(anyString(), anyString());
 
             String fullPageHtml = String.format("<ul class=\"liste-albums\">%s</ul>", albumHtml);
             Document doc = Jsoup.parse(fullPageHtml);
 
-            // WHEN
-            // On appelle la méthode publique sur l'espion
-            scraperSpy.scrapElement("https://test.com/serie.html", doc);
+            try (MockedStatic<GenericScraperSingleton> mockedSingleton = Mockito.mockStatic(GenericScraperSingleton.class)) {
+                GenericScraperSingleton mockScraper = mock(GenericScraperSingleton.class);
+                mockedSingleton.when(GenericScraperSingleton::getInstance).thenReturn(mockScraper);
+                lenient().when(mockScraper.load(anyString(), anyLong())).thenReturn(doc);
 
-            // THEN
-            // Verify that downloadMedia was called for all 6 images (3 thumbs, 3 HD)
-            verify(scraperSpy, times(6)).downloadMedia(any(), any(), any(), any(), any());
+                // WHEN
+                // On appelle la méthode publique sur l'espion
+                scraperSpy.scrapElement("https://test.com/serie.html", doc);
+
+                // THEN
+                // Verify that downloadMedia was called for all 6 images (3 thumbs, 3 HD)
+                verify(scraperSpy, times(1)).downloadCover(any());
+                verify(scraperSpy, times(1)).downloadCoverThumbnail(any());
+                verify(scraperSpy, times(1)).downloadBackCover(any());
+                verify(scraperSpy, times(1)).downloadBackCoverThumbnail(any());
+                verify(scraperSpy, times(1)).downloadPageExample(any());
+                verify(scraperSpy, times(1)).downloadPageExampleThumbnail(any());
+            }
         }
 
         @Test

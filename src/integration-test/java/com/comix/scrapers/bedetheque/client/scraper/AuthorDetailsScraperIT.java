@@ -112,7 +112,7 @@ class AuthorDetailsScraperIT {
         assertThat(scrapAuthorDetails.getPhotoUrl()).isEqualToIgnoringCase("http://localhost:8080/authors/photo/hd/0/Photo_77.jpg");
         assertThat(scrapAuthorDetails.getPhotoPath()).isEqualToIgnoringCase(outputAuthorHdDirectory + "/0/Photo_77.jpg");
         assertThat(scrapAuthorDetails.getPhotoFilename()).isEqualToIgnoringCase("Photo_77.jpg");
-        assertThat(scrapAuthorDetails.getIsPhotoUrlChecked()).isFalse();
+        assertThat(scrapAuthorDetails.getPhotoAvailable()).isFalse();
         assertThat(scrapAuthorDetails.getPhotoFileSize()).isZero();
         assertThat(scrapAuthorDetails.getBiography()).isGreaterThan("");
         assertThat(scrapAuthorDetails.getAuthorUrl()).isEqualToIgnoringCase("https://www.bedetheque.com/auteur-77-BD-Greg.html");

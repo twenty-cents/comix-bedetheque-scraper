@@ -72,30 +72,16 @@ class AuthorMapperTest {
     @DisplayName("Should map AuthorDetails to AuthorDetailsDto correctly")
     void shouldMapAuthorDetailsToDto() {
         // GIVEN
-        AuthorDetails source = new AuthorDetails(
-                "id",
-                "lastname",
-                "firstname",
-                "nickname",
-                "nationality",
-                "birthdate",
-                "deceaseDate",
-                "biography",
-                "siteUrl",
-                null,
-                "photoUrl",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        AuthorDetails source = new AuthorDetails();
+        source.setId("id");
+        source.setLastname("lastname");
+        source.setFirstname("firstname");
+        source.setBirthdate("birthdate");
+        source.setDeceaseDate("deceaseDate");
+        source.setNationality("nationality");
+        source.setBiography("biography");
+        source.setSiteUrl("siteUrl");
+        source.setPhotoUrl("photoUrl");
 
         // WHEN
         AuthorDetailsDto destination = authorMapper.authorDetailsToAuthorDetailsDto(source);

@@ -26,10 +26,11 @@ public class AuthorDetails {
 
     private String originalPhotoUrl;
     private String photoUrl;
-    private Boolean isPhotoUrlChecked;
+    private Boolean photoAvailable;
     private String photoPath;
     private String photoFilename;
     private Long photoFileSize;
+    private String photoTitle;
 
     private String authorUrl;
     private List<Author> authorsToDiscover;
