@@ -1,6 +1,9 @@
 package com.comix.scrapers.bedetheque.client.scraper;
 
-import com.comix.scrapers.bedetheque.client.model.graphicnovel.*;
+import com.comix.scrapers.bedetheque.client.model.graphicnovel.AuthorRole;
+import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovel;
+import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovelPage;
+import com.comix.scrapers.bedetheque.client.model.graphicnovel.Ratings;
 import com.comix.scrapers.bedetheque.client.model.serie.Serie;
 import com.comix.scrapers.bedetheque.exception.TechnicalException;
 import com.comix.scrapers.bedetheque.util.HTML;
@@ -315,13 +318,6 @@ public class GraphicNovelScraper extends GenericScraper {
                 log.error(e.getMessage(), e);
             }
         }
-    }
-
-    private String downloadAndSetMedia(String url, String outputDir, String httpDir, String externalId) {
-        if (StringUtils.isBlank(url)) {
-            return url;
-        }
-        return downloadMedia(outputDir, httpDir, url, httpDefaultMediaFilename, externalId);
     }
 
     private int getGraphicNovelCount(Document doc) {
