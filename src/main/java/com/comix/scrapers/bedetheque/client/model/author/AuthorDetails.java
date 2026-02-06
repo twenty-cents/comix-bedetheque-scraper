@@ -24,7 +24,7 @@ public class AuthorDetails {
     private String siteUrl;
     private Author otherAuthorPseudonym;
 
-    private String originalPhotoUrl;
+    private String photoOriginalUrl;
     private String photoUrl;
     private Boolean photoAvailable;
     private String photoPath;

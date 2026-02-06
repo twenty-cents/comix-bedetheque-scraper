@@ -172,7 +172,7 @@ public class AuthorScraper extends GenericScraper {
         }
         authorDetails.setSiteUrl(scrap(doc, "ul.auteur-info li:contains(Site) > a", "href"));
         authorDetails.setBiography(scrap(doc, "p.bio", null));
-        authorDetails.setOriginalPhotoUrl(scrap(doc, "div.auteur-image > a", "href"));
+        authorDetails.setPhotoOriginalUrl(scrap(doc, "div.auteur-image > a", "href"));
         authorDetails.setPhotoTitle(scrap(doc, "div.auteur-image > a", "title"));
         authorDetails.setAuthorUrl(author.getUrl());
         // Other pseudonym (to be refactored if more than one is possible)
@@ -211,10 +211,10 @@ public class AuthorScraper extends GenericScraper {
             }
         }
 
-        if (!StringUtils.isBlank(authorDetails.getOriginalPhotoUrl())) {
-            authorDetails.setPhotoFilename(getMediaFilename(authorDetails.getOriginalPhotoUrl()));
-            authorDetails.setPhotoUrl(getHashedOutputMediaUrl(authorDetails.getOriginalPhotoUrl(), httpAuthorHdPath, authorDetails.getId()));
-            authorDetails.setPhotoPath(getHashedOutputMediaPath(authorDetails.getOriginalPhotoUrl(), outputAuthorHdDirectory, author.getId()));
+        if (!StringUtils.isBlank(authorDetails.getPhotoOriginalUrl())) {
+            authorDetails.setPhotoFilename(getMediaFilename(authorDetails.getPhotoOriginalUrl()));
+            authorDetails.setPhotoUrl(getHashedOutputMediaUrl(authorDetails.getPhotoOriginalUrl(), httpAuthorHdPath, authorDetails.getId()));
+            authorDetails.setPhotoPath(getHashedOutputMediaPath(authorDetails.getPhotoOriginalUrl(), outputAuthorHdDirectory, author.getId()));
             authorDetails.setPhotoAvailable(false);
             authorDetails.setPhotoFileSize(0L);
         }
@@ -319,12 +319,12 @@ public class AuthorScraper extends GenericScraper {
             SerieToDiscover serie = new SerieToDiscover();
             serie.setUrl(a.attr("href"));
             serie.setTitle(title);
-            serie.setId(this.getIdBel(a.attr("href")));
+            serie.setExternalId(this.getIdBel(a.attr("href")));
             if (img != null) {
-                serie.setOriginalCoverUrl(img.attr("src"));
-                serie.setCoverFilename(getMediaFilename(serie.getOriginalCoverUrl()));
-                serie.setCoverUrl(getHashedOutputMediaUrl(serie.getOriginalCoverUrl(), httpCoverFrontThumbDirectory, serie.getId()));
-                serie.setCoverPath(getHashedOutputMediaUrl(serie.getOriginalCoverUrl(), outputCoverFrontThumbDirectory, serie.getId()));
+                serie.setCoverOriginalUrl(img.attr("src"));
+                serie.setCoverFilename(getMediaFilename(serie.getCoverOriginalUrl()));
+                serie.setCoverUrl(getHashedOutputMediaUrl(serie.getCoverOriginalUrl(), httpCoverFrontThumbDirectory, serie.getExternalId()));
+                serie.setCoverPath(getHashedOutputMediaUrl(serie.getCoverOriginalUrl(), outputCoverFrontThumbDirectory, serie.getExternalId()));
                 serie.setCoverAvailable(false);
                 serie.setCoverFileSize(0L);
                 serie.setCoverTitle(img.attr("alt"));
@@ -453,9 +453,9 @@ public class AuthorScraper extends GenericScraper {
      * @param author the author
      */
     void downloadPhoto(AuthorDetails author) {
-        if (!StringUtils.isBlank(author.getOriginalPhotoUrl())) {
+        if (!StringUtils.isBlank(author.getPhotoOriginalUrl())) {
             try {
-                download(author.getOriginalPhotoUrl(), author.getPhotoPath());
+                download(author.getPhotoOriginalUrl(), author.getPhotoPath());
                 author.setPhotoAvailable(true);
                 author.setPhotoFileSize(getMediaSize(author.getPhotoPath()));
             } catch (TechnicalException e) {
@@ -473,9 +473,9 @@ public class AuthorScraper extends GenericScraper {
      */
     void downloadSerieCovers(AuthorDetails author) {
         for (SerieToDiscover s : author.getSeriesToDiscover()) {
-            if (!StringUtils.isBlank(s.getOriginalCoverUrl())) {
+            if (!StringUtils.isBlank(s.getCoverOriginalUrl())) {
                 try {
-                    download(s.getOriginalCoverUrl(), s.getCoverPath());
+                    download(s.getCoverOriginalUrl(), s.getCoverPath());
                     s.setCoverAvailable(true);
                     s.setCoverFileSize(getMediaSize(s.getCoverPath()));
                 } catch (TechnicalException e) {

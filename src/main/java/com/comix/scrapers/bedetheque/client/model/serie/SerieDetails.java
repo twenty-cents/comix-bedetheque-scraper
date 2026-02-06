@@ -9,8 +9,8 @@ import java.util.List;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "linkedSeries, toReadSeries, graphicNovelSideList, graphicNovels")
-@ToString(exclude = "linkedSeries, toReadSeries, graphicNovelSideList, graphicNovels")
+@EqualsAndHashCode(exclude = {"linkedSeries", "toReadSeries", "graphicNovelSideList", "graphicNovels"})
+@ToString(exclude = {"linkedSeries", "toReadSeries", "graphicNovelSideList", "graphicNovels"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class SerieDetails {

@@ -13,7 +13,7 @@ public class ToReadSerie {
     private String externalId;
     private String title;
     private String url;
-    private String originalCoverUrl;
+    private String coverOriginalUrl;
     private String coverUrl;
     private String coverPath;
     private String coverFilename;

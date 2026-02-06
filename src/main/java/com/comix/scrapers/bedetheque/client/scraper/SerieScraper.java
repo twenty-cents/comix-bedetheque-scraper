@@ -203,9 +203,9 @@ public class SerieScraper extends GenericScraper {
      */
     void downloadToReadSeriesCovers(SerieDetails serieDetails) {
         for(ToReadSerie s : serieDetails.getToReadSeries()) {
-            if(!StringUtils.isBlank(s.getOriginalCoverUrl())) {
+            if(!StringUtils.isBlank(s.getCoverOriginalUrl())) {
                 try {
-                    download(s.getOriginalCoverUrl(), s.getCoverPath());
+                    download(s.getCoverOriginalUrl(), s.getCoverPath());
                     s.setCoverAvailable(true);
                     s.setCoverFileSize(getMediaSize(s.getCoverPath()));
                 } catch (TechnicalException e) {
@@ -445,10 +445,10 @@ public class SerieScraper extends GenericScraper {
                 toReadSerie.setExternalId(this.getIdBel(a.attr("href")));
                 if (img != null) {
                     toReadSerie.setCoverTitle(img.attr("alt"));
-                    toReadSerie.setOriginalCoverUrl(img.attr("src"));
-                    toReadSerie.setCoverFilename(getMediaFilename(toReadSerie.getOriginalCoverUrl()));
-                    toReadSerie.setCoverUrl(getHashedOutputMediaUrl(toReadSerie.getOriginalCoverUrl(), httpCoverFrontThumbDirectory, toReadSerie.getExternalId()));
-                    toReadSerie.setCoverPath(getHashedOutputMediaUrl(toReadSerie.getOriginalCoverUrl(), outputCoverFrontThumbDirectory, toReadSerie.getExternalId()));
+                    toReadSerie.setCoverOriginalUrl(img.attr("src"));
+                    toReadSerie.setCoverFilename(getMediaFilename(toReadSerie.getCoverOriginalUrl()));
+                    toReadSerie.setCoverUrl(getHashedOutputMediaUrl(toReadSerie.getCoverOriginalUrl(), httpCoverFrontThumbDirectory, toReadSerie.getExternalId()));
+                    toReadSerie.setCoverPath(getHashedOutputMediaUrl(toReadSerie.getCoverOriginalUrl(), outputCoverFrontThumbDirectory, toReadSerie.getExternalId()));
                     toReadSerie.setCoverAvailable(false);
                     toReadSerie.setCoverFileSize(0L);
                 }
@@ -503,7 +503,7 @@ public class SerieScraper extends GenericScraper {
     private String retrievePictureUrl(Document doc) {
         String res = null;
         try {
-            res = attr(doc.select("div.serie-image > a").first(), HTML.Attribute.HREF);
+            res = attr(doc.select("div.serie-image > a").first(), HTML.Attribute.HREF); // NOSONAR
         } catch (Exception ignored) {
             log.debug("Failed to extract picture url.");
         }

@@ -910,7 +910,7 @@ components:
           maxLength: 255
         otherAuthorPseudonym:
           $ref: '#/components/schemas/Author'
-        originalPhotoUrl:
+        photoOriginalUrl:
           type: string
           description: The author's photo url.
           maxLength: 255
@@ -1024,7 +1024,7 @@ components:
       type: object
       description: Describes a serie to discover.
       properties:
-        id:
+        externalId:
           type: string
           description: The serie id at https://www.bedetheque.com.
           maxLength: 36
@@ -1036,7 +1036,7 @@ components:
           type: string
           description: The serie url at https://www.bedetheque.com.
           maxLength: 255
-        originalCoverUrl:
+        coverOriginalUrl:
           type: string
           description: The serie cover url at https://www.bedetheque.com.
           maxLength: 255
@@ -1525,7 +1525,7 @@ components:
           type: string
         url:
           type: string
-        originalCoverUrl:
+        coverOriginalUrl:
           type: string
           description: The serie cover url at https://www.bedetheque.com.
           maxLength: 255

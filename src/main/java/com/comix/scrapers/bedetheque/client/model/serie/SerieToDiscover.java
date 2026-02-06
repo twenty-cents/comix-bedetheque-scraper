@@ -10,10 +10,10 @@ import lombok.*;
 @AllArgsConstructor
 public class SerieToDiscover implements Comparable<SerieToDiscover> {
 
-    private String id;
+    private String externalId;
     private String title;
     private String url;
-    private String originalCoverUrl;
+    private String coverOriginalUrl;
     private String coverUrl;
     private String coverPath;
     private String coverFilename;

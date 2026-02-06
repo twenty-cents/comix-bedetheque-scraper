@@ -40,10 +40,10 @@ class SerieToDiscoverTest {
                 "/path", "file.jpg", 100L, true, "CoverTitle"
         );
 
-        assertThat(serie.getId()).isEqualTo("1");
+        assertThat(serie.getExternalId()).isEqualTo("1");
         assertThat(serie.getTitle()).isEqualTo("Title");
         assertThat(serie.getUrl()).isEqualTo("http://url");
-        assertThat(serie.getOriginalCoverUrl()).isEqualTo("http://orig");
+        assertThat(serie.getCoverOriginalUrl()).isEqualTo("http://orig");
         assertThat(serie.getCoverUrl()).isEqualTo("http://cover");
         assertThat(serie.getCoverPath()).isEqualTo("/path");
         assertThat(serie.getCoverFilename()).isEqualTo("file.jpg");
@@ -57,7 +57,7 @@ class SerieToDiscoverTest {
                 "/path", "file.jpg", 100L, true, "CoverTitle"
         );
         SerieToDiscover differentSerie = new SerieToDiscover();
-        differentSerie.setId("2");
+        differentSerie.setExternalId("2");
 
         assertThat(serie).isEqualTo(sameSerie);
         assertThat(serie.hashCode()).hasSameHashCodeAs(sameSerie.hashCode());
@@ -71,6 +71,6 @@ class SerieToDiscoverTest {
     void noArgsConstructor_shouldCreateEmptyObject() {
         SerieToDiscover serie = new SerieToDiscover();
         assertThat(serie).isNotNull();
-        assertThat(serie.getId()).isNull();
+        assertThat(serie.getExternalId()).isNull();
     }
 }
