@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class GraphicNovel {
 
-    private String externalId;
+    private String id;
     private String tome;
     private Integer tomeNum;
     private String numEdition;

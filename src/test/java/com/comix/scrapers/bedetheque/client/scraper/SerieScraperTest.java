@@ -164,7 +164,7 @@ class SerieScraperTest {
 
                 // THEN
                 assertThat(result).isNotNull();
-                assertThat(result.getExternalId()).isEqualTo("12345");
+                assertThat(result.getId()).isEqualTo("12345");
                 assertThat(result.getTitle()).isEqualTo("Titre de la Série");
                 assertThat(result.getCategory()).isEqualTo("Aventure");
                 assertThat(result.getStatus()).isEqualTo("Finie");
@@ -204,7 +204,7 @@ class SerieScraperTest {
                 assertThat(result).isNotNull();
                 assertThat(result.getTitle()).isEqualTo("Titre Seul");
                 // Les champs non trouvés doivent être null ou vides
-                assertThat(result.getExternalId()).isNull();
+                assertThat(result.getId()).isNull();
                 assertThat(result.getCategory()).isNull();
                 assertThat(result.getSynopsys()).isNull();
                 assertThat(result.getGraphicNovels()).isNotNull().isEmpty();

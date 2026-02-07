@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class AuthorRole {
 
-    private String externalId;
+    private String id;
     private String role;
     private String displayedRole;
     private String name;

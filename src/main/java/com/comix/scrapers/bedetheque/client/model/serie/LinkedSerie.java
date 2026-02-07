@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class LinkedSerie {
 
-    private String externalId;
+    private String id;
     private String title;
     private String url;
 }

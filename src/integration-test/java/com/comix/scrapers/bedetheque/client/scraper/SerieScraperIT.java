@@ -127,7 +127,7 @@ class SerieScraperIT {
         SerieDetails s = serieScraper.scrap("https://www.bedetheque.com/serie-6637-BD-Douglas-Ferblanc-et-Vaseline-agents-spatiaux-speciaux.html");
         // Verify serie infos
         assertThat(s.getTitle()).isEqualTo("Douglas Ferblanc et Vaseline agents spatiaux-spéciaux");
-        assertThat(s.getExternalId()).isEqualTo("6637");
+        assertThat(s.getId()).isEqualTo("6637");
         assertThat(s.getCategory()).isEqualTo("Humour");
         assertThat(s.getStatus()).isEqualTo("One shot");
         assertThat(s.getOrigin()).isEqualTo("Europe");
@@ -155,7 +155,7 @@ class SerieScraperIT {
         SerieDetails s = serieScraper.scrap("https://www.bedetheque.com/serie-13266-BD-Akim-1re-serie.html");
         // Verify serie infos
         assertThat(s.getTitle()).isEqualTo("Akim (1re série - Aventures et Voyages)");
-        assertThat(s.getExternalId()).isEqualTo("13266");
+        assertThat(s.getId()).isEqualTo("13266");
         assertThat(s.getCategory()).isEqualTo("Aventure");
         assertThat(s.getStatus()).isEqualTo("Série finie");
         assertThat(s.getOrigin()).isEqualTo("Europe");
@@ -174,8 +174,8 @@ class SerieScraperIT {
         // Verify associated series
         assertThat(s.getLinkedSeries()).hasSizeGreaterThanOrEqualTo(4);
         for(LinkedSerie ls : s.getLinkedSeries()) {
-            if(ls.getExternalId().equals("18198")) {
-                assertThat(ls.getExternalId()).isEqualTo("18198");
+            if(ls.getId().equals("18198")) {
+                assertThat(ls.getId()).isEqualTo("18198");
                 assertThat(ls.getTitle()).isEqualTo("Akim-Color");
                 assertThat(ls.getUrl()).isEqualTo("https://www.bedetheque.com/serie-18198-BD-Akim-Color.html");
             }
@@ -183,8 +183,8 @@ class SerieScraperIT {
         // Verify other series to read
         assertThat(s.getToReadSeries()).hasSizeGreaterThanOrEqualTo(2);
         for(ToReadSerie ts : s.getToReadSeries()) {
-            if(ts.getExternalId().equals("7389")) {
-                assertThat(ts.getExternalId()).isEqualTo("7389");
+            if(ts.getId().equals("7389")) {
+                assertThat(ts.getId()).isEqualTo("7389");
                 assertThat(ts.getTitle()).isEqualTo("Tarzan (Editions Azur)");
                 assertThat(ts.getUrl()).isEqualTo("https://www.bedetheque.com/serie-7389-BD-Tarzan-Editions-Azur.html");
                 assertThat(ts.getCoverUrl()).isEqualTo("http://localhost:8080/series/cover-front/thumbs/1/Couv_32506.jpg");
@@ -193,8 +193,8 @@ class SerieScraperIT {
         }
         // Verify graphic novel side list
         for(GraphicNovelSideListItem g : s.getGraphicNovelSideList()) {
-            if(g.getExternalId().equals("246591")) {
-                assertThat(g.getExternalId()).isEqualTo("246591");
+            if(g.getId().equals("246591")) {
+                assertThat(g.getId()).isEqualTo("246591");
                 assertThat(g.getTome()).isEmpty();
                 assertThat(g.getNumEdition()).isEqualTo("Rec178");
                 assertThat(g.getTitle()).isEqualTo("Album N°178 (n°701, 702, 703 et 705)");
@@ -210,7 +210,7 @@ class SerieScraperIT {
         SerieDetails s = serieScraper.scrap("https://www.bedetheque.com/serie-59-BD-Asterix__10000.html");
         // Verify serie infos
         assertThat(s.getTitle()).isEqualTo("Astérix");
-        assertThat(s.getExternalId()).isEqualTo("59");
+        assertThat(s.getId()).isEqualTo("59");
         assertThat(s.getCategory()).isEqualTo("Humour");
         assertThat(s.getStatus()).isEqualTo("Série en cours");
         assertThat(s.getOrigin()).isEqualTo("Europe");
@@ -232,8 +232,8 @@ class SerieScraperIT {
         // Verify other series to read
         assertThat(s.getToReadSeries()).hasSize(14);
         for(ToReadSerie ts : s.getToReadSeries()) {
-            if (ts.getExternalId().equals("36874")) {
-                assertThat(ts.getExternalId()).isEqualTo("36874");
+            if (ts.getId().equals("36874")) {
+                assertThat(ts.getId()).isEqualTo("36874");
                 assertThat(ts.getTitle()).isEqualTo("Astérix (Collection Atlas - Les archives)");
                 assertThat(ts.getUrl()).isEqualTo("https://www.bedetheque.com/serie-36874-BD-Asterix-Collection-Atlas-Les-archives.html");
                 assertThat(ts.getCoverUrl()).isNotBlank();
@@ -242,8 +242,8 @@ class SerieScraperIT {
         }
         // Verify graphic novel side list
         for(GraphicNovelSideListItem g : s.getGraphicNovelSideList()) {
-            if (g.getExternalId().equals("106")) {
-                assertThat(g.getExternalId()).isEqualTo("106");
+            if (g.getId().equals("106")) {
+                assertThat(g.getId()).isEqualTo("106");
                 assertThat(g.getTome()).isEqualTo("32");
                 assertThat(g.getNumEdition()).isEqualTo("Pub");
                 assertThat(g.getTitle()).isEqualTo("Astérix et la rentrée gauloise");
@@ -267,8 +267,8 @@ class SerieScraperIT {
         // Test
         assertThat(sc).hasSizeGreaterThanOrEqualTo(38);
         for(GraphicNovel g : sc) {
-            if(g.getExternalId().equals("375114")) {
-                assertThat(g.getExternalId()).isEqualTo("375114");
+            if(g.getId().equals("375114")) {
+                assertThat(g.getId()).isEqualTo("375114");
                 assertThat(g.getTome()).isEqualTo("38");
                 assertThat(g.getNumEdition()).isNull();
                 assertThat(g.getTitle()).isEqualTo("La Fille de Vercingétorix");
@@ -294,8 +294,8 @@ class SerieScraperIT {
                 // Verify authors
                 assertThat(g.getAuthors()).hasSize(3);
                 for(AuthorRole r : g.getAuthors()) {
-                    if(r.getExternalId().equals("6227")) {
-                        assertThat(r.getExternalId()).isEqualTo("6227");
+                    if(r.getId().equals("6227")) {
+                        assertThat(r.getId()).isEqualTo("6227");
                         assertThat(r.getRole()).isEqualTo("Scénario");
                         assertThat(r.getName()).isEqualTo("Ferri, Jean-Yves");
                         assertThat(r.getAuthorUrl()).isEqualTo("https://www.bedetheque.com/auteur-6227-BD-Ferri-Jean-Yves.html");

@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class GraphicNovelSideListItem {
 
-    private String externalId;
+    private String id;
     private String tome;
     private String numEdition;
     private String title;

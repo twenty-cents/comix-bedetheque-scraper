@@ -70,7 +70,7 @@ class GraphicNovelScraperIT {
         assertThat(g0.getTome()).isEqualTo("1");
         assertThat(g0.getNumEdition()).isNull();
         assertThat(g0.getTitle()).isEqualTo("Astérix le Gaulois");
-        assertThat(g0.getExternalId()).isEqualTo("22940");
+        assertThat(g0.getId()).isEqualTo("22940");
         assertThat(g0.getPublicationDate()).isEqualTo("07/1961");
         assertThat(g0.getReleaseDate()).isNull();
         assertThat(g0.getPublisher()).isEqualTo("Dargaud");

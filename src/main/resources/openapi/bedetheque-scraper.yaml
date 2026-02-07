@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: 'bedetheque-scraper'
-  version: '1.0.2'
+  version: '1.0.3'
   description: 'An REST API for scraping data from https://www.bedetheque.com'
   contact:
     name: info@bedetheque-scraper
@@ -1024,7 +1024,7 @@ components:
       type: object
       description: Describes a serie to discover.
       properties:
-        externalId:
+        id:
           type: string
           description: The serie id at https://www.bedetheque.com.
           maxLength: 36
@@ -1066,7 +1066,7 @@ components:
       title: AuthorRole
       type: object
       properties:
-        externalId:
+        id:
           type: string
         role:
           type: string
@@ -1106,7 +1106,7 @@ components:
       title: GraphicNovel
       type: object
       properties:
-        externalId:
+        id:
           type: string
         tome:
           type: string
@@ -1368,7 +1368,7 @@ components:
       title: SerieDetails
       type: object
       properties:
-        externalId:
+        id:
           type: string
         title:
           type: string
@@ -1482,7 +1482,7 @@ components:
       type: object
       description: Associate serie
       properties:
-        externalId:
+        id:
           type: string
         title:
           type: string
@@ -1519,7 +1519,7 @@ components:
       title: ToReadSerie
       type: object
       properties:
-        externalId:
+        id:
           type: string
         title:
           type: string
@@ -1557,7 +1557,7 @@ components:
       title: GraphicNovelSideListItem
       type: object
       properties:
-        externalId:
+        id:
           type: string
         tome:
           type: string

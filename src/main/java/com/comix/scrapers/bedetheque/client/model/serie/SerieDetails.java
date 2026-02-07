@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SerieDetails {
 
-    private String externalId;
+    private String id;
     private String title;
     private String category;
     private String status;

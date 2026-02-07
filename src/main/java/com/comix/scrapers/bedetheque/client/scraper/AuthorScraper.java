@@ -319,12 +319,12 @@ public class AuthorScraper extends GenericScraper {
             SerieToDiscover serie = new SerieToDiscover();
             serie.setUrl(a.attr("href"));
             serie.setTitle(title);
-            serie.setExternalId(this.getIdBel(a.attr("href")));
+            serie.setId(this.getIdBel(a.attr("href")));
             if (img != null) {
                 serie.setCoverOriginalUrl(img.attr("src"));
                 serie.setCoverFilename(getMediaFilename(serie.getCoverOriginalUrl()));
-                serie.setCoverUrl(getHashedOutputMediaUrl(serie.getCoverOriginalUrl(), httpCoverFrontThumbDirectory, serie.getExternalId()));
-                serie.setCoverPath(getHashedOutputMediaUrl(serie.getCoverOriginalUrl(), outputCoverFrontThumbDirectory, serie.getExternalId()));
+                serie.setCoverUrl(getHashedOutputMediaUrl(serie.getCoverOriginalUrl(), httpCoverFrontThumbDirectory, serie.getId()));
+                serie.setCoverPath(getHashedOutputMediaUrl(serie.getCoverOriginalUrl(), outputCoverFrontThumbDirectory, serie.getId()));
                 serie.setCoverAvailable(false);
                 serie.setCoverFileSize(0L);
                 serie.setCoverTitle(img.attr("alt"));

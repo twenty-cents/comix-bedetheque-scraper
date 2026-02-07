@@ -127,7 +127,7 @@ public class SerieScraper extends GenericScraper {
         String period = retrievePeriod(doc);
 
         var serieDetails = new SerieDetails();
-        serieDetails.setExternalId(retrieveExternalId(doc));
+        serieDetails.setId(retrieveExternalId(doc));
         serieDetails.setTitle(retrieveTitle(doc));
         serieDetails.setCategory(retrieveCategory(doc));
         serieDetails.setStatus(retrieveStatus(doc));
@@ -159,8 +159,8 @@ public class SerieScraper extends GenericScraper {
         // Serie page example thumbnail
         if (!StringUtils.isBlank(serieDetails.getPageExampleThumbnailOriginalUrl())) {
             serieDetails.setPageExampleThumbnailFilename(getMediaFilename(serieDetails.getPageExampleThumbnailOriginalUrl()));
-            serieDetails.setPageExampleThumbnailUrl(getHashedOutputMediaUrl(serieDetails.getPageExampleThumbnailOriginalUrl(), httpPageExampleThumbDirectory, serieDetails.getExternalId()));
-            serieDetails.setPageExampleThumbnailPath(getHashedOutputMediaPath(serieDetails.getPageExampleThumbnailOriginalUrl(), outputPageExampleThumbDirectory, serieDetails.getExternalId()));
+            serieDetails.setPageExampleThumbnailUrl(getHashedOutputMediaUrl(serieDetails.getPageExampleThumbnailOriginalUrl(), httpPageExampleThumbDirectory, serieDetails.getId()));
+            serieDetails.setPageExampleThumbnailPath(getHashedOutputMediaPath(serieDetails.getPageExampleThumbnailOriginalUrl(), outputPageExampleThumbDirectory, serieDetails.getId()));
             serieDetails.setPageExampleThumbnailAvailable(false);
             serieDetails.setPageExampleThumbnailFileSize(0L);
             serieDetails.setPageExampleThumbnailTitle(retrievePageExampleThumbnailTitle(doc));
@@ -169,8 +169,8 @@ public class SerieScraper extends GenericScraper {
         // Serie page example
         if (!StringUtils.isBlank(serieDetails.getPageExampleOriginalUrl())) {
             serieDetails.setPageExampleFilename(getMediaFilename(serieDetails.getPageExampleOriginalUrl()));
-            serieDetails.setPageExampleUrl(getHashedOutputMediaUrl(serieDetails.getPageExampleOriginalUrl(), httpPageExampleHdDirectory, serieDetails.getExternalId()));
-            serieDetails.setPageExamplePath(getHashedOutputMediaPath(serieDetails.getPageExampleOriginalUrl(), outputPageExampleHdDirectory, serieDetails.getExternalId()));
+            serieDetails.setPageExampleUrl(getHashedOutputMediaUrl(serieDetails.getPageExampleOriginalUrl(), httpPageExampleHdDirectory, serieDetails.getId()));
+            serieDetails.setPageExamplePath(getHashedOutputMediaPath(serieDetails.getPageExampleOriginalUrl(), outputPageExampleHdDirectory, serieDetails.getId()));
             serieDetails.setPageExampleAvailable(false);
             serieDetails.setPageExampleFileSize(0L);
             serieDetails.setPageExampleTitle(retrievePageExampleTitle(doc));
@@ -422,7 +422,7 @@ public class SerieScraper extends GenericScraper {
                 var linkedSerie = new LinkedSerie();
                 linkedSerie.setUrl(a.attr("href"));
                 linkedSerie.setTitle(a.attr(HTML.Attribute.TITLE.toString()));
-                linkedSerie.setExternalId(this.getIdBel(a.attr("href")));
+                linkedSerie.setId(this.getIdBel(a.attr("href")));
 
                 linkedSeries.add(linkedSerie);
             }
@@ -442,13 +442,13 @@ public class SerieScraper extends GenericScraper {
                 var toReadSerie = new ToReadSerie();
                 toReadSerie.setUrl(a.attr("href"));
                 toReadSerie.setTitle(a.attr(HTML.Attribute.TITLE.toString()));
-                toReadSerie.setExternalId(this.getIdBel(a.attr("href")));
+                toReadSerie.setId(this.getIdBel(a.attr("href")));
                 if (img != null) {
                     toReadSerie.setCoverTitle(img.attr("alt"));
                     toReadSerie.setCoverOriginalUrl(img.attr("src"));
                     toReadSerie.setCoverFilename(getMediaFilename(toReadSerie.getCoverOriginalUrl()));
-                    toReadSerie.setCoverUrl(getHashedOutputMediaUrl(toReadSerie.getCoverOriginalUrl(), httpCoverFrontThumbDirectory, toReadSerie.getExternalId()));
-                    toReadSerie.setCoverPath(getHashedOutputMediaUrl(toReadSerie.getCoverOriginalUrl(), outputCoverFrontThumbDirectory, toReadSerie.getExternalId()));
+                    toReadSerie.setCoverUrl(getHashedOutputMediaUrl(toReadSerie.getCoverOriginalUrl(), httpCoverFrontThumbDirectory, toReadSerie.getId()));
+                    toReadSerie.setCoverPath(getHashedOutputMediaUrl(toReadSerie.getCoverOriginalUrl(), outputCoverFrontThumbDirectory, toReadSerie.getId()));
                     toReadSerie.setCoverAvailable(false);
                     toReadSerie.setCoverFileSize(0L);
                 }
@@ -682,7 +682,7 @@ public class SerieScraper extends GenericScraper {
                 var aTag = element.selectFirst("a");
                 var spanTag = element.selectFirst("span.dl-side");
                 var graphicNovelSideListItem = new GraphicNovelSideListItem();
-                graphicNovelSideListItem.setExternalId(getGraphicNovelIdBEL(attr(aTag, HTML.Attribute.HREF)));
+                graphicNovelSideListItem.setId(getGraphicNovelIdBEL(attr(aTag, HTML.Attribute.HREF)));
                 graphicNovelSideListItem.setUrl(attr(aTag, HTML.Attribute.HREF));
                 String tome = ownText(labelTag);
                 if(tome != null) {

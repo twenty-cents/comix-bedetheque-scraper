@@ -75,7 +75,7 @@ public class SerieServiceImpl implements SerieService {
         SerieDetailsDto serieDetailsDto = serieMapper.serieDetailsToSerieDetailsDto(serieScraper.scrap(url));
         if(serieDetailsDto != null) {
             String msg = String.format("Serie : (%s) %s",
-                    serieDetailsDto.getExternalId(),
+                    serieDetailsDto.getId(),
                     serieDetailsDto.getTitle());
             outboxMessageProducer.saveToOutbox(serieExchangeName, serieQueueName, serieDetailsDto, msg);
         }

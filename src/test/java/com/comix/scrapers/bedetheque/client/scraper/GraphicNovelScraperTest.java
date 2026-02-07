@@ -211,7 +211,7 @@ class GraphicNovelScraperTest {
             assertThat(result.getTomeNum()).isEqualTo(1);
             assertThat(result.getNumEdition()).isEqualTo("(a)");
             assertThat(result.getTitle()).isEqualTo("Le titre de l'album");
-            assertThat(result.getExternalId()).isEqualTo("12345");
+            assertThat(result.getId()).isEqualTo("12345");
             assertThat(result.getPublicationDate()).isEqualTo("01/2024");
             assertThat(result.getReleaseDate()).isEqualTo("02/2024");
             assertThat(result.getPublisher()).isEqualTo("Dargaud");
@@ -348,7 +348,7 @@ class GraphicNovelScraperTest {
                 assertThat(result.getSerie().getName()).isEqualTo("Le Nom de la Série");
                 assertThat(result.getTitle()).isEqualTo("Gare aux gaffes");
                 assertThat(result.getNumEdition()).isEqualTo("a2007");
-                assertThat(result.getExternalId()).isEqualTo("54321");
+                assertThat(result.getId()).isEqualTo("54321");
             }
         }
     }

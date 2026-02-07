@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ToReadSerie {
 
-    private String externalId;
+    private String id;
     private String title;
     private String url;
     private String coverOriginalUrl;

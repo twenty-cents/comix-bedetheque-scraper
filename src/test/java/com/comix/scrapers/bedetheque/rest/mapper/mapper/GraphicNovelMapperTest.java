@@ -27,7 +27,7 @@ class GraphicNovelMapperTest {
         source.setCoverThumbnailTitle("coverThumbnailTitle");
         source.setBackCoverTitle("backCoverTitle");
         source.setBackCoverThumbnailTitle("backCoverThumbnailTitle");
-        source.setExternalId("externalId");
+        source.setId("externalId");
         source.setTitle("title");
         source.setTome("tome");
         source.setPublisher("publisher");
@@ -63,7 +63,7 @@ class GraphicNovelMapperTest {
 
         // THEN: on vérifie que l'objet de destination est correct
         assertThat(destination).isNotNull();
-        assertThat(destination.getExternalId()).isEqualTo(source.getExternalId());
+        assertThat(destination.getId()).isEqualTo(source.getId());
         assertThat(destination.getTitle()).isEqualTo(source.getTitle());
         assertThat(destination.getTome()).isEqualTo(source.getTome());
         assertThat(destination.getPublisher()).isEqualTo(source.getPublisher());

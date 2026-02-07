@@ -62,7 +62,7 @@ public class GraphicNovelServiceImpl implements GraphicNovelService {
         for (GraphicNovelDto graphicNovelDto : scrapGraphicNovelsResponseDto.getGraphicNovels()) {
             if(graphicNovelDto != null) {
                 String msg = String.format("Comic book : (%s) %s",
-                        graphicNovelDto.getExternalId(),
+                        graphicNovelDto.getId(),
                         buildTomeLabel(graphicNovelDto.getTome(), graphicNovelDto.getNumEdition(), graphicNovelDto.getTitle()));
                 outboxMessageProducer.saveToOutbox(comicExchangeName, comicQueueName, graphicNovelDto, msg);
             }
@@ -98,7 +98,7 @@ public class GraphicNovelServiceImpl implements GraphicNovelService {
         for (GraphicNovelDto graphicNovelDto : scrapAllRepublicationsResponseDto.getGraphicNovels()) {
             if(graphicNovelDto != null) {
                 String msg = String.format("Comic book : (%s) %s",
-                        graphicNovelDto.getExternalId(),
+                        graphicNovelDto.getId(),
                         buildTomeLabel(graphicNovelDto.getTome(), graphicNovelDto.getNumEdition(), graphicNovelDto.getTitle()));
                 outboxMessageProducer.saveToOutbox(comicExchangeName, comicQueueName, graphicNovelDto, msg);
             }

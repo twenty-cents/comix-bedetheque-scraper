@@ -398,7 +398,7 @@ public class GraphicNovelScraper extends GenericScraper {
         graphicNovel.setTomeNum(tomeNum);
         graphicNovel.setNumEdition(getNumEdition(title));
         graphicNovel.setTitle(getTitle(from, title));
-        graphicNovel.setExternalId(getExternalId(infos));
+        graphicNovel.setId(getExternalId(infos));
         graphicNovel.setRatings(getRatings(ratings));
         graphicNovel.setAuthors(getAuthors(infos));
         graphicNovel.setPublicationDate(getPublicationDate(infos));
@@ -435,8 +435,8 @@ public class GraphicNovelScraper extends GenericScraper {
         // Cover
         if(!StringUtils.isBlank(graphicNovel.getCoverOriginalUrl())) {
             graphicNovel.setCoverFilename(getMediaFilename(graphicNovel.getCoverOriginalUrl()));
-            graphicNovel.setCoverUrl(getHashedOutputMediaUrl(graphicNovel.getCoverOriginalUrl(), httpCoverFrontHdDirectory, graphicNovel.getExternalId()));
-            graphicNovel.setCoverPath(getHashedOutputMediaPath(graphicNovel.getCoverOriginalUrl(), outputCoverFrontHdDirectory, graphicNovel.getExternalId()));
+            graphicNovel.setCoverUrl(getHashedOutputMediaUrl(graphicNovel.getCoverOriginalUrl(), httpCoverFrontHdDirectory, graphicNovel.getId()));
+            graphicNovel.setCoverPath(getHashedOutputMediaPath(graphicNovel.getCoverOriginalUrl(), outputCoverFrontHdDirectory, graphicNovel.getId()));
             graphicNovel.setCoverAvailable(false);
             graphicNovel.setCoverFileSize(0L);
         }
@@ -444,8 +444,8 @@ public class GraphicNovelScraper extends GenericScraper {
         // Cover thumbnail
         if(!StringUtils.isBlank(graphicNovel.getCoverThumbnailOriginalUrl())) {
             graphicNovel.setCoverThumbnailFilename(getMediaFilename(graphicNovel.getCoverThumbnailOriginalUrl()));
-            graphicNovel.setCoverThumbnailUrl(getHashedOutputMediaUrl(graphicNovel.getCoverThumbnailOriginalUrl(), httpCoverFrontThumbDirectory, graphicNovel.getExternalId()));
-            graphicNovel.setCoverThumbnailPath(getHashedOutputMediaPath(graphicNovel.getCoverThumbnailOriginalUrl(), outputCoverFrontThumbDirectory, graphicNovel.getExternalId()));
+            graphicNovel.setCoverThumbnailUrl(getHashedOutputMediaUrl(graphicNovel.getCoverThumbnailOriginalUrl(), httpCoverFrontThumbDirectory, graphicNovel.getId()));
+            graphicNovel.setCoverThumbnailPath(getHashedOutputMediaPath(graphicNovel.getCoverThumbnailOriginalUrl(), outputCoverFrontThumbDirectory, graphicNovel.getId()));
             graphicNovel.setCoverThumbnailAvailable(false);
             graphicNovel.setCoverThumbnailFileSize(0L);
         }
@@ -453,8 +453,8 @@ public class GraphicNovelScraper extends GenericScraper {
         // Back cover
         if(!StringUtils.isBlank(graphicNovel.getBackCoverOriginalUrl())) {
             graphicNovel.setBackCoverFilename(getMediaFilename(graphicNovel.getBackCoverOriginalUrl()));
-            graphicNovel.setBackCoverUrl(getHashedOutputMediaUrl(graphicNovel.getBackCoverOriginalUrl(), httpCoverBackHdDirectory, graphicNovel.getExternalId()));
-            graphicNovel.setBackCoverPath(getHashedOutputMediaPath(graphicNovel.getBackCoverOriginalUrl(), outputCoverBackHdDirectory, graphicNovel.getExternalId()));
+            graphicNovel.setBackCoverUrl(getHashedOutputMediaUrl(graphicNovel.getBackCoverOriginalUrl(), httpCoverBackHdDirectory, graphicNovel.getId()));
+            graphicNovel.setBackCoverPath(getHashedOutputMediaPath(graphicNovel.getBackCoverOriginalUrl(), outputCoverBackHdDirectory, graphicNovel.getId()));
             graphicNovel.setBackCoverAvailable(false);
             graphicNovel.setBackCoverFileSize(0L);
         }
@@ -462,8 +462,8 @@ public class GraphicNovelScraper extends GenericScraper {
         // Back cover thumbnail
         if(!StringUtils.isBlank(graphicNovel.getBackCoverThumbnailOriginalUrl())) {
             graphicNovel.setBackCoverThumbnailFilename(getMediaFilename(graphicNovel.getBackCoverThumbnailOriginalUrl()));
-            graphicNovel.setBackCoverThumbnailUrl(getHashedOutputMediaUrl(graphicNovel.getBackCoverThumbnailOriginalUrl(), httpCoverBackThumbDirectory, graphicNovel.getExternalId()));
-            graphicNovel.setBackCoverThumbnailPath(getHashedOutputMediaPath(graphicNovel.getBackCoverThumbnailOriginalUrl(), outputCoverBackThumbDirectory, graphicNovel.getExternalId()));
+            graphicNovel.setBackCoverThumbnailUrl(getHashedOutputMediaUrl(graphicNovel.getBackCoverThumbnailOriginalUrl(), httpCoverBackThumbDirectory, graphicNovel.getId()));
+            graphicNovel.setBackCoverThumbnailPath(getHashedOutputMediaPath(graphicNovel.getBackCoverThumbnailOriginalUrl(), outputCoverBackThumbDirectory, graphicNovel.getId()));
             graphicNovel.setBackCoverThumbnailAvailable(false);
             graphicNovel.setBackCoverThumbnailFileSize(0L);
         }
@@ -471,8 +471,8 @@ public class GraphicNovelScraper extends GenericScraper {
         // Page example
         if(!StringUtils.isBlank(graphicNovel.getPageExampleOriginalUrl())) {
             graphicNovel.setPageExampleFilename(getMediaFilename(graphicNovel.getPageExampleOriginalUrl()));
-            graphicNovel.setPageExampleUrl(getHashedOutputMediaUrl(graphicNovel.getPageExampleOriginalUrl(), httpPageExampleHdDirectory, graphicNovel.getExternalId()));
-            graphicNovel.setPageExamplePath(getHashedOutputMediaPath(graphicNovel.getPageExampleOriginalUrl(), outputPageExampleHdDirectory, graphicNovel.getExternalId()));
+            graphicNovel.setPageExampleUrl(getHashedOutputMediaUrl(graphicNovel.getPageExampleOriginalUrl(), httpPageExampleHdDirectory, graphicNovel.getId()));
+            graphicNovel.setPageExamplePath(getHashedOutputMediaPath(graphicNovel.getPageExampleOriginalUrl(), outputPageExampleHdDirectory, graphicNovel.getId()));
             graphicNovel.setPageExampleAvailable(false);
             graphicNovel.setPageExampleFileSize(0L);
         }
@@ -480,8 +480,8 @@ public class GraphicNovelScraper extends GenericScraper {
         // Page example thumbnail
         if(!StringUtils.isBlank(graphicNovel.getPageExampleThumbnailOriginalUrl())) {
             graphicNovel.setPageExampleThumbnailFilename(getMediaFilename(graphicNovel.getPageExampleThumbnailOriginalUrl()));
-            graphicNovel.setPageExampleThumbnailUrl(getHashedOutputMediaUrl(graphicNovel.getPageExampleThumbnailOriginalUrl(), httpPageExampleThumbDirectory, graphicNovel.getExternalId()));
-            graphicNovel.setPageExampleThumbnailPath(getHashedOutputMediaPath(graphicNovel.getPageExampleThumbnailOriginalUrl(), outputPageExampleThumbDirectory, graphicNovel.getExternalId()));
+            graphicNovel.setPageExampleThumbnailUrl(getHashedOutputMediaUrl(graphicNovel.getPageExampleThumbnailOriginalUrl(), httpPageExampleThumbDirectory, graphicNovel.getId()));
+            graphicNovel.setPageExampleThumbnailPath(getHashedOutputMediaPath(graphicNovel.getPageExampleThumbnailOriginalUrl(), outputPageExampleThumbDirectory, graphicNovel.getId()));
             graphicNovel.setPageExampleThumbnailAvailable(false);
             graphicNovel.setPageExampleThumbnailFileSize(0L);
         }
@@ -644,12 +644,12 @@ public class GraphicNovelScraper extends GenericScraper {
 
             authorRole.setRole(key);
             authorRole.setDisplayedRole(displayedRole);
-            authorRole.setExternalId(externalId);
+            authorRole.setId(externalId);
             authorRole.setName(name);
             authorRole.setAuthorUrl(url);
         } catch (Exception ex) {
             authorRole.setRole(UNKNOWN);
-            authorRole.setExternalId("1");
+            authorRole.setId("1");
             authorRole.setName(UNKNOWN);
             authorRole.setAuthorUrl("https://www.bedetheque.com/auteur-1-BD-Indetermine.html");
         }
