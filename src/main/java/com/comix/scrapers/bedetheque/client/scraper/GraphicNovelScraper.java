@@ -29,7 +29,6 @@ public class GraphicNovelScraper extends GenericScraper {
     private static final String SERIE = "serie";
     private static final String GRAPHIC_NOVEL = "graphicnovel";
     private static final String UNKNOWN = "<Indéterminé>";
-    private static final String HTML_EXTENSION = ".html";
 
     // Thumbnails medias
     @Value("${application.downloads.graphic-novels.cover-front.thumbs}")
@@ -164,24 +163,6 @@ public class GraphicNovelScraper extends GenericScraper {
             graphicNovelPage.setSize(graphicNovelPage.getGraphicNovels().size());
         }
         return graphicNovelPage;
-    }
-
-    /**
-     * Build the final graphic novel url to scrap at <a href="https://www.bedetheque.com">...</a>
-     *
-     * @param url  the graphic novels url to scrap at <a href="https://www.bedetheque.com">...</a>
-     * @param page the page number to scrap (optional)
-     * @return the final graphic novels url to scrap at <a href="https://www.bedetheque.com">...</a>
-     */
-    private String buildURl(String url, int page) {
-        if (page == 1) {
-            return url;
-        } else if (page > 1 && page < 10000) {
-            String withPage = String.format("__%d.html", page - 1);
-            return url.replace(HTML_EXTENSION, withPage);
-        } else {
-            return url.replace(HTML_EXTENSION, "__10000.html");
-        }
     }
 
     public GraphicNovel scrapFromSerie(String url, Document doc, Element nodeAlbum) {

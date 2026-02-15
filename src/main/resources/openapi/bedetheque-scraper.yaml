@@ -1382,7 +1382,6 @@ components:
           type: string
         synopsys:
           type: string
-
         pageExampleOriginalUrl:
           type: string
           description: The serie page example url at https://www.bedetheque.com.

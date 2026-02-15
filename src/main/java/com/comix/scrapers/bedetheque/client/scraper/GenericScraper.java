@@ -23,6 +23,7 @@ import java.util.Set;
 public class GenericScraper extends Scraper {
 
     public static final String ERR_SCR_002 = "ERR-SCR-002";
+    public static final String HTML_EXTENSION = ".html";
 
     @Value("${application.downloads.localcache.hashed-directory-step:5000}")
     private int hashedDirectoryStep;
@@ -293,5 +294,23 @@ public class GenericScraper extends Scraper {
             throw new TechnicalException("ERR-SCR-009", e, new Object[]{outputMediaDirectory});
         }
         return hashedDirPath.toString();
+    }
+
+    /**
+     * Build the final graphic novel url to scrap at <a href="https://www.bedetheque.com">...</a>
+     *
+     * @param url  the graphic novels url to scrap at <a href="https://www.bedetheque.com">...</a>
+     * @param page the page number to scrap (optional)
+     * @return the final graphic novels url to scrap at <a href="https://www.bedetheque.com">...</a>
+     */
+    public String buildURl(String url, int page) {
+        if (page == 1) {
+            return url;
+        } else if (page > 1 && page < 10000) {
+            String withPage = String.format("__%d.html", page - 1);
+            return url.replace(HTML_EXTENSION, withPage);
+        } else {
+            return url.replace(HTML_EXTENSION, "__10000.html");
+        }
     }
 }
