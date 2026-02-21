@@ -9,21 +9,36 @@ import java.util.List;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "linkedSeries, toReadSeries, graphicNovelSideList, graphicNovels")
-@ToString(exclude = "linkedSeries, toReadSeries, graphicNovelSideList, graphicNovels")
+@EqualsAndHashCode(exclude = {"linkedSeries", "toReadSeries", "graphicNovelSideList", "graphicNovels"})
+@ToString(exclude = {"linkedSeries", "toReadSeries", "graphicNovelSideList", "graphicNovels"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class SerieDetails {
 
-    private String externalId;
+    private String id;
     private String title;
     private String category;
     private String status;
     private String origin;
     private String language;
     private String synopsys;
-    private String pictureUrl;
-    private String pictureThbUrl;
+
+    private String pageExampleOriginalUrl;
+    private String pageExampleUrl;
+    private String pageExamplePath;
+    private String pageExampleFilename;
+    private Long pageExampleFileSize;
+    private Boolean pageExampleAvailable;
+    private String pageExampleTitle;
+
+    private String pageExampleThumbnailOriginalUrl;
+    private String pageExampleThumbnailUrl;
+    private String pageExampleThumbnailPath;
+    private String pageExampleThumbnailFilename;
+    private Long pageExampleThumbnailFileSize;
+    private Boolean pageExampleThumbnailAvailable;
+    private String pageExampleThumbnailTitle;
+
     private String scrapUrl;
     private Integer graphicNovelCount;
     private String period;

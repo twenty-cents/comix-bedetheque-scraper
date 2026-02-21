@@ -1,7 +1,11 @@
 package com.comix.scrapers.bedetheque.client.scraper;
 
-import com.comix.scrapers.bedetheque.client.model.graphicnovel.*;
+import com.comix.scrapers.bedetheque.client.model.graphicnovel.AuthorRole;
+import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovel;
+import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovelPage;
+import com.comix.scrapers.bedetheque.client.model.graphicnovel.Ratings;
 import com.comix.scrapers.bedetheque.client.model.serie.Serie;
+import com.comix.scrapers.bedetheque.exception.TechnicalException;
 import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +29,6 @@ public class GraphicNovelScraper extends GenericScraper {
     private static final String SERIE = "serie";
     private static final String GRAPHIC_NOVEL = "graphicnovel";
     private static final String UNKNOWN = "<Indéterminé>";
-    private static final String HTML_EXTENSION = ".html";
 
     // Thumbnails medias
     @Value("${application.downloads.graphic-novels.cover-front.thumbs}")
@@ -83,11 +86,12 @@ public class GraphicNovelScraper extends GenericScraper {
 
     /**
      * Extracts the Bedetheque ID from a graphic novel URL.
+     *
      * @param url The URL of the graphic novel.
      * @return The extracted ID, or null if not found.
      */
     public static String scrapIdFromUrl(String url) {
-        if(url == null) {
+        if (url == null) {
             return null;
         }
         String id = null;
@@ -161,24 +165,6 @@ public class GraphicNovelScraper extends GenericScraper {
         return graphicNovelPage;
     }
 
-    /**
-     * Build the final graphic novel url to scrap at <a href="https://www.bedetheque.com">...</a>
-     *
-     * @param url  the graphic novels url to scrap at <a href="https://www.bedetheque.com">...</a>
-     * @param page the page number to scrap (optional)
-     * @return the final graphic novels url to scrap at <a href="https://www.bedetheque.com">...</a>
-     */
-    private String buildURl(String url, int page) {
-        if (page == 1) {
-            return url;
-        } else if (page > 1 && page < 10000) {
-            String withPage = String.format("__%d.html", page - 1);
-            return url.replace(HTML_EXTENSION, withPage);
-        } else {
-            return url.replace(HTML_EXTENSION, "__10000.html");
-        }
-    }
-
     public GraphicNovel scrapFromSerie(String url, Document doc, Element nodeAlbum) {
         return scrapElement(SERIE, url, doc, nodeAlbum);
     }
@@ -202,25 +188,117 @@ public class GraphicNovelScraper extends GenericScraper {
     }
 
     /**
-     * Download all bedetheque medias on the local server
+     * Download the graphic novel cover
      *
      * @param graphicNovel the graphic novel
      */
-    private void downloadMedias(GraphicNovel graphicNovel) {
-        graphicNovel.setCoverThumbnailUrl(downloadAndSetMedia(graphicNovel.getCoverThumbnailUrl(), outputCoverFrontThumbDirectory, httpCoverFrontThumbDirectory, graphicNovel.getExternalId()));
-        graphicNovel.setBackCoverThumbnailUrl(downloadAndSetMedia(graphicNovel.getBackCoverThumbnailUrl(), outputCoverBackThumbDirectory, httpCoverBackThumbDirectory, graphicNovel.getExternalId()));
-        graphicNovel.setPageThumbnailUrl(downloadAndSetMedia(graphicNovel.getPageThumbnailUrl(), outputPageExampleThumbDirectory, httpPageExampleThumbDirectory, graphicNovel.getExternalId()));
-
-        graphicNovel.setCoverPictureUrl(downloadAndSetMedia(graphicNovel.getCoverPictureUrl(), outputCoverFrontHdDirectory, httpCoverFrontHdDirectory, graphicNovel.getExternalId()));
-        graphicNovel.setBackCoverPictureUrl(downloadAndSetMedia(graphicNovel.getBackCoverPictureUrl(), outputCoverBackHdDirectory, httpCoverBackHdDirectory, graphicNovel.getExternalId()));
-        graphicNovel.setPagePictureUrl(downloadAndSetMedia(graphicNovel.getPagePictureUrl(), outputPageExampleHdDirectory, httpPageExampleHdDirectory, graphicNovel.getExternalId()));
+    void downloadCover(GraphicNovel graphicNovel) {
+        if (!StringUtils.isBlank(graphicNovel.getCoverOriginalUrl())) {
+            try {
+                download(graphicNovel.getCoverOriginalUrl(), graphicNovel.getCoverPath());
+                graphicNovel.setCoverAvailable(true);
+                graphicNovel.setCoverFileSize(getMediaSize(graphicNovel.getCoverPath()));
+            } catch (TechnicalException e) {
+                graphicNovel.setCoverAvailable(false);
+                graphicNovel.setCoverFileSize(0L);
+                log.error(e.getMessage(), e);
+            }
+        }
     }
 
-    private String downloadAndSetMedia(String url, String outputDir, String httpDir, String externalId) {
-        if (StringUtils.isBlank(url)) {
-            return url;
+    /**
+     * Download the graphic novel cover thumbnail
+     *
+     * @param graphicNovel the graphic novel
+     */
+    void downloadCoverThumbnail(GraphicNovel graphicNovel) {
+        if (!StringUtils.isBlank(graphicNovel.getCoverThumbnailOriginalUrl())) {
+            try {
+                download(graphicNovel.getCoverThumbnailOriginalUrl(), graphicNovel.getCoverThumbnailPath());
+                graphicNovel.setCoverThumbnailAvailable(true);
+                graphicNovel.setCoverThumbnailFileSize(getMediaSize(graphicNovel.getCoverThumbnailPath()));
+            } catch (TechnicalException e) {
+                graphicNovel.setCoverThumbnailAvailable(false);
+                graphicNovel.setCoverThumbnailFileSize(0L);
+                log.error(e.getMessage(), e);
+            }
         }
-        return downloadMedia(outputDir, httpDir, url, httpDefaultMediaFilename, externalId);
+    }
+
+    /**
+     * Download the graphic novel back cover
+     *
+     * @param graphicNovel the graphic novel
+     */
+    void downloadBackCover(GraphicNovel graphicNovel) {
+        if (!StringUtils.isBlank(graphicNovel.getBackCoverOriginalUrl())) {
+            try {
+                download(graphicNovel.getBackCoverOriginalUrl(), graphicNovel.getBackCoverPath());
+                graphicNovel.setBackCoverAvailable(true);
+                graphicNovel.setBackCoverFileSize(getMediaSize(graphicNovel.getBackCoverPath()));
+            } catch (TechnicalException e) {
+                graphicNovel.setBackCoverAvailable(false);
+                graphicNovel.setBackCoverFileSize(0L);
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Download the graphic novel back cover thumbnail
+     *
+     * @param graphicNovel the graphic novel
+     */
+    void downloadBackCoverThumbnail(GraphicNovel graphicNovel) {
+        if (!StringUtils.isBlank(graphicNovel.getBackCoverThumbnailOriginalUrl())) {
+            try {
+                download(graphicNovel.getBackCoverThumbnailOriginalUrl(), graphicNovel.getBackCoverThumbnailPath());
+                graphicNovel.setBackCoverThumbnailAvailable(true);
+                graphicNovel.setBackCoverThumbnailFileSize(getMediaSize(graphicNovel.getBackCoverThumbnailPath()));
+            } catch (TechnicalException e) {
+                graphicNovel.setBackCoverThumbnailAvailable(false);
+                graphicNovel.setBackCoverThumbnailFileSize(0L);
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Download the graphic novel page example
+     *
+     * @param graphicNovel the graphic novel
+     */
+    void downloadPageExample(GraphicNovel graphicNovel) {
+        if (!StringUtils.isBlank(graphicNovel.getPageExampleOriginalUrl())) {
+            try {
+                download(graphicNovel.getPageExampleOriginalUrl(), graphicNovel.getPageExamplePath());
+                graphicNovel.setPageExampleAvailable(true);
+                graphicNovel.setPageExampleFileSize(getMediaSize(graphicNovel.getPageExamplePath()));
+            } catch (TechnicalException e) {
+                graphicNovel.setPageExampleAvailable(false);
+                graphicNovel.setPageExampleFileSize(0L);
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Download the graphic novel page example thumbnail
+     *
+     * @param graphicNovel the graphic novel
+     */
+    void downloadPageExampleThumbnail(GraphicNovel graphicNovel) {
+        if (!StringUtils.isBlank(graphicNovel.getPageExampleThumbnailOriginalUrl())) {
+            try {
+                download(graphicNovel.getPageExampleThumbnailOriginalUrl(), graphicNovel.getPageExampleThumbnailPath());
+                graphicNovel.setPageExampleThumbnailAvailable(true);
+                graphicNovel.setPageExampleThumbnailFileSize(getMediaSize(graphicNovel.getPageExampleThumbnailPath()));
+            } catch (TechnicalException e) {
+                graphicNovel.setPageExampleThumbnailAvailable(false);
+                graphicNovel.setPageExampleThumbnailFileSize(0L);
+                log.error(e.getMessage(), e);
+            }
+        }
     }
 
     private int getGraphicNovelCount(Document doc) {
@@ -250,14 +328,14 @@ public class GraphicNovelScraper extends GenericScraper {
             serie.setId(scrapSerieIdFromUrl(serie.getUrl()));
         }
         // Add complete url if needed
-        if(serie.getUrl() != null && serie.getUrl().startsWith("serie-")) {
+        if (serie.getUrl() != null && serie.getUrl().startsWith("serie-")) {
             serie.setUrl("https://www.bedetheque.com/" + serie.getUrl());
         }
         return serie;
     }
 
     private String scrapSerieIdFromUrl(String url) {
-        if(url == null) {
+        if (url == null) {
             return null;
         }
         String id = null;
@@ -301,7 +379,7 @@ public class GraphicNovelScraper extends GenericScraper {
         graphicNovel.setTomeNum(tomeNum);
         graphicNovel.setNumEdition(getNumEdition(title));
         graphicNovel.setTitle(getTitle(from, title));
-        graphicNovel.setExternalId(getExternalId(infos));
+        graphicNovel.setId(getExternalId(infos));
         graphicNovel.setRatings(getRatings(ratings));
         graphicNovel.setAuthors(getAuthors(infos));
         graphicNovel.setPublicationDate(getPublicationDate(infos));
@@ -320,19 +398,85 @@ public class GraphicNovelScraper extends GenericScraper {
         graphicNovel.setReeditionUrl(getReeditionUrl(autres));
         graphicNovel.setReeditionCount(getReeditionCount(autres));
         graphicNovel.setExternalIdOriginalPublication(getExternalIdOriginalPublication(doc));
-        graphicNovel.setCoverPictureUrl(getCoverPictureUrl(side));
-        graphicNovel.setCoverThumbnailUrl(getCoverThumbnailUrl(side));
+        graphicNovel.setCoverOriginalUrl(getCoverPictureUrl(side));
+        graphicNovel.setCoverTitle(getCoverTitle(side));
+        graphicNovel.setCoverThumbnailOriginalUrl(getCoverThumbnailUrl(side));
+        graphicNovel.setCoverThumbnailTitle(getCoverThumbnailTitle(side));
         graphicNovel.setCopyright(getCopyright(side));
-        graphicNovel.setBackCoverPictureUrl(getBackCoverPictureUrl(side));
-        graphicNovel.setBackCoverThumbnailUrl(getBackCoverThumbnailUrl(side));
-        graphicNovel.setPagePictureUrl(getPagePictureUrl(side));
-        graphicNovel.setPageThumbnailUrl(getPageThumbnailUrl(side));
+        graphicNovel.setBackCoverOriginalUrl(getBackCoverPictureUrl(side));
+        graphicNovel.setBackCoverTitle(getBackCoverTitle(side));
+        graphicNovel.setBackCoverThumbnailOriginalUrl(getBackCoverThumbnailUrl(side));
+        graphicNovel.setBackCoverThumbnailTitle(getBackCoverThumbnailTitle(side));
+        graphicNovel.setPageExampleOriginalUrl(getPagePictureUrl(side));
+        graphicNovel.setPageExampleTitle(getPageExampleTitle(side));
+        graphicNovel.setPageExampleThumbnailOriginalUrl(getPageThumbnailUrl(side));
+        graphicNovel.setPageExampleThumbnailTitle(getPageExampleThumbnailTitle(side));
         graphicNovel.setScrapUrl(url);
+
+        // Cover
+        if(!StringUtils.isBlank(graphicNovel.getCoverOriginalUrl())) {
+            graphicNovel.setCoverFilename(getMediaFilename(graphicNovel.getCoverOriginalUrl()));
+            graphicNovel.setCoverUrl(getHashedOutputMediaUrl(graphicNovel.getCoverOriginalUrl(), httpCoverFrontHdDirectory, graphicNovel.getId()));
+            graphicNovel.setCoverPath(getHashedOutputMediaPath(graphicNovel.getCoverOriginalUrl(), outputCoverFrontHdDirectory, graphicNovel.getId()));
+            graphicNovel.setCoverAvailable(false);
+            graphicNovel.setCoverFileSize(0L);
+        }
+
+        // Cover thumbnail
+        if(!StringUtils.isBlank(graphicNovel.getCoverThumbnailOriginalUrl())) {
+            graphicNovel.setCoverThumbnailFilename(getMediaFilename(graphicNovel.getCoverThumbnailOriginalUrl()));
+            graphicNovel.setCoverThumbnailUrl(getHashedOutputMediaUrl(graphicNovel.getCoverThumbnailOriginalUrl(), httpCoverFrontThumbDirectory, graphicNovel.getId()));
+            graphicNovel.setCoverThumbnailPath(getHashedOutputMediaPath(graphicNovel.getCoverThumbnailOriginalUrl(), outputCoverFrontThumbDirectory, graphicNovel.getId()));
+            graphicNovel.setCoverThumbnailAvailable(false);
+            graphicNovel.setCoverThumbnailFileSize(0L);
+        }
+
+        // Back cover
+        if(!StringUtils.isBlank(graphicNovel.getBackCoverOriginalUrl())) {
+            graphicNovel.setBackCoverFilename(getMediaFilename(graphicNovel.getBackCoverOriginalUrl()));
+            graphicNovel.setBackCoverUrl(getHashedOutputMediaUrl(graphicNovel.getBackCoverOriginalUrl(), httpCoverBackHdDirectory, graphicNovel.getId()));
+            graphicNovel.setBackCoverPath(getHashedOutputMediaPath(graphicNovel.getBackCoverOriginalUrl(), outputCoverBackHdDirectory, graphicNovel.getId()));
+            graphicNovel.setBackCoverAvailable(false);
+            graphicNovel.setBackCoverFileSize(0L);
+        }
+
+        // Back cover thumbnail
+        if(!StringUtils.isBlank(graphicNovel.getBackCoverThumbnailOriginalUrl())) {
+            graphicNovel.setBackCoverThumbnailFilename(getMediaFilename(graphicNovel.getBackCoverThumbnailOriginalUrl()));
+            graphicNovel.setBackCoverThumbnailUrl(getHashedOutputMediaUrl(graphicNovel.getBackCoverThumbnailOriginalUrl(), httpCoverBackThumbDirectory, graphicNovel.getId()));
+            graphicNovel.setBackCoverThumbnailPath(getHashedOutputMediaPath(graphicNovel.getBackCoverThumbnailOriginalUrl(), outputCoverBackThumbDirectory, graphicNovel.getId()));
+            graphicNovel.setBackCoverThumbnailAvailable(false);
+            graphicNovel.setBackCoverThumbnailFileSize(0L);
+        }
+
+        // Page example
+        if(!StringUtils.isBlank(graphicNovel.getPageExampleOriginalUrl())) {
+            graphicNovel.setPageExampleFilename(getMediaFilename(graphicNovel.getPageExampleOriginalUrl()));
+            graphicNovel.setPageExampleUrl(getHashedOutputMediaUrl(graphicNovel.getPageExampleOriginalUrl(), httpPageExampleHdDirectory, graphicNovel.getId()));
+            graphicNovel.setPageExamplePath(getHashedOutputMediaPath(graphicNovel.getPageExampleOriginalUrl(), outputPageExampleHdDirectory, graphicNovel.getId()));
+            graphicNovel.setPageExampleAvailable(false);
+            graphicNovel.setPageExampleFileSize(0L);
+        }
+
+        // Page example thumbnail
+        if(!StringUtils.isBlank(graphicNovel.getPageExampleThumbnailOriginalUrl())) {
+            graphicNovel.setPageExampleThumbnailFilename(getMediaFilename(graphicNovel.getPageExampleThumbnailOriginalUrl()));
+            graphicNovel.setPageExampleThumbnailUrl(getHashedOutputMediaUrl(graphicNovel.getPageExampleThumbnailOriginalUrl(), httpPageExampleThumbDirectory, graphicNovel.getId()));
+            graphicNovel.setPageExampleThumbnailPath(getHashedOutputMediaPath(graphicNovel.getPageExampleThumbnailOriginalUrl(), outputPageExampleThumbDirectory, graphicNovel.getId()));
+            graphicNovel.setPageExampleThumbnailAvailable(false);
+            graphicNovel.setPageExampleThumbnailFileSize(0L);
+        }
 
         // Download all thumbs in the local server
         if (isLocalCacheActive) {
-            downloadMedias(graphicNovel);
+            downloadCover(graphicNovel);
+            downloadBackCover(graphicNovel);
+            downloadPageExample(graphicNovel);
+            downloadCoverThumbnail(graphicNovel);
+            downloadBackCoverThumbnail(graphicNovel);
+            downloadPageExampleThumbnail(graphicNovel);
         }
+
         return graphicNovel;
     }
 
@@ -481,12 +625,12 @@ public class GraphicNovelScraper extends GenericScraper {
 
             authorRole.setRole(key);
             authorRole.setDisplayedRole(displayedRole);
-            authorRole.setExternalId(externalId);
+            authorRole.setId(externalId);
             authorRole.setName(name);
             authorRole.setAuthorUrl(url);
         } catch (Exception ex) {
             authorRole.setRole(UNKNOWN);
-            authorRole.setExternalId("1");
+            authorRole.setId("1");
             authorRole.setName(UNKNOWN);
             authorRole.setAuthorUrl("https://www.bedetheque.com/auteur-1-BD-Indetermine.html");
         }
@@ -675,8 +819,16 @@ public class GraphicNovelScraper extends GenericScraper {
         return scrapAttribute(e, "div.sous-couv a.browse-couvertures", HTML.Attribute.HREF, "coverPictureUrl");
     }
 
+    private String getCoverTitle(Element e) {
+        return scrapAttribute(e, "div.sous-couv a.browse-couvertures", HTML.Attribute.TITLE, "coverTitle");
+    }
+
     private String getCoverThumbnailUrl(Element e) {
         return scrapAttribute(e, "div.couv img", HTML.Attribute.SRC, "coverThumbnailUrl");
+    }
+
+    private String getCoverThumbnailTitle(Element e) {
+        return scrapAttribute(e, "div.couv img", HTML.Attribute.ALT, "coverThumbnailTitle");
     }
 
     private String getCopyright(Element e) {
@@ -687,16 +839,32 @@ public class GraphicNovelScraper extends GenericScraper {
         return scrapAttribute(e, "div.sous-couv a.browse-versos", HTML.Attribute.HREF, "backCoverPictureUrl");
     }
 
+    private String getBackCoverTitle(Element e) {
+        return scrapAttribute(e, "div.sous-couv a.browse-versos", HTML.Attribute.TITLE, "backCoverTitle");
+    }
+
     private String getBackCoverThumbnailUrl(Element e) {
         return scrapAttribute(e, "div.sous-couv a.browse-versos img", HTML.Attribute.SRC, "backCoverThumbnailUrl");
+    }
+
+    private String getBackCoverThumbnailTitle(Element e) {
+        return scrapAttribute(e, "div.sous-couv a.browse-versos img", HTML.Attribute.ALT, "backCoverThumbnailTitle");
     }
 
     private String getPagePictureUrl(Element e) {
         return scrapAttribute(e, "div.sous-couv a.browse-planches", HTML.Attribute.HREF, "pagePictureUrl");
     }
 
+    private String getPageExampleTitle(Element e) {
+        return scrapAttribute(e, "div.sous-couv a.browse-planches", HTML.Attribute.TITLE, "pageExampleTitle");
+    }
+
     private String getPageThumbnailUrl(Element e) {
         return scrapAttribute(e, "div.sous-couv a.browse-planches img", HTML.Attribute.SRC, "pageThumbnailUrl");
+    }
+
+    private String getPageExampleThumbnailTitle(Element e) {
+        return scrapAttribute(e, "div.sous-couv a.browse-planches img", HTML.Attribute.ALT, "pageExampleThumbnailTitle");
     }
 
     private String scrapAttribute(Element e, String selector, HTML.Attribute attribute, String propertyName) {

@@ -10,9 +10,14 @@ import lombok.*;
 @AllArgsConstructor
 public class ToReadSerie {
 
-    private String externalId;
+    private String id;
     private String title;
     private String url;
+    private String coverOriginalUrl;
     private String coverUrl;
+    private String coverPath;
+    private String coverFilename;
+    private Long coverFileSize;
+    private Boolean coverAvailable;
     private String coverTitle;
 }

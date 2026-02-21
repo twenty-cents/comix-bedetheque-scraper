@@ -3,6 +3,7 @@ package com.comix.scrapers.bedetheque.client.scraper;
 import com.comix.scrapers.bedetheque.client.model.author.*;
 import com.comix.scrapers.bedetheque.client.model.serie.SerieLanguage;
 import com.comix.scrapers.bedetheque.client.model.serie.SerieToDiscover;
+import com.comix.scrapers.bedetheque.exception.TechnicalException;
 import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,14 +32,8 @@ public class AuthorScraper extends GenericScraper {
     @Value("${bedetheque.url.author.prefix}")
     private String bedethequeAuthorPrefixUrl;
 
-    @Value("${application.downloads.authors.photo.thumbs}")
-    private String outputAuthorThumbDirectory;
-
     @Value("${application.downloads.authors.photo.hd}")
     private String outputAuthorHdDirectory;
-
-    @Value("${application.http.medias.authors.photo.thumbs}")
-    private String httpAuthorThumbPath;
 
     @Value("${application.http.medias.authors.photo.hd}")
     private String httpAuthorHdPath;
@@ -48,9 +43,6 @@ public class AuthorScraper extends GenericScraper {
 
     @Value("${application.http.medias.graphic-novels.cover-front.thumbs}")
     private String httpCoverFrontThumbDirectory;
-
-    @Value("${application.http.medias.default.unavailable}")
-    private String httpDefaultMediaFilename;
 
     @Setter
     @Value("${application.downloads.localcache.active}")
@@ -67,7 +59,7 @@ public class AuthorScraper extends GenericScraper {
      * @return an author bedetheque id
      */
     public String getBedethequeId(String bedethequeAuthorUrl) {
-        if(StringUtils.isBlank(bedethequeAuthorUrl)) {
+        if (StringUtils.isBlank(bedethequeAuthorUrl)) {
             return "";
         }
         String[] parts = StringUtils.split(bedethequeAuthorUrl, "-");
@@ -172,7 +164,7 @@ public class AuthorScraper extends GenericScraper {
         authorDetails.setBirthdate(scrapAndClean(doc, "ul.auteur-info li:contains(Naissance)", null, "le"));
         authorDetails.setDeceaseDate(scrapAndClean(doc, "ul.auteur-info li:contains(Décès)", null, "le"));
         String nationality = scrap(doc, "ul.auteur-info li:contains(Naissance) > span.pays-auteur", null);
-        if(nationality != null) {
+        if (nationality != null) {
             authorDetails.setNationality(nationality
                     .replace('(', ' ')
                     .replace(')', ' ')
@@ -180,14 +172,14 @@ public class AuthorScraper extends GenericScraper {
         }
         authorDetails.setSiteUrl(scrap(doc, "ul.auteur-info li:contains(Site) > a", "href"));
         authorDetails.setBiography(scrap(doc, "p.bio", null));
-        authorDetails.setPhotoUrl(scrap(doc, "div.auteur-image > a", "href"));
-        authorDetails.setPhotoThbUrl(scrap(doc, "div.auteur-image > a > img", "src"));
+        authorDetails.setPhotoOriginalUrl(scrap(doc, "div.auteur-image > a", "href"));
+        authorDetails.setPhotoTitle(scrap(doc, "div.auteur-image > a", "title"));
         authorDetails.setAuthorUrl(author.getUrl());
         // Other pseudonym (to be refactored if more than one is possible)
         String otherPseudonymName = scrap(doc, "ul.auteur-info li:contains(Voir) > a", null);
         String otherPseudonymUrl = scrap(doc, "ul.auteur-info li:contains(Voir) > a", "href");
         String otherPseudonymId = getBedethequeId(otherPseudonymUrl);
-        if(!StringUtils.isBlank(otherPseudonymId)) {
+        if (!StringUtils.isBlank(otherPseudonymId)) {
             Author otherAuthorPseudonym = new Author();
             otherAuthorPseudonym.setId(otherPseudonymId);
             otherAuthorPseudonym.setName(otherPseudonymName);
@@ -207,21 +199,30 @@ public class AuthorScraper extends GenericScraper {
         // Generic author
         if (authorDetails.getId() == null) {
             String[] urlSplit = author.getUrl().split("-");
-            if(urlSplit.length >= 2) {
+            if (urlSplit.length >= 2) {
                 authorDetails.setId(author.getUrl().split("-")[1]);
             }
             authorDetails.setNickname(author.getName());
 
-            if(urlSplit.length >= 4) {
+            if (urlSplit.length >= 4) {
                 String lastname = urlSplit[3];
                 lastname = Strings.CS.remove(lastname, ".html");
                 authorDetails.setLastname(lastname);
             }
         }
 
+        if (!StringUtils.isBlank(authorDetails.getPhotoOriginalUrl())) {
+            authorDetails.setPhotoFilename(getMediaFilename(authorDetails.getPhotoOriginalUrl()));
+            authorDetails.setPhotoUrl(getHashedOutputMediaUrl(authorDetails.getPhotoOriginalUrl(), httpAuthorHdPath, authorDetails.getId()));
+            authorDetails.setPhotoPath(getHashedOutputMediaPath(authorDetails.getPhotoOriginalUrl(), outputAuthorHdDirectory, author.getId()));
+            authorDetails.setPhotoAvailable(false);
+            authorDetails.setPhotoFileSize(0L);
+        }
+
         // Download all thumbs in the local server
         if (isLocalCacheActive) {
-            downloadMedias(authorDetails);
+            downloadPhoto(authorDetails);
+            downloadSerieCovers(authorDetails);
         }
         log.info("Scraped author : {} {}, {}",
                 authorDetails.getId(),
@@ -312,15 +313,21 @@ public class AuthorScraper extends GenericScraper {
             Element img = a.selectFirst("img");
             Element e = a.parent();
             String title = null;
-            if(e != null) {
+            if (e != null) {
                 title = ownText(e.selectFirst("span"));
             }
             SerieToDiscover serie = new SerieToDiscover();
             serie.setUrl(a.attr("href"));
             serie.setTitle(title);
             serie.setId(this.getIdBel(a.attr("href")));
-            if(img !=  null) {
-                serie.setCoverUrl(img.attr("src"));
+            if (img != null) {
+                serie.setCoverOriginalUrl(img.attr("src"));
+                serie.setCoverFilename(getMediaFilename(serie.getCoverOriginalUrl()));
+                serie.setCoverUrl(getHashedOutputMediaUrl(serie.getCoverOriginalUrl(), httpCoverFrontThumbDirectory, serie.getId()));
+                serie.setCoverPath(getHashedOutputMediaUrl(serie.getCoverOriginalUrl(), outputCoverFrontThumbDirectory, serie.getId()));
+                serie.setCoverAvailable(false);
+                serie.setCoverFileSize(0L);
+                serie.setCoverTitle(img.attr("alt"));
             }
             serie.setCoverTitle(title);
 
@@ -419,7 +426,7 @@ public class AuthorScraper extends GenericScraper {
      */
     private String scrapAndClean(Document doc, String query, String attribute, String textToRemove) {
         String preprocessedText = scrap(doc, query, attribute);
-        if(preprocessedText != null) {
+        if (preprocessedText != null) {
             preprocessedText = preprocessedText.replaceAll(textToRemove, "").trim();
         }
         return preprocessedText;
@@ -441,40 +448,41 @@ public class AuthorScraper extends GenericScraper {
     }
 
     /**
-     * Download all bedetheque medias on the local server
+     * Download author's photo HD in the NFS server
      *
      * @param author the author
      */
-    private void downloadMedias(AuthorDetails author) {
-        if(!StringUtils.isBlank(author.getPhotoThbUrl())) {
-            author.setPhotoThbUrl(
-                    downloadMedia(
-                            outputAuthorThumbDirectory,
-                            httpAuthorThumbPath,
-                            author.getPhotoThbUrl(),
-                            httpDefaultMediaFilename,
-                            author.getId()));
+    void downloadPhoto(AuthorDetails author) {
+        if (!StringUtils.isBlank(author.getPhotoOriginalUrl())) {
+            try {
+                download(author.getPhotoOriginalUrl(), author.getPhotoPath());
+                author.setPhotoAvailable(true);
+                author.setPhotoFileSize(getMediaSize(author.getPhotoPath()));
+            } catch (TechnicalException e) {
+                author.setPhotoAvailable(false);
+                author.setPhotoFileSize(0L);
+                log.error(e.getMessage(), e);
+            }
         }
+    }
 
-        if(!StringUtils.isBlank(author.getPhotoUrl())) {
-            author.setPhotoUrl(
-                    downloadMedia(
-                            outputAuthorHdDirectory,
-                            httpAuthorHdPath,
-                            author.getPhotoUrl(),
-                            httpDefaultMediaFilename,
-                            author.getId()));
-        }
-
+    /**
+     * Download author's series to discover (thumbnails) in the NFS server
+     *
+     * @param author the author
+     */
+    void downloadSerieCovers(AuthorDetails author) {
         for (SerieToDiscover s : author.getSeriesToDiscover()) {
-            if(!StringUtils.isBlank(s.getCoverUrl())) {
-                s.setCoverUrl(
-                        downloadMedia(
-                                outputCoverFrontThumbDirectory,
-                                httpCoverFrontThumbDirectory,
-                                s.getCoverUrl(),
-                                httpDefaultMediaFilename,
-                                s.getId()));
+            if (!StringUtils.isBlank(s.getCoverOriginalUrl())) {
+                try {
+                    download(s.getCoverOriginalUrl(), s.getCoverPath());
+                    s.setCoverAvailable(true);
+                    s.setCoverFileSize(getMediaSize(s.getCoverPath()));
+                } catch (TechnicalException e) {
+                    s.setCoverAvailable(false);
+                    s.setCoverFileSize(0L);
+                    log.error(e.getMessage(), e);
+                }
             }
         }
     }

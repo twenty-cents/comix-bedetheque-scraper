@@ -35,11 +35,20 @@ class AuthorScraperTest {
     @BeforeEach
     void setUp() {
         authorScraper = new AuthorScraper();
+        // On construit un chemin sûr à l'intérieur du répertoire temporaire
+        String outputAuthorHdDirectory = tempDir.resolve("path/author/hd").toString();
+        String outputCoverFrontThumbDirectory = tempDir.resolve("path/cover/thumbs").toString();
         // On injecte manuellement les valeurs de configuration pour le test
         authorScraper.setBedethequeAuthorsListByLetter("http://test.com/authors/0.html");
         authorScraper.setBedethequeAuthorPrefixUrl("__AUTEUR-");
         authorScraper.setLocalCacheActive(false); // Désactivé par défaut pour les tests unitaires
         authorScraper.setLatency(0L);
+        ReflectionTestUtils.setField(authorScraper, "hashedDirectoryStep", 5000);
+        ReflectionTestUtils.setField(authorScraper, "outputAuthorHdDirectory", outputAuthorHdDirectory);
+        ReflectionTestUtils.setField(authorScraper, "httpAuthorHdPath", "http://localhost:8080/authors/photo/hd");
+        ReflectionTestUtils.setField(authorScraper, "outputCoverFrontThumbDirectory", outputCoverFrontThumbDirectory);
+        ReflectionTestUtils.setField(authorScraper, "httpCoverFrontThumbDirectory", "http://localhost:8080/series/cover-front/thumbs/");
+
     }
 
     @Nested
@@ -167,8 +176,7 @@ class AuthorScraperTest {
                 assertThat(details.getNationality()).isEqualTo("France");
                 assertThat(details.getSiteUrl()).isEqualTo("http://john.doe");
                 assertThat(details.getBiography()).isEqualTo("Une biographie intéressante.");
-                assertThat(details.getPhotoUrl()).isEqualTo("photo.jpg");
-                assertThat(details.getPhotoThbUrl()).isEqualTo("photo_thb.jpg");
+                assertThat(details.getPhotoUrl()).isEqualTo("http://localhost:8080/authors/photo/hd/0/photo.jpg");
                 assertThat(details.getOtherAuthorPseudonym()).isNotNull();
                 assertThat(details.getOtherAuthorPseudonym().getId()).isEqualTo("456");
                 assertThat(details.getOtherAuthorPseudonym().getName()).isEqualTo("Alias, John");
@@ -224,6 +232,11 @@ class AuthorScraperTest {
             AuthorScraper scraperSpy = Mockito.spy(new AuthorScraper());
             scraperSpy.setLocalCacheActive(false); // Cache inactif
             scraperSpy.setLatency(0L);
+            ReflectionTestUtils.setField(scraperSpy, "hashedDirectoryStep", 5000);
+            ReflectionTestUtils.setField(scraperSpy, "outputAuthorHdDirectory", "./src/test/resources/static/authors/photo/hd/");
+            ReflectionTestUtils.setField(scraperSpy, "httpAuthorHdPath", "http://localhost:8080/authors/photo/hd");
+            ReflectionTestUtils.setField(scraperSpy, "outputCoverFrontThumbDirectory", "./src/test/resources/static/series/cover-front/thumbs/");
+            ReflectionTestUtils.setField(scraperSpy, "httpCoverFrontThumbDirectory", "http://localhost:8080/series/cover-front/thumbs/");
 
             String html = "<html><body><div class='auteur-image'><a href='photo.jpg'><img src='photo_thb.jpg'></a></div></body></html>";
             Document doc = Jsoup.parse(html);
@@ -256,31 +269,27 @@ class AuthorScraperTest {
         scraperSpy.setLatency(0L);
         // On injecte les valeurs des champs privés via la réflexion.
         // On construit un chemin sûr à l'intérieur du répertoire temporaire
-        String outputAuthorThumbDirectory = tempDir.resolve("path/author/thumbs").toString();
         String outputAuthorHdDirectory = tempDir.resolve("path/author/hd").toString();
         String outputCoverFrontThumbDirectory = tempDir.resolve("path/cover/thumbs").toString();
 
-        ReflectionTestUtils.setField(scraperSpy, "outputAuthorThumbDirectory", outputAuthorThumbDirectory);
-        ReflectionTestUtils.setField(scraperSpy, "httpAuthorThumbPath", "http://media/author/thumbs");
         ReflectionTestUtils.setField(scraperSpy, "outputAuthorHdDirectory", outputAuthorHdDirectory);
         ReflectionTestUtils.setField(scraperSpy, "httpAuthorHdPath", "http://media/author/hd");
         ReflectionTestUtils.setField(scraperSpy, "outputCoverFrontThumbDirectory", outputCoverFrontThumbDirectory);
         ReflectionTestUtils.setField(scraperSpy, "httpCoverFrontThumbDirectory", "http://media/cover/thumbs");
-        ReflectionTestUtils.setField(scraperSpy, "httpDefaultMediaFilename", "default.jpg");
         ReflectionTestUtils.setField(scraperSpy, "hashedDirectoryStep", 5000);
 
         // 3. On prépare un document HTML simple avec les images à télécharger.
         String html = "<html><body>" +
-                "<ul class='auteur-info'><li>Identifiant : 123</li></ul>" +
+                "<ul class='auteur-info'><li><label>Identifiant :</label>789</li></ul>" +
                 "<div class='auteur-image'><a href='http://external.com/photo.jpg'><img src='http://external.com/photo_thb.jpg'></a></div>" +
                 "<div class='tab_content'><ul class='gallery-side'><a href='http://serie.com/serie-1'><img src='http://external.com/cover.jpg'><span>Serie 1</span></a></ul></div>" +
                 "</body></html>";
         Document doc = Jsoup.parse(html);
         Author authorToScrap = new Author("123", "DOE, John", "http://test.com/__AUTEUR-123-Doe.html");
 
-        // 4. On "stub" la méthode downloadMedia pour qu'elle ne fasse pas de vrai téléchargement.
+        // 4. On "stub" les méthodes download... pour qu'elles ne fassent pas de vrai téléchargement.
         // On utilise doReturn().when(spy) pour les espions.
-        doReturn("local_path").when(scraperSpy).downloadMedia(anyString(), anyString(), anyString(), anyString(), anyString());
+        doNothing().when(scraperSpy).download(anyString(), anyString());
 
         // 5. On mock le singleton pour qu'il retourne notre document contrôlé.
         try (MockedStatic<GenericScraperSingleton> mockedSingleton = Mockito.mockStatic(GenericScraperSingleton.class)) {
@@ -294,29 +303,9 @@ class AuthorScraperTest {
             // THEN:
             // On vérifie que downloadMedia a été appelé pour chaque image avec les bons paramètres.
             // Photo de l'auteur (HD)
-            verify(scraperSpy, times(1)).downloadMedia(
-                    outputAuthorHdDirectory,
-                    "http://media/author/hd",
-                    "http://external.com/photo.jpg",
-                    "default.jpg",
-                    "Identifiant : 123"
-            );
-            // Photo de l'auteur (miniature)
-            verify(scraperSpy, times(1)).downloadMedia(
-                    outputAuthorThumbDirectory,
-                    "http://media/author/thumbs",
-                    "http://external.com/photo_thb.jpg",
-                    "default.jpg",
-                    "Identifiant : 123"
-            );
+            verify(scraperSpy, times(1)).downloadPhoto(any());
             // Couverture de la série à découvrir
-            verify(scraperSpy, times(1)).downloadMedia(
-                    outputCoverFrontThumbDirectory,
-                    "http://media/cover/thumbs",
-                    "http://external.com/cover.jpg",
-                    "default.jpg",
-                    null
-            );
+            verify(scraperSpy, times(1)).downloadSerieCovers(any());
         }
     }
 }

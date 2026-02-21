@@ -3,6 +3,7 @@ package com.comix.scrapers.bedetheque.client.scraper;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovel;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovelSideListItem;
 import com.comix.scrapers.bedetheque.client.model.serie.*;
+import com.comix.scrapers.bedetheque.exception.TechnicalException;
 import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -126,7 +127,7 @@ public class SerieScraper extends GenericScraper {
         String period = retrievePeriod(doc);
 
         var serieDetails = new SerieDetails();
-        serieDetails.setExternalId(retrieveExternalId(doc));
+        serieDetails.setId(retrieveExternalId(doc));
         serieDetails.setTitle(retrieveTitle(doc));
         serieDetails.setCategory(retrieveCategory(doc));
         serieDetails.setStatus(retrieveStatus(doc));
@@ -134,8 +135,8 @@ public class SerieScraper extends GenericScraper {
         serieDetails.setLanguage(retrieveLanguage(doc));
         serieDetails.setSiteUrl(retrieveSiteUrl(doc));
         serieDetails.setSynopsys(retrieveSynopsys(doc));
-        serieDetails.setPictureUrl(retrievePictureUrl(doc));
-        serieDetails.setPictureThbUrl(retrieveThumbnailUrl(doc));
+        serieDetails.setPageExampleOriginalUrl(retrievePictureUrl(doc));
+        serieDetails.setPageExampleThumbnailOriginalUrl(retrieveThumbnailUrl(doc));
         serieDetails.setCopyright(retrieveCopyright(doc));
         serieDetails.setScrapUrl(url);
         serieDetails.setGraphicNovels(retrieveGraphicNovels(url, doc));
@@ -155,9 +156,31 @@ public class SerieScraper extends GenericScraper {
         serieDetails.setLinkedSeries(retrieveLinkedSeries(doc));
         serieDetails.setToReadSeries(retrieveToReadSeries(doc));
 
+        // Serie page example thumbnail
+        if (!StringUtils.isBlank(serieDetails.getPageExampleThumbnailOriginalUrl())) {
+            serieDetails.setPageExampleThumbnailFilename(getMediaFilename(serieDetails.getPageExampleThumbnailOriginalUrl()));
+            serieDetails.setPageExampleThumbnailUrl(getHashedOutputMediaUrl(serieDetails.getPageExampleThumbnailOriginalUrl(), httpPageExampleThumbDirectory, serieDetails.getId()));
+            serieDetails.setPageExampleThumbnailPath(getHashedOutputMediaPath(serieDetails.getPageExampleThumbnailOriginalUrl(), outputPageExampleThumbDirectory, serieDetails.getId()));
+            serieDetails.setPageExampleThumbnailAvailable(false);
+            serieDetails.setPageExampleThumbnailFileSize(0L);
+            serieDetails.setPageExampleThumbnailTitle(retrievePageExampleThumbnailTitle(doc));
+        }
+
+        // Serie page example
+        if (!StringUtils.isBlank(serieDetails.getPageExampleOriginalUrl())) {
+            serieDetails.setPageExampleFilename(getMediaFilename(serieDetails.getPageExampleOriginalUrl()));
+            serieDetails.setPageExampleUrl(getHashedOutputMediaUrl(serieDetails.getPageExampleOriginalUrl(), httpPageExampleHdDirectory, serieDetails.getId()));
+            serieDetails.setPageExamplePath(getHashedOutputMediaPath(serieDetails.getPageExampleOriginalUrl(), outputPageExampleHdDirectory, serieDetails.getId()));
+            serieDetails.setPageExampleAvailable(false);
+            serieDetails.setPageExampleFileSize(0L);
+            serieDetails.setPageExampleTitle(retrievePageExampleTitle(doc));
+        }
+
         // Download all thumbs in the local server
         if(isLocalCacheActive) {
-            downloadMedias(serieDetails);
+            downloadExamplePageThumbnail(serieDetails);
+            downloadExamplePage(serieDetails);
+            downloadToReadSeriesCovers(serieDetails);
         }
         log.info("Scraped {} graphic novels from the serie url {}",
                 serieDetails.getGraphicNovels().size(),
@@ -174,39 +197,58 @@ public class SerieScraper extends GenericScraper {
     }
 
     /**
-     * Download all bedetheque medias on the local server
+     * Download series to read (thumbnails) in the NFS server
+     *
      * @param serieDetails the serie
      */
-    private void downloadMedias(SerieDetails serieDetails) {
-        if (!StringUtils.isBlank(serieDetails.getPictureThbUrl())) {
-            serieDetails.setPictureThbUrl(
-                    downloadMedia(
-                            outputPageExampleThumbDirectory,
-                            httpPageExampleThumbDirectory,
-                            serieDetails.getPictureThbUrl(),
-                            httpDefaultMediaFilename,
-                            serieDetails.getExternalId()));
+    void downloadToReadSeriesCovers(SerieDetails serieDetails) {
+        for(ToReadSerie s : serieDetails.getToReadSeries()) {
+            if(!StringUtils.isBlank(s.getCoverOriginalUrl())) {
+                try {
+                    download(s.getCoverOriginalUrl(), s.getCoverPath());
+                    s.setCoverAvailable(true);
+                    s.setCoverFileSize(getMediaSize(s.getCoverPath()));
+                } catch (TechnicalException e) {
+                    s.setCoverAvailable(false);
+                    s.setCoverFileSize(0L);
+                    log.error(e.getMessage(), e);
+                }
+            }
         }
+    }
 
-        if (!StringUtils.isBlank(serieDetails.getPictureUrl())) {
-            serieDetails.setPictureUrl(
-                    downloadMedia(
-                            outputPageExampleHdDirectory,
-                            httpPageExampleHdDirectory,
-                            serieDetails.getPictureUrl(),
-                            httpDefaultMediaFilename,
-                            serieDetails.getExternalId()));
+    /**
+     * Download serie's example page thumbnail on the local server
+     * @param serieDetails the serie
+     */
+    void downloadExamplePageThumbnail(SerieDetails serieDetails) {
+        if (!StringUtils.isBlank(serieDetails.getPageExampleThumbnailOriginalUrl())) {
+            try {
+                download(serieDetails.getPageExampleThumbnailOriginalUrl(), serieDetails.getPageExampleThumbnailPath());
+                serieDetails.setPageExampleThumbnailAvailable(true);
+                serieDetails.setPageExampleThumbnailFileSize(getMediaSize(serieDetails.getPageExampleThumbnailPath()));
+            } catch (TechnicalException e) {
+                serieDetails.setPageExampleThumbnailAvailable(false);
+                serieDetails.setPageExampleThumbnailFileSize(0L);
+                log.error(e.getMessage(), e);
+            }
         }
+    }
 
-        for(ToReadSerie ts : serieDetails.getToReadSeries()) {
-            if(!StringUtils.isBlank(ts.getCoverUrl())) {
-                ts.setCoverUrl(
-                        downloadMedia(
-                                outputCoverFrontThumbDirectory,
-                                httpCoverFrontThumbDirectory,
-                                ts.getCoverUrl(),
-                                httpDefaultMediaFilename,
-                                ts.getExternalId()));
+    /**
+     * Download serie's example page on the local server
+     * @param serieDetails the serie
+     */
+    void downloadExamplePage(SerieDetails serieDetails) {
+        if (!StringUtils.isBlank(serieDetails.getPageExampleOriginalUrl())) {
+            try {
+                download(serieDetails.getPageExampleOriginalUrl(), serieDetails.getPageExamplePath());
+                serieDetails.setPageExampleAvailable(true);
+                serieDetails.setPageExampleFileSize(getMediaSize(serieDetails.getPageExamplePath()));
+            } catch (TechnicalException e) {
+                serieDetails.setPageExampleAvailable(false);
+                serieDetails.setPageExampleFileSize(0L);
+                log.error(e.getMessage(), e);
             }
         }
     }
@@ -380,7 +422,7 @@ public class SerieScraper extends GenericScraper {
                 var linkedSerie = new LinkedSerie();
                 linkedSerie.setUrl(a.attr("href"));
                 linkedSerie.setTitle(a.attr(HTML.Attribute.TITLE.toString()));
-                linkedSerie.setExternalId(this.getIdBel(a.attr("href")));
+                linkedSerie.setId(this.getIdBel(a.attr("href")));
 
                 linkedSeries.add(linkedSerie);
             }
@@ -400,9 +442,16 @@ public class SerieScraper extends GenericScraper {
                 var toReadSerie = new ToReadSerie();
                 toReadSerie.setUrl(a.attr("href"));
                 toReadSerie.setTitle(a.attr(HTML.Attribute.TITLE.toString()));
-                toReadSerie.setExternalId(this.getIdBel(a.attr("href")));
-                toReadSerie.setCoverUrl(attr(img, HTML.Attribute.SRC));
-                toReadSerie.setCoverTitle(attr(img, HTML.Attribute.ALT));
+                toReadSerie.setId(this.getIdBel(a.attr("href")));
+                if (img != null) {
+                    toReadSerie.setCoverTitle(img.attr("alt"));
+                    toReadSerie.setCoverOriginalUrl(img.attr("src"));
+                    toReadSerie.setCoverFilename(getMediaFilename(toReadSerie.getCoverOriginalUrl()));
+                    toReadSerie.setCoverUrl(getHashedOutputMediaUrl(toReadSerie.getCoverOriginalUrl(), httpCoverFrontThumbDirectory, toReadSerie.getId()));
+                    toReadSerie.setCoverPath(getHashedOutputMediaUrl(toReadSerie.getCoverOriginalUrl(), outputCoverFrontThumbDirectory, toReadSerie.getId()));
+                    toReadSerie.setCoverAvailable(false);
+                    toReadSerie.setCoverFileSize(0L);
+                }
 
                 toReadSeries.add(toReadSerie);
             }
@@ -454,9 +503,25 @@ public class SerieScraper extends GenericScraper {
     private String retrievePictureUrl(Document doc) {
         String res = null;
         try {
-            res = attr(doc.select("div.serie-image > a").first(), HTML.Attribute.HREF);
+            res = attr(doc.select("div.serie-image > a").first(), HTML.Attribute.HREF); // NOSONAR
         } catch (Exception ignored) {
             log.debug("Failed to extract picture url.");
+        }
+        return res;
+    }
+
+    /**
+     * Retrieve the page example title of the current serie
+     *
+     * @param doc the fragment html of the current serie
+     * @return the scraped page url
+     */
+    private String retrievePageExampleTitle(Document doc) {
+        String res = null;
+        try {
+            res = attr(doc.select("div.serie-image > a").first(), HTML.Attribute.TITLE);
+        } catch (Exception ignored) {
+            log.debug("Failed to extract page example title.");
         }
         return res;
     }
@@ -473,6 +538,22 @@ public class SerieScraper extends GenericScraper {
             res = attr(doc.select("div.serie-image > a > img").first(), HTML.Attribute.SRC);
         } catch (Exception ignored) {
             log.debug("Failed to extract thumbnail picture url.");
+        }
+        return res;
+    }
+
+    /**
+     * Retrieve the page thumbnail url of the current serie
+     *
+     * @param doc the fragment html of the current serie
+     * @return the scraped page thumbnail urk
+     */
+    private String retrievePageExampleThumbnailTitle(Document doc) {
+        String res = null;
+        try {
+            res = attr(doc.select("div.serie-image > a").first(), HTML.Attribute.TITLE);
+        } catch (Exception ignored) {
+            log.debug("Failed to extract page example thumbnail title.");
         }
         return res;
     }
@@ -601,7 +682,7 @@ public class SerieScraper extends GenericScraper {
                 var aTag = element.selectFirst("a");
                 var spanTag = element.selectFirst("span.dl-side");
                 var graphicNovelSideListItem = new GraphicNovelSideListItem();
-                graphicNovelSideListItem.setExternalId(getGraphicNovelIdBEL(attr(aTag, HTML.Attribute.HREF)));
+                graphicNovelSideListItem.setId(getGraphicNovelIdBEL(attr(aTag, HTML.Attribute.HREF)));
                 graphicNovelSideListItem.setUrl(attr(aTag, HTML.Attribute.HREF));
                 String tome = ownText(labelTag);
                 if(tome != null) {

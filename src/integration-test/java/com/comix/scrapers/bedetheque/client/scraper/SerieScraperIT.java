@@ -7,10 +7,13 @@ import com.comix.scrapers.bedetheque.client.model.serie.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,8 +30,26 @@ class SerieScraperIT {
     @Value("${bedetheque.url.serie.prefix}")
     private String bedethequeSeriePrefixUrl;
 
+    @Value("${application.http.medias.series.cover-front.thumbs}")
+    private String httpCoverFrontThumbDirectory;
+
+    @Value("${application.http.medias.series.page-example.thumbs}")
+    private String httpPageExampleThumbDirectory;
+
+    @Value("${application.http.medias.default.unavailable}")
+    private String httpDefaultMediaFilename;
+
+    @Value("${application.http.medias.series.page-example.hd}")
+    private String httpPageExampleHdDirectory;
+
     @Value("#{new Long('${application.scraping.latency}')}")
     private Long latency;
+
+    @Value("${application.downloads.localcache.hashed-directory-step:5000}")
+    private int hashedDirectoryStep;
+
+    @TempDir
+    Path tempDir;
 
     private SerieScraper serieScraper;
 
@@ -37,11 +58,46 @@ class SerieScraperIT {
         GraphicNovelScraper graphicNovelScraper = new GraphicNovelScraper();
         graphicNovelScraper.setLocalCacheActive(false);
 
+        graphicNovelScraper.setLocalCacheActive(isLocalCacheActive);
+        graphicNovelScraper.setLatency(latency);
+
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpCoverFrontHdDirectory", "http://localhost:8080/media/graphic-novels/cover-front/hd/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpCoverFrontThumbDirectory", "http://localhost:8080/media/graphic-novels/cover-front/thb/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpCoverBackHdDirectory", "http://localhost:8080/media/graphic-novels/cover-back/hd/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpCoverBackThumbDirectory", "http://localhost:8080/media/graphic-novels/cover-back/thb/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpPageExampleHdDirectory", "http://localhost:8080/media/graphic-novels/page-example/hd/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpPageExampleThumbDirectory", "http://localhost:8080/media/graphic-novels/page-example/thb/");
+        ReflectionTestUtils.setField(graphicNovelScraper, "httpDefaultMediaFilename", "default.jpg");
+
+        String outputCoverFrontHdDirectory = tempDir.resolve("graphic-novels/cover-front/hd").toString();
+        String outputCoverFrontThumbnailDirectory = tempDir.resolve("graphic-novels/cover-front/thb").toString();
+        String outputBackCoverHdDirectory = tempDir.resolve("graphic-novels/cover-back/hd").toString();
+        String outputBackCoverThumbnailDirectory = tempDir.resolve("graphic-novels/cover-back/thb").toString();
+        String outputPageExampleHdDirectory = tempDir.resolve("graphic-novels/page-example/hd").toString();
+        String outputPageExampleThumbnailDirectory = tempDir.resolve("graphic-novels/page-example/thb").toString();
+
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputCoverFrontHdDirectory", outputCoverFrontHdDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputCoverFrontThumbDirectory", outputCoverFrontThumbnailDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputCoverBackThumbDirectory", outputBackCoverHdDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputCoverBackHdDirectory", outputBackCoverThumbnailDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputPageExampleHdDirectory", outputPageExampleHdDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "outputPageExampleThumbDirectory", outputPageExampleThumbnailDirectory);
+        ReflectionTestUtils.setField(graphicNovelScraper, "hashedDirectoryStep", 5000);
+
         serieScraper = new SerieScraper(graphicNovelScraper);
         serieScraper.setLocalCacheActive(isLocalCacheActive);
         serieScraper.setBedethequeSerieIndexByLetterUrl(bedethequeSerieIndexByLetterUrl);
         serieScraper.setBedethequeSeriePrefixUrl(bedethequeSeriePrefixUrl);
         serieScraper.setLatency(latency);
+
+        ReflectionTestUtils.setField(serieScraper, "hashedDirectoryStep", hashedDirectoryStep);
+        ReflectionTestUtils.setField(serieScraper, "outputCoverFrontThumbDirectory", tempDir.resolve("media/serie/cover-front/thb").toString());
+        ReflectionTestUtils.setField(serieScraper, "outputPageExampleThumbDirectory", tempDir.resolve("media/serie/page-example/thb").toString());
+        ReflectionTestUtils.setField(serieScraper, "outputPageExampleHdDirectory", tempDir.resolve("media/serie/page-example/hd").toString());
+        ReflectionTestUtils.setField(serieScraper, "httpCoverFrontThumbDirectory", httpCoverFrontThumbDirectory);
+        ReflectionTestUtils.setField(serieScraper, "httpPageExampleThumbDirectory", httpPageExampleThumbDirectory);
+        ReflectionTestUtils.setField(serieScraper, "httpPageExampleHdDirectory", httpPageExampleHdDirectory);
+        ReflectionTestUtils.setField(serieScraper, "httpDefaultMediaFilename", httpDefaultMediaFilename);
     }
 
     @Test
@@ -71,7 +127,7 @@ class SerieScraperIT {
         SerieDetails s = serieScraper.scrap("https://www.bedetheque.com/serie-6637-BD-Douglas-Ferblanc-et-Vaseline-agents-spatiaux-speciaux.html");
         // Verify serie infos
         assertThat(s.getTitle()).isEqualTo("Douglas Ferblanc et Vaseline agents spatiaux-spéciaux");
-        assertThat(s.getExternalId()).isEqualTo("6637");
+        assertThat(s.getId()).isEqualTo("6637");
         assertThat(s.getCategory()).isEqualTo("Humour");
         assertThat(s.getStatus()).isEqualTo("One shot");
         assertThat(s.getOrigin()).isEqualTo("Europe");
@@ -83,8 +139,8 @@ class SerieScraperIT {
         assertThat(s.getTomeCount()).isEqualTo(1);
         assertThat(s.getSynopsys()).isNull();
         assertThat(s.getGraphicNovelSideList()).isEmpty();
-        assertThat(s.getPictureThbUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_series/Bienvenueauxterriens_06062003.jpg");
-        assertThat(s.getPictureUrl()).isEqualTo("https://www.bedetheque.com/media/Planches/Bienvenueauxterriens_06062003.jpg");
+        assertThat(s.getPageExampleThumbnailUrl()).isEqualTo("http://localhost:8080/series/page-example/thumbs/1/Bienvenueauxterriens_06062003.jpg");
+        assertThat(s.getPageExampleUrl()).isEqualTo("http://localhost:8080/series/page-example/hd/1/Bienvenueauxterriens_06062003.jpg");
         assertThat(s.getRatings().getCount()).isZero();
         assertThat(s.getRatings().getUrl()).isEqualTo("https://www.bedetheque.com/avis-6637-BD-Douglas-Ferblanc-et-Vaseline-agents-spatiaux-speciaux.html");
         // Verify associated series
@@ -99,7 +155,7 @@ class SerieScraperIT {
         SerieDetails s = serieScraper.scrap("https://www.bedetheque.com/serie-13266-BD-Akim-1re-serie.html");
         // Verify serie infos
         assertThat(s.getTitle()).isEqualTo("Akim (1re série - Aventures et Voyages)");
-        assertThat(s.getExternalId()).isEqualTo("13266");
+        assertThat(s.getId()).isEqualTo("13266");
         assertThat(s.getCategory()).isEqualTo("Aventure");
         assertThat(s.getStatus()).isEqualTo("Série finie");
         assertThat(s.getOrigin()).isEqualTo("Europe");
@@ -111,15 +167,15 @@ class SerieScraperIT {
         assertThat(s.getTomeCount()).isGreaterThanOrEqualTo(756);
         assertThat(s.getSynopsys()).startsWith("- 756 Numéros");
         assertThat(s.getGraphicNovelSideList()).hasSizeGreaterThanOrEqualTo(846);
-        assertThat(s.getPictureThbUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_series/PlancheS_13266.jpg");
-        assertThat(s.getPictureUrl()).isEqualTo("https://www.bedetheque.com/media/Planches/PlancheS_13266.jpg");
+        assertThat(s.getPageExampleThumbnailUrl()).isEqualTo("http://localhost:8080/series/page-example/thumbs/2/PlancheS_13266.jpg");
+        assertThat(s.getPageExampleUrl()).isEqualTo("http://localhost:8080/series/page-example/hd/2/PlancheS_13266.jpg");
         assertThat(s.getRatings().getCount()).isZero();
         assertThat(s.getRatings().getUrl()).isEqualTo("https://www.bedetheque.com/avis-13266-BD-Akim-1re-serie-Aventures-et-Voyages.html");
         // Verify associated series
         assertThat(s.getLinkedSeries()).hasSizeGreaterThanOrEqualTo(4);
         for(LinkedSerie ls : s.getLinkedSeries()) {
-            if(ls.getExternalId().equals("18198")) {
-                assertThat(ls.getExternalId()).isEqualTo("18198");
+            if(ls.getId().equals("18198")) {
+                assertThat(ls.getId()).isEqualTo("18198");
                 assertThat(ls.getTitle()).isEqualTo("Akim-Color");
                 assertThat(ls.getUrl()).isEqualTo("https://www.bedetheque.com/serie-18198-BD-Akim-Color.html");
             }
@@ -127,18 +183,18 @@ class SerieScraperIT {
         // Verify other series to read
         assertThat(s.getToReadSeries()).hasSizeGreaterThanOrEqualTo(2);
         for(ToReadSerie ts : s.getToReadSeries()) {
-            if(ts.getExternalId().equals("7389")) {
-                assertThat(ts.getExternalId()).isEqualTo("7389");
-                assertThat(ts.getTitle()).isEqualTo("Tarzan (Azur)");
-                assertThat(ts.getUrl()).isEqualTo("https://www.bedetheque.com/serie-7389-BD-Tarzan-Azur.html");
-                assertThat(ts.getCoverUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_couv/Couv_32506.jpg");
-                assertThat(ts.getCoverTitle()).isEqualTo("Tarzan (Azur)");
+            if(ts.getId().equals("7389")) {
+                assertThat(ts.getId()).isEqualTo("7389");
+                assertThat(ts.getTitle()).isEqualTo("Tarzan (Editions Azur)");
+                assertThat(ts.getUrl()).isEqualTo("https://www.bedetheque.com/serie-7389-BD-Tarzan-Editions-Azur.html");
+                assertThat(ts.getCoverUrl()).isEqualTo("http://localhost:8080/series/cover-front/thumbs/1/Couv_32506.jpg");
+                assertThat(ts.getCoverTitle()).isEqualTo("Tarzan (Editions Azur)");
             }
         }
         // Verify graphic novel side list
         for(GraphicNovelSideListItem g : s.getGraphicNovelSideList()) {
-            if(g.getExternalId().equals("246591")) {
-                assertThat(g.getExternalId()).isEqualTo("246591");
+            if(g.getId().equals("246591")) {
+                assertThat(g.getId()).isEqualTo("246591");
                 assertThat(g.getTome()).isEmpty();
                 assertThat(g.getNumEdition()).isEqualTo("Rec178");
                 assertThat(g.getTitle()).isEqualTo("Album N°178 (n°701, 702, 703 et 705)");
@@ -154,7 +210,7 @@ class SerieScraperIT {
         SerieDetails s = serieScraper.scrap("https://www.bedetheque.com/serie-59-BD-Asterix__10000.html");
         // Verify serie infos
         assertThat(s.getTitle()).isEqualTo("Astérix");
-        assertThat(s.getExternalId()).isEqualTo("59");
+        assertThat(s.getId()).isEqualTo("59");
         assertThat(s.getCategory()).isEqualTo("Humour");
         assertThat(s.getStatus()).isEqualTo("Série en cours");
         assertThat(s.getOrigin()).isEqualTo("Europe");
@@ -166,8 +222,8 @@ class SerieScraperIT {
         assertThat(s.getTomeCount()).isGreaterThanOrEqualTo(38);
         assertThat(s.getSynopsys()).startsWith("Cette série regroupe");
         assertThat(s.getGraphicNovelSideList()).hasSizeGreaterThanOrEqualTo(38);
-        assertThat(s.getPictureThbUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_series/PlancheS_59.jpg");
-        assertThat(s.getPictureUrl()).isEqualTo("https://www.bedetheque.com/media/Planches/PlancheS_59.jpg");
+        assertThat(s.getPageExampleThumbnailUrl()).isEqualTo("http://localhost:8080/series/page-example/thumbs/0/PlancheS_59.jpg");
+        assertThat(s.getPageExampleUrl()).isEqualTo("http://localhost:8080/series/page-example/hd/0/PlancheS_59.jpg");
         assertThat(s.getCopyright()).isNotBlank();
         assertThat(s.getRatings().getCount()).isGreaterThan(389);
         assertThat(s.getRatings().getUrl()).isEqualTo("https://www.bedetheque.com/avis-59-BD-Asterix.html");
@@ -176,8 +232,8 @@ class SerieScraperIT {
         // Verify other series to read
         assertThat(s.getToReadSeries()).hasSize(14);
         for(ToReadSerie ts : s.getToReadSeries()) {
-            if (ts.getExternalId().equals("36874")) {
-                assertThat(ts.getExternalId()).isEqualTo("36874");
+            if (ts.getId().equals("36874")) {
+                assertThat(ts.getId()).isEqualTo("36874");
                 assertThat(ts.getTitle()).isEqualTo("Astérix (Collection Atlas - Les archives)");
                 assertThat(ts.getUrl()).isEqualTo("https://www.bedetheque.com/serie-36874-BD-Asterix-Collection-Atlas-Les-archives.html");
                 assertThat(ts.getCoverUrl()).isNotBlank();
@@ -186,8 +242,8 @@ class SerieScraperIT {
         }
         // Verify graphic novel side list
         for(GraphicNovelSideListItem g : s.getGraphicNovelSideList()) {
-            if (g.getExternalId().equals("106")) {
-                assertThat(g.getExternalId()).isEqualTo("106");
+            if (g.getId().equals("106")) {
+                assertThat(g.getId()).isEqualTo("106");
                 assertThat(g.getTome()).isEqualTo("32");
                 assertThat(g.getNumEdition()).isEqualTo("Pub");
                 assertThat(g.getTitle()).isEqualTo("Astérix et la rentrée gauloise");
@@ -211,8 +267,8 @@ class SerieScraperIT {
         // Test
         assertThat(sc).hasSizeGreaterThanOrEqualTo(38);
         for(GraphicNovel g : sc) {
-            if(g.getExternalId().equals("375114")) {
-                assertThat(g.getExternalId()).isEqualTo("375114");
+            if(g.getId().equals("375114")) {
+                assertThat(g.getId()).isEqualTo("375114");
                 assertThat(g.getTome()).isEqualTo("38");
                 assertThat(g.getNumEdition()).isNull();
                 assertThat(g.getTitle()).isEqualTo("La Fille de Vercingétorix");
@@ -229,17 +285,17 @@ class SerieScraperIT {
                 assertThat(g.getInfoEdition()).startsWith("Noté");
                 assertThat(g.getReeditionUrl()).isEqualTo("https://www.bedetheque.com/BD-Asterix-Tome-38-La-Fille-de-Vercingetorix-375114.html#reed");
                 assertThat(g.getExternalIdOriginalPublication()).isNull();
-                assertThat(g.getCoverThumbnailUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_couv/Couv_375114.jpg");
-                assertThat(g.getBackCoverPictureUrl()).isEqualTo("https://www.bedetheque.com/media/Versos/Verso_375114.jpg");
-                assertThat(g.getBackCoverThumbnailUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_versos/Verso_375114.jpg");
-                assertThat(g.getPagePictureUrl()).isEqualTo("https://www.bedetheque.com/media/Planches/PlancheA_375114.jpg");
-                assertThat(g.getPageThumbnailUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_planches/PlancheA_375114.jpg");
+                assertThat(g.getCoverThumbnailUrl()).isEqualTo("http://localhost:8080/media/graphic-novels/cover-front/thb/75/Couv_375114.jpg");
+                assertThat(g.getBackCoverOriginalUrl()).isEqualTo("https://www.bedetheque.com/media/Versos/Verso_375114.jpg");
+                assertThat(g.getBackCoverThumbnailOriginalUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_versos/Verso_375114.jpg");
+                assertThat(g.getPageExampleOriginalUrl()).isEqualTo("https://www.bedetheque.com/media/Planches/PlancheA_375114.jpg");
+                assertThat(g.getPageExampleThumbnailOriginalUrl()).isEqualTo("https://www.bedetheque.com/cache/thb_planches/PlancheA_375114.jpg");
 
                 // Verify authors
                 assertThat(g.getAuthors()).hasSize(3);
                 for(AuthorRole r : g.getAuthors()) {
-                    if(r.getExternalId().equals("6227")) {
-                        assertThat(r.getExternalId()).isEqualTo("6227");
+                    if(r.getId().equals("6227")) {
+                        assertThat(r.getId()).isEqualTo("6227");
                         assertThat(r.getRole()).isEqualTo("Scénario");
                         assertThat(r.getName()).isEqualTo("Ferri, Jean-Yves");
                         assertThat(r.getAuthorUrl()).isEqualTo("https://www.bedetheque.com/auteur-6227-BD-Ferri-Jean-Yves.html");

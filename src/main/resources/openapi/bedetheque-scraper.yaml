@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: 'bedetheque-scraper'
-  version: '1.0.2'
+  version: '1.0.4'
   description: 'An REST API for scraping data from https://www.bedetheque.com'
   contact:
     name: info@bedetheque-scraper
@@ -910,13 +910,31 @@ components:
           maxLength: 255
         otherAuthorPseudonym:
           $ref: '#/components/schemas/Author'
+        photoOriginalUrl:
+          type: string
+          description: The author's photo url.
+          maxLength: 255
         photoUrl:
           type: string
           description: The author's photo url.
           maxLength: 255
-        photoThbUrl:
+        photoAvailable:
+          type: boolean
+          description: A flag to verify if the author's photo url exists on local server.
+        photoPath:
           type: string
-          description: The author's photo thumbnail url.
+          description: The author's photo path on local server.
+          maxLength: 255
+        photoFilename:
+          type: string
+          description: The author's photo filename on local server.
+          maxLength: 255
+        photoFileSize:
+          type: number
+          description: The author's photo file size (in bytes) on local server.
+        photoTitle:
+          type: string
+          description: The author's photo title.
           maxLength: 255
         authorUrl:
           type: string
@@ -1018,10 +1036,28 @@ components:
           type: string
           description: The serie url at https://www.bedetheque.com.
           maxLength: 255
+        coverOriginalUrl:
+          type: string
+          description: The serie cover url at https://www.bedetheque.com.
+          maxLength: 255
         coverUrl:
           type: string
-          description: The serie cover url.
+          description: The serie cover url on local webapp.
           maxLength: 255
+        coverAvailable:
+          type: boolean
+          description: A flag to verify if the serie cover url exists on local server.
+        coverPath:
+          type: string
+          description: The serie cover path on local server.
+          maxLength: 255
+        coverFilename:
+          type: string
+          description: The serie cover filename on local server.
+          maxLength: 255
+        coverFileSize:
+          type: number
+          description: The serie cover file size (in bytes) on local server.
         coverTitle:
           type: string
           description: The serie cover title.
@@ -1030,7 +1066,7 @@ components:
       title: AuthorRole
       type: object
       properties:
-        externalId:
+        id:
           type: string
         role:
           type: string
@@ -1070,7 +1106,7 @@ components:
       title: GraphicNovel
       type: object
       properties:
-        externalId:
+        id:
           type: string
         tome:
           type: string
@@ -1114,18 +1150,162 @@ components:
           type: string
         externalIdOriginalPublication:
           type: string
-        coverPictureUrl:
+        coverOriginalUrl:
           type: string
+          description: The serie cover url at https://www.bedetheque.com.
+          maxLength: 255
+        coverUrl:
+          type: string
+          description: The serie cover url on local webapp.
+          maxLength: 255
+        coverAvailable:
+          type: boolean
+          description: A flag to verify if the serie cover url exists on local server.
+        coverPath:
+          type: string
+          description: The serie cover path on local server.
+          maxLength: 255
+        coverFilename:
+          type: string
+          description: The serie cover filename on local server.
+          maxLength: 255
+        coverFileSize:
+          type: number
+          description: The serie cover file size (in bytes) on local server.
+        coverTitle:
+          type: string
+          description: The serie cover title.
+          maxLength: 255
+        coverThumbnailOriginalUrl:
+          type: string
+          description: The serie cover thumbnail url at https://www.bedetheque.com.
+          maxLength: 255
         coverThumbnailUrl:
           type: string
-        backCoverPictureUrl:
+          description: The serie cover thumbnail url on local webapp.
+          maxLength: 255
+        coverThumbnailAvailable:
+          type: boolean
+          description: A flag to verify if the serie cover thumbnail url exists on local server.
+        coverThumbnailPath:
           type: string
+          description: The serie cover thumbnail path on local server.
+          maxLength: 255
+        coverThumbnailFilename:
+          type: string
+          description: The serie cover thumbnail filename on local server.
+          maxLength: 255
+        coverThumbnailFileSize:
+          type: number
+          description: The serie cover thumbnail file size (in bytes) on local server.
+        coverThumbnailTitle:
+          type: string
+          description: The serie thumbnail cover title.
+          maxLength: 255
+        backCoverOriginalUrl:
+          type: string
+          description: The serie back cover url at https://www.bedetheque.com.
+          maxLength: 255
+        backCoverUrl:
+          type: string
+          description: The serie back cover url on local webapp.
+          maxLength: 255
+        backCoverAvailable:
+          type: boolean
+          description: A flag to verify if the serie back cover url exists on local server.
+        backCoverPath:
+          type: string
+          description: The serie back cover path on local server.
+          maxLength: 255
+        backCoverFilename:
+          type: string
+          description: The serie back cover filename on local server.
+          maxLength: 255
+        backCoverFileSize:
+          type: number
+          description: The serie back cover file size (in bytes) on local server.
+        backCoverTitle:
+          type: string
+          description: The serie back cover title.
+          maxLength: 255
+        backCoverThumbnailOriginalUrl:
+          type: string
+          description: The serie back cover thumbnail url at https://www.bedetheque.com.
+          maxLength: 255
         backCoverThumbnailUrl:
           type: string
-        pagePictureUrl:
+          description: The serie back cover thumbnail url on local webapp.
+          maxLength: 255
+        backCoverThumbnailAvailable:
+          type: boolean
+          description: A flag to verify if the serie back cover thumbnail url exists on local server.
+        backCoverThumbnailPath:
           type: string
-        pageThumbnailUrl:
+          description: The serie back cover thumbnail path on local server.
+          maxLength: 255
+        backCoverThumbnailFilename:
           type: string
+          description: The serie back cover thumbnail filename on local server.
+          maxLength: 255
+        backCoverThumbnailFileSize:
+          type: number
+          description: The serie back cover thumbnail file size (in bytes) on local server.
+        backCoverThumbnailTitle:
+          type: string
+          description: The serie back cover thumbnail title.
+          maxLength: 255
+        pageExampleOriginalUrl:
+          type: string
+          description: The serie page example url at https://www.bedetheque.com.
+          maxLength: 255
+        pageExampleUrl:
+          type: string
+          description: The serie page example url on local webapp.
+          maxLength: 255
+        pageExampleAvailable:
+          type: boolean
+          description: A flag to verify if the serie page example url exists on local server.
+        pageExamplePath:
+          type: string
+          description: The serie page example path on local server.
+          maxLength: 255
+        pageExampleFilename:
+          type: string
+          description: The serie page example filename on local server.
+          maxLength: 255
+        pageExampleFileSize:
+          type: number
+          description: The serie page example file size (in bytes) on local server.
+        pageExampleTitle:
+          type: string
+          description: The serie page example title.
+          maxLength: 255
+        pageExampleThumbnailOriginalUrl:
+          type: string
+          description: The serie page example thumbnail url at https://www.bedetheque.com.
+          maxLength: 255
+        pageExampleThumbnailUrl:
+          type: string
+          description: The serie page example thumbnail url on local webapp.
+          maxLength: 255
+        pageExampleThumbnailAvailable:
+          type: boolean
+          description: A flag to verify if the serie page example thumbnail url exists on local server.
+        pageExampleThumbnailPath:
+          type: string
+          description: The serie page example thumbnail path on local server.
+          maxLength: 255
+        pageExampleThumbnailFilename:
+          type: string
+          description: The serie page example thumbnail filename on local server.
+          maxLength: 255
+        pageExampleThumbnailFileSize:
+          type: number
+          description: The serie page example thumbnail file size (in bytes) on local server.
+        pageExampleThumbnailTitle:
+          type: string
+          description: The serie page example thumbnail title.
+          maxLength: 255
         scrapUrl:
           type: string
         copyright:
@@ -1188,7 +1368,7 @@ components:
       title: SerieDetails
       type: object
       properties:
-        externalId:
+        id:
           type: string
         title:
           type: string
@@ -1202,10 +1382,58 @@ components:
           type: string
         synopsys:
           type: string
-        pictureUrl:
+        pageExampleOriginalUrl:
           type: string
-        pictureThbUrl:
+          description: The serie page example url at https://www.bedetheque.com.
+          maxLength: 255
+        pageExampleUrl:
           type: string
+          description: The serie page example url on local webapp.
+          maxLength: 255
+        pageExampleAvailable:
+          type: boolean
+          description: A flag to verify if the serie page example url exists on local server.
+        pageExamplePath:
+          type: string
+          description: The serie page example path on local server.
+          maxLength: 255
+        pageExampleFilename:
+          type: string
+          description: The serie page example filename on local server.
+          maxLength: 255
+        pageExampleFileSize:
+          type: number
+          description: The serie page example file size (in bytes) on local server.
+        pageExampleTitle:
+          type: string
+          description: The serie page example title.
+          maxLength: 255
+        pageExampleThumbnailOriginalUrl:
+          type: string
+          description: The serie page example thumbnail url at https://www.bedetheque.com.
+          maxLength: 255
+        pageExampleThumbnailUrl:
+          type: string
+          description: The serie page example thumbnail url on local webapp.
+          maxLength: 255
+        pageExampleThumbnailAvailable:
+          type: boolean
+          description: A flag to verify if the serie page example thumbnail url exists on local server.
+        pageExampleThumbnailPath:
+          type: string
+          description: The serie page example thumbnail path on local server.
+          maxLength: 255
+        pageExampleThumbnailFilename:
+          type: string
+          description: The serie page example thumbnail filename on local server.
+          maxLength: 255
+        pageExampleThumbnailFileSize:
+          type: number
+          description: The serie page example thumbnail file size (in bytes) on local server.
+        pageExampleThumbnailTitle:
+          type: string
+          description: The serie page example thumbnail title.
+          maxLength: 255
         scrapUrl:
           type: string
         graphicNovels:
@@ -1253,7 +1481,7 @@ components:
       type: object
       description: Associate serie
       properties:
-        externalId:
+        id:
           type: string
         title:
           type: string
@@ -1290,23 +1518,45 @@ components:
       title: ToReadSerie
       type: object
       properties:
-        externalId:
+        id:
           type: string
         title:
           type: string
         url:
           type: string
+        coverOriginalUrl:
+          type: string
+          description: The serie cover url at https://www.bedetheque.com.
+          maxLength: 255
         coverUrl:
           type: string
+          description: The serie cover url on local webapp.
+          maxLength: 255
+        coverAvailable:
+          type: boolean
+          description: A flag to verify if the serie cover url exists on local server.
+        coverPath:
+          type: string
+          description: The serie cover path on local server.
+          maxLength: 255
+        coverFilename:
+          type: string
+          description: The serie cover filename on local server.
+          maxLength: 255
+        coverFileSize:
+          type: number
+          description: The serie cover file size (in bytes) on local server.
         coverTitle:
           type: string
+          description: The serie cover title.
+          maxLength: 255
       x-tags:
         - serie
     GraphicNovelSideListItem:
       title: GraphicNovelSideListItem
       type: object
       properties:
-        externalId:
+        id:
           type: string
         tome:
           type: string
@@ -1634,10 +1884,58 @@ components:
           type: string
         graphicNovelUrl:
           type: string
-        frontCoverThumbnailUrl:
+        coverOriginalUrl:
           type: string
-        frontCoverHdUrl:
+          description: The serie cover url at https://www.bedetheque.com.
+          maxLength: 255
+        coverUrl:
           type: string
+          description: The serie cover url on local webapp.
+          maxLength: 255
+        coverAvailable:
+          type: boolean
+          description: A flag to verify if the serie cover url exists on local server.
+        coverPath:
+          type: string
+          description: The serie cover path on local server.
+          maxLength: 255
+        coverFilename:
+          type: string
+          description: The serie cover filename on local server.
+          maxLength: 255
+        coverFileSize:
+          type: number
+          description: The serie cover file size (in bytes) on local server.
+        coverTitle:
+          type: string
+          description: The serie cover title.
+          maxLength: 255
+        coverThumbnailOriginalUrl:
+          type: string
+          description: The serie cover thumbnail url at https://www.bedetheque.com.
+          maxLength: 255
+        coverThumbnailUrl:
+          type: string
+          description: The serie cover thumbnail url on local webapp.
+          maxLength: 255
+        coverThumbnailAvailable:
+          type: boolean
+          description: A flag to verify if the serie cover thumbnail url exists on local server.
+        coverThumbnailPath:
+          type: string
+          description: The serie cover thumbnail path on local server.
+          maxLength: 255
+        coverThumbnailFilename:
+          type: string
+          description: The serie cover thumbnail filename on local server.
+          maxLength: 255
+        coverThumbnailFileSize:
+          type: number
+          description: The serie cover thumbnail file size (in bytes) on local server.
+        coverThumbnailTitle:
+          type: string
+          description: The serie thumbnail cover title.
+          maxLength: 255
         publisher:
           type: string
         publicationDate:

@@ -17,6 +17,12 @@ public class TechnicalException extends RuntimeException {
         this.httpStatus = HttpStatus.BAD_REQUEST;
     }
 
+    public TechnicalException(String codeMessage, Object[] args) {
+        this.codeMessage = codeMessage;
+        this.args = args;
+        this.httpStatus = HttpStatus.BAD_REQUEST;
+    }
+
     public TechnicalException(String codeMessage, Throwable cause, Object[] args) {
         super(codeMessage, cause);
         this.codeMessage = codeMessage;
