@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: 'bedetheque-scraper'
-  version: '1.0.3'
+  version: '1.0.4'
   description: 'An REST API for scraping data from https://www.bedetheque.com'
   contact:
     name: info@bedetheque-scraper
@@ -1884,10 +1884,58 @@ components:
           type: string
         graphicNovelUrl:
           type: string
-        frontCoverThumbnailUrl:
+        coverOriginalUrl:
           type: string
-        frontCoverHdUrl:
+          description: The serie cover url at https://www.bedetheque.com.
+          maxLength: 255
+        coverUrl:
           type: string
+          description: The serie cover url on local webapp.
+          maxLength: 255
+        coverAvailable:
+          type: boolean
+          description: A flag to verify if the serie cover url exists on local server.
+        coverPath:
+          type: string
+          description: The serie cover path on local server.
+          maxLength: 255
+        coverFilename:
+          type: string
+          description: The serie cover filename on local server.
+          maxLength: 255
+        coverFileSize:
+          type: number
+          description: The serie cover file size (in bytes) on local server.
+        coverTitle:
+          type: string
+          description: The serie cover title.
+          maxLength: 255
+        coverThumbnailOriginalUrl:
+          type: string
+          description: The serie cover thumbnail url at https://www.bedetheque.com.
+          maxLength: 255
+        coverThumbnailUrl:
+          type: string
+          description: The serie cover thumbnail url on local webapp.
+          maxLength: 255
+        coverThumbnailAvailable:
+          type: boolean
+          description: A flag to verify if the serie cover thumbnail url exists on local server.
+        coverThumbnailPath:
+          type: string
+          description: The serie cover thumbnail path on local server.
+          maxLength: 255
+        coverThumbnailFilename:
+          type: string
+          description: The serie cover thumbnail filename on local server.
+          maxLength: 255
+        coverThumbnailFileSize:
+          type: number
+          description: The serie cover thumbnail file size (in bytes) on local server.
+        coverThumbnailTitle:
+          type: string
+          description: The serie thumbnail cover title.
+          maxLength: 255
         publisher:
           type: string
         publicationDate:
