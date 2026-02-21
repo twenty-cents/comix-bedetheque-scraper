@@ -8,9 +8,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.nio.file.Path;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -60,13 +64,25 @@ class GlobalStatisticsScraperTest {
         </html>
         """;
 
+    @TempDir
+    Path tempDir;
+
     @BeforeEach
     void setUp() {
+        String outputCoverFrontHdDirectory = tempDir.resolve("graphic-novels/cover-front/hd").toString();
+        String outputCoverFrontThumbnailDirectory = tempDir.resolve("graphic-novels/cover-front/thb").toString();
+
         scraper = new GlobalStatisticsScraper();
         // Injection manuelle des dépendances @Value
         scraper.setBedethequeUrl("https://test.com");
         scraper.setLatency(0L);
         scraper.setLocalCacheActive(false);
+
+        ReflectionTestUtils.setField(scraper, "httpCoverFrontHdDirectory", "http://localhost:8080/media/graphic-novels/cover-front/hd/");
+        ReflectionTestUtils.setField(scraper, "httpCoverFrontThumbDirectory", "http://localhost:8080/media/graphic-novels/cover-front/thb/");
+        ReflectionTestUtils.setField(scraper, "outputCoverFrontHdDirectory", outputCoverFrontHdDirectory);
+        ReflectionTestUtils.setField(scraper, "outputCoverFrontThumbDirectory", outputCoverFrontThumbnailDirectory);
+        ReflectionTestUtils.setField(scraper, "hashedDirectoryStep", 5000);
         // Les valeurs pour le téléchargement ne sont pas nécessaires pour la plupart des tests,
         // mais sont requises pour le test avec cache actif.
     }
@@ -159,9 +175,6 @@ class GlobalStatisticsScraperTest {
             scraperSpy.setLocalCacheActive(true); // Activation du cache
             Document doc = Jsoup.parse(fullHtml);
 
-            // On stub la méthode de téléchargement pour qu'elle ne fasse rien mais puisse être vérifiée
-            doReturn("local/path/image.jpg").when(scraperSpy).downloadMedia(any(), any(), any(), any(), any());
-
             try (MockedStatic<GenericScraperSingleton> mockedSingleton = Mockito.mockStatic(GenericScraperSingleton.class);
                  MockedStatic<GraphicNovelScraper> mockedGnScraper = Mockito.mockStatic(GraphicNovelScraper.class)) {
 
@@ -175,7 +188,8 @@ class GlobalStatisticsScraperTest {
 
                 // THEN: On vérifie que le téléchargement a été tenté pour chaque image trouvée
                 // 1 (principale) + 1 (nouveauté) + 1 (dernier ajout) = 3 images
-                verify(scraperSpy, times(3)).downloadMedia(any(), any(), anyString(), any(), any());
+                verify(scraperSpy, times(1)).downloadCover(any());
+                verify(scraperSpy, times(2)).downloadCoverThumbnail(any());
             }
         }
     }

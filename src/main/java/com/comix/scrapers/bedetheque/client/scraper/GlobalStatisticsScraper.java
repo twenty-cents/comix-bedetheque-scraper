@@ -2,8 +2,10 @@ package com.comix.scrapers.bedetheque.client.scraper;
 
 import com.comix.scrapers.bedetheque.client.model.statistics.GlobalStatistics;
 import com.comix.scrapers.bedetheque.client.model.statistics.LastEntry;
+import com.comix.scrapers.bedetheque.exception.TechnicalException;
 import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.jsoup.nodes.Document;
@@ -15,12 +17,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class GlobalStatisticsScraper extends GenericScraper {
 
     @Setter
     @Value("${bedetheque.url.home}")
     private String bedethequeUrl;
+
+    // HD medias
+    @Value("${application.downloads.graphic-novels.cover-front.hd}")
+    private String outputCoverFrontHdDirectory;
+
+    @Value("${application.http.medias.graphic-novels.cover-front.hd}")
+    private String httpCoverFrontHdDirectory;
 
     // Thumbnails medias
     @Value("${application.downloads.graphic-novels.cover-front.thumbs}")
@@ -108,9 +118,6 @@ public class GlobalStatisticsScraper extends GenericScraper {
 
             // Scrap synopsys
             synopsys = scrapLastEntrySynopsys(blocDescription);
-
-            // Download all thumbs in the local server
-            frontCoverHdUrl = scrapLastEntryFrontCoverHdUrl(frontCoverHdUrl, GraphicNovelScraper.scrapIdFromUrl(graphicNovelUrl));
         }
 
         LastEntry lastEntry = new LastEntry();
@@ -119,10 +126,25 @@ public class GlobalStatisticsScraper extends GenericScraper {
         lastEntry.setTitle(title);
         lastEntry.setSerieTitle(serieTitle);
         lastEntry.setGraphicNovelUrl(graphicNovelUrl);
-        lastEntry.setFrontCoverHdUrl(frontCoverHdUrl);
+        lastEntry.setCoverOriginalUrl(frontCoverHdUrl);
         lastEntry.setPublisher(publisher);
         lastEntry.setPublicationDate(publicationDate);
         lastEntry.setSynopsys(synopsys);
+
+        // Cover
+        if(!StringUtils.isBlank(lastEntry.getCoverOriginalUrl())) {
+            lastEntry.setCoverFilename(getMediaFilename(lastEntry.getCoverOriginalUrl()));
+            lastEntry.setCoverUrl(getHashedOutputMediaUrl(lastEntry.getCoverOriginalUrl(), httpCoverFrontHdDirectory, lastEntry.getId()));
+            lastEntry.setCoverPath(getHashedOutputMediaPath(lastEntry.getCoverOriginalUrl(), outputCoverFrontHdDirectory, lastEntry.getId()));
+            lastEntry.setCoverAvailable(false);
+            lastEntry.setCoverFileSize(0L);
+        }
+
+        // Download all thumbs in the local server
+        if (isLocalCacheActive) {
+            downloadCover(lastEntry);
+        }
+
         optionalLastEntry = Optional.of(lastEntry);
 
         return optionalLastEntry;
@@ -162,20 +184,6 @@ public class GlobalStatisticsScraper extends GenericScraper {
         return synopsys;
     }
 
-    /**
-     * Scrap Last entry front cover HD url
-     *
-     * @param frontCoverHdUrl the front cover HD url to scrap
-     * @param id the graphic novel id
-     * @return a front cover HD url if exists
-     */
-    private String scrapLastEntryFrontCoverHdUrl(String frontCoverHdUrl, String id) {
-        if (isLocalCacheActive) {
-            frontCoverHdUrl = downloadThumb(frontCoverHdUrl, id);
-        }
-        return frontCoverHdUrl;
-    }
-
     private LastEntry scrapNew(Element li) {
         String graphicNovelUrl = bedethequeUrl + "/" + attr(li.selectFirst("a"), HTML.Attribute.HREF);
         String frontCoverThumbnailUrl = bedethequeUrl + "/" + attr(li.selectFirst("img"), HTML.Attribute.SRC);
@@ -201,10 +209,6 @@ public class GlobalStatisticsScraper extends GenericScraper {
         } else {
             tome = null;
         }
-        // Download all thumbs in the local server
-        if (isLocalCacheActive) {
-            frontCoverThumbnailUrl = downloadThumb(frontCoverThumbnailUrl, GraphicNovelScraper.scrapIdFromUrl(graphicNovelUrl));
-        }
 
         LastEntry lastEntry = new LastEntry();
         lastEntry.setId(GraphicNovelScraper.scrapIdFromUrl(graphicNovelUrl));
@@ -212,8 +216,22 @@ public class GlobalStatisticsScraper extends GenericScraper {
         lastEntry.setTitle(title);
         lastEntry.setSerieTitle(serieTitle);
         lastEntry.setGraphicNovelUrl(graphicNovelUrl);
-        lastEntry.setFrontCoverThumbnailUrl(frontCoverThumbnailUrl);
+        lastEntry.setCoverThumbnailOriginalUrl(frontCoverThumbnailUrl);
         lastEntry.setPublisher(publisher);
+
+        // Cover thumbnail
+        if(!StringUtils.isBlank(lastEntry.getCoverThumbnailOriginalUrl())) {
+            lastEntry.setCoverThumbnailFilename(getMediaFilename(lastEntry.getCoverThumbnailOriginalUrl()));
+            lastEntry.setCoverThumbnailUrl(getHashedOutputMediaUrl(lastEntry.getCoverThumbnailOriginalUrl(), httpCoverFrontThumbDirectory, lastEntry.getId()));
+            lastEntry.setCoverThumbnailPath(getHashedOutputMediaPath(lastEntry.getCoverThumbnailOriginalUrl(), outputCoverFrontThumbDirectory, lastEntry.getId()));
+            lastEntry.setCoverThumbnailAvailable(false);
+            lastEntry.setCoverThumbnailFileSize(0L);
+        }
+
+        // Download all thumbs in the local server
+        if (isLocalCacheActive) {
+            downloadCoverThumbnail(lastEntry);
+        }
 
         return lastEntry;
     }
@@ -236,18 +254,67 @@ public class GlobalStatisticsScraper extends GenericScraper {
             tome = StringUtils.substring(tome, 6).trim();
         }
         String id = GraphicNovelScraper.scrapIdFromUrl(graphicNovelUrl);
-        // Download all thumbs in the local server
-        if (isLocalCacheActive) {
-            frontCoverThumbnailUrl = downloadThumb(frontCoverThumbnailUrl, id);
-        }
 
         LastEntry lastEntry = new LastEntry();
         lastEntry.setId(id);
         lastEntry.setSerieTitle(title);
         lastEntry.setTome(tome);
         lastEntry.setGraphicNovelUrl(graphicNovelUrl);
-        lastEntry.setFrontCoverThumbnailUrl(frontCoverThumbnailUrl);
+        lastEntry.setCoverThumbnailOriginalUrl(frontCoverThumbnailUrl);
+
+        // Cover thumbnail
+        if(!StringUtils.isBlank(lastEntry.getCoverThumbnailOriginalUrl())) {
+            lastEntry.setCoverThumbnailFilename(getMediaFilename(lastEntry.getCoverThumbnailOriginalUrl()));
+            lastEntry.setCoverThumbnailUrl(getHashedOutputMediaUrl(lastEntry.getCoverThumbnailOriginalUrl(), httpCoverFrontThumbDirectory, lastEntry.getId()));
+            lastEntry.setCoverThumbnailPath(getHashedOutputMediaPath(lastEntry.getCoverThumbnailOriginalUrl(), outputCoverFrontThumbDirectory, lastEntry.getId()));
+            lastEntry.setCoverThumbnailAvailable(false);
+            lastEntry.setCoverThumbnailFileSize(0L);
+        }
+
+        // Download all thumbs in the local server
+        if (isLocalCacheActive) {
+            downloadCoverThumbnail(lastEntry);
+        }
+
         return lastEntry;
+    }
+
+    /**
+     * Download the graphic novel cover
+     *
+     * @param lastEntry the graphic novel
+     */
+    void downloadCover(LastEntry lastEntry) {
+        if (!StringUtils.isBlank(lastEntry.getCoverOriginalUrl())) {
+            try {
+                download(lastEntry.getCoverOriginalUrl(), lastEntry.getCoverPath());
+                lastEntry.setCoverAvailable(true);
+                lastEntry.setCoverFileSize(getMediaSize(lastEntry.getCoverPath()));
+            } catch (TechnicalException e) {
+                lastEntry.setCoverAvailable(false);
+                lastEntry.setCoverFileSize(0L);
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Download the graphic novel cover thumbnail
+     *
+     * @param lastEntry the graphic novel
+     */
+    void downloadCoverThumbnail(LastEntry lastEntry) {
+        if (!StringUtils.isBlank(lastEntry.getCoverThumbnailOriginalUrl())) {
+            try {
+                download(lastEntry.getCoverThumbnailOriginalUrl(), lastEntry.getCoverThumbnailPath());
+                lastEntry.setCoverThumbnailAvailable(true);
+                lastEntry.setCoverThumbnailFileSize(getMediaSize(lastEntry.getCoverThumbnailPath()));
+            } catch (TechnicalException e) {
+                lastEntry.setCoverThumbnailAvailable(false);
+                lastEntry.setCoverThumbnailFileSize(0L);
+                log.error(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -264,13 +331,5 @@ public class GlobalStatisticsScraper extends GenericScraper {
             return Integer.parseInt(StringUtils.deleteWhitespace(res));
         }
         return Integer.getInteger("0");
-    }
-
-    private String downloadThumb(String frontCoverThumbnail, String id) {
-        if (frontCoverThumbnail.compareTo("") > 0) {
-            frontCoverThumbnail = downloadMedia(outputCoverFrontThumbDirectory, httpCoverFrontThumbDirectory,
-                    frontCoverThumbnail, httpDefaultMediaFilename, id);
-        }
-        return frontCoverThumbnail;
     }
 }
