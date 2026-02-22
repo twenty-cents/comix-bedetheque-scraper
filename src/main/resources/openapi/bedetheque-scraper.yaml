@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: 'bedetheque-scraper'
-  version: '1.0.4'
+  version: '1.0.5'
   description: 'An REST API for scraping data from https://www.bedetheque.com'
   contact:
     name: info@bedetheque-scraper
@@ -707,6 +707,62 @@ paths:
               examples:
                 RatingsResponseExample:
                   $ref: '#/components/examples/RatingsResponseExample'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                ApiError400Example:
+                  $ref: '#/components/examples/ApiError400Example'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                ApiError500Example:
+                  $ref: '#/components/examples/ApiError500Example'
+
+  '/medias/{id}':
+    parameters:
+      - schema:
+          type: string
+          maxLength: 35
+        name: id
+        in: path
+        required: true
+        description: The media id at https://www.bedetheque.com
+    get:
+      summary: Scrap media from https://www.bedetheque.com
+      operationId: scrapMedia
+      description: Scrap media from https://www.bedetheque.com
+      tags:
+        - medias
+      parameters:
+        - schema:
+            $ref: '#/components/schemas/MediaType'
+          in: query
+          name: type
+          description: |-
+            The action to execute.
+          required: true
+        - schema:
+            type: string
+            maxLength: 255
+          in: header
+          name: url
+          description: The media url at https://www.bedetheque.com
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
         '400':
           description: Bad Request
           content:
@@ -1967,6 +2023,55 @@ components:
         comment:
           type: string
       description: ''
+    Media:
+      title: Media
+      type: object
+      properties:
+        id:
+          type: string
+          description: The media id at https://www.bedetheque.com.
+          maxLength: 35
+        Type:
+          $ref: '#/components/schemas/MediaType'
+        OriginalUrl:
+          type: string
+          description: The media url at https://www.bedetheque.com.
+          maxLength: 255
+        Url:
+          type: string
+          description: The media url on local webapp.
+          maxLength: 255
+        Available:
+          type: boolean
+          description: A flag to verify if the media url exists on local server.
+        Path:
+          type: string
+          description: The media path on local server.
+          maxLength: 255
+        Filename:
+          type: string
+          description: The media filename on local server.
+          maxLength: 255
+        FileSize:
+          type: number
+          description: The media file size (in bytes) on local server.
+        Title:
+          type: string
+          description: The media title.
+          maxLength: 255
+    MediaType:
+      type: string
+      enum:
+        - SERIE_COVER_THUMBNAIL
+        - SERIE_EXAMPLE_PAGE
+        - SERIE_EXAMPLE_PAGE_THUMBNAIL
+        - COMIC_BOOK_COVER
+        - COMIC_BOOK_COVER_THUMBNAIL
+        - COMIC_BOOK_BACKCOVER
+        - COMIC_BOOK_BACKCOVER_THUMBNAIL
+        - COMIC_BOOK_EXAMPLE_PAGE
+        - COMIC_BOOK_EXAMPLE_PAGE_THUMBNAIL
+        - AUTHOR_PHOTO
   examples:
     ApiError400Example:
       summary: ApiError 4XX
