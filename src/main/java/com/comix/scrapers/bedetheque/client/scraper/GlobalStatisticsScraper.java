@@ -226,6 +226,7 @@ public class GlobalStatisticsScraper extends GenericScraper {
             lastEntry.setCoverThumbnailPath(getHashedOutputMediaPath(lastEntry.getCoverThumbnailOriginalUrl(), outputCoverFrontThumbDirectory, lastEntry.getId()));
             lastEntry.setCoverThumbnailAvailable(false);
             lastEntry.setCoverThumbnailFileSize(0L);
+            lastEntry.setCoverTitle(lastEntry.getTitle());
         }
 
         // Download all thumbs in the local server
