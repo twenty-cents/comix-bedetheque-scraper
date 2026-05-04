@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.comix.scrapers</groupId>
     <artifactId>comix-bedetheque-scraper</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>comix-bedetheque-scraper</name>
     <description>An API for scraping metadata from https://www.bedetheque.com</description>
     <url/>
@@ -45,9 +45,13 @@
         <openapi-generator.version>7.12.0</openapi-generator.version>
         <openapi-generator-maven-plugin.version>7.12.0</openapi-generator-maven-plugin.version>
         <maven-compiler-plugin.version>3.9.0</maven-compiler-plugin.version>
+        <!-- argLine is used by Surefire and Failsafe for JVM arguments -->
         <argLine>
             -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
             -Xshare:off
+            -Ddocker.api.version=1.40
+            -Dapi.version=1.40
+            -Dtestcontainers.reuse.enable=true
         </argLine>
     </properties>
 
@@ -281,6 +285,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
@@ -301,13 +311,6 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers-bom</artifactId>
-                <version>1.19.8</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -366,11 +369,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- no argLine here -->
-                    <!-- Exclut les tests d'intégration du cycle des tests unitaires -->
+                    <!-- Reference the property defined above -->
+                    <argLine>${argLine}</argLine>
                     <excludes>
                         <exclude>**/*IT.java</exclude>
                     </excludes>
+                    <environmentVariables>
+                        <DOCKER_API_VERSION>1.40</DOCKER_API_VERSION>
+                    </environmentVariables>
                 </configuration>
             </plugin>
 
@@ -400,6 +406,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.2.5</version>
+                <configuration>
+                    <!-- Ensure integration tests use the same JVM fixes as unit tests -->
+                    <argLine>${argLine}</argLine>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <environmentVariables>
+                        <DOCKER_API_VERSION>1.40</DOCKER_API_VERSION>
+                    </environmentVariables>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -408,12 +424,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <!-- Indique au plugin quels tests exécuter -->
-                    <includes>
-                        <include>**/*IT.java</include>
-                    </includes>
-                </configuration>
             </plugin>
 
             <plugin>

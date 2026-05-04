@@ -1,6 +1,7 @@
 package com.comix.scrapers.bedetheque.rest.controller;
 
-import com.comix.scrapers.bedetheque.exception.BusinessException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
+import com.comix.scrapers.bedetheque.exception.ErrorCode;
 import com.comix.scrapers.bedetheque.rest.v1.dto.SerieDetailsDto;
 import com.comix.scrapers.bedetheque.rest.v1.dto.SeriesByLetterResponseDto;
 import com.comix.scrapers.bedetheque.rest.v1.dto.SeriesResponseDto;
@@ -82,8 +83,8 @@ class SerieControllerTest {
 
         // WHEN & THEN
         assertThatThrownBy(() -> serieController.scrapSeries(unsupportedAction, null))
-                .isInstanceOf(BusinessException.class)
-                .hasFieldOrPropertyWithValue("codeMessage", "UNSUPPORTED_ACTION");
+                .isInstanceOf(BedethequeScraperException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNSUPPORTED_ACTION);
 
         verifyNoInteractions(serieService);
     }
@@ -93,8 +94,8 @@ class SerieControllerTest {
     void scrapSeries_withByLetterActionAndMissingLetter_shouldThrowBusinessException() {
         // WHEN & THEN
         assertThatThrownBy(() -> serieController.scrapSeries(SCRAP_SERIES_URLS_BY_LETTER, null))
-                .isInstanceOf(BusinessException.class)
-                .hasFieldOrPropertyWithValue("codeMessage", "LETTER_NOT_FOUND");
+                .isInstanceOf(BedethequeScraperException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.LETTER_NOT_FOUND);
 
         verifyNoInteractions(serieService);
     }

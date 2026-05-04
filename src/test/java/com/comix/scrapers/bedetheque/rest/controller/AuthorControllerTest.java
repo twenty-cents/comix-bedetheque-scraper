@@ -1,6 +1,7 @@
 package com.comix.scrapers.bedetheque.rest.controller;
 
-import com.comix.scrapers.bedetheque.exception.BusinessException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
+import com.comix.scrapers.bedetheque.exception.ErrorCode;
 import com.comix.scrapers.bedetheque.rest.v1.dto.*;
 import com.comix.scrapers.bedetheque.service.AuthorService;
 import org.junit.jupiter.api.DisplayName;
@@ -83,8 +84,8 @@ class AuthorControllerTest {
 
         // WHEN & THEN
         assertThatThrownBy(() -> authorController.scrapAuthors(unsupportedAction, null))
-                .isInstanceOf(BusinessException.class)
-                .hasFieldOrPropertyWithValue("codeMessage", "UNSUPPORTED_ACTION");
+                .isInstanceOf(BedethequeScraperException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNSUPPORTED_ACTION);
 
         verify(authorService, never()).scrapAuthorsIndexes();
         verify(authorService, never()).scrapAuthorsIndexedByLetter(anyString());
@@ -96,8 +97,8 @@ class AuthorControllerTest {
         // GIVEN
         // WHEN & THEN
         assertThatThrownBy(() -> authorController.scrapAuthors(SCRAP_AUTHORS_URLS_BY_LETTER, null))
-                .isInstanceOf(BusinessException.class)
-                .hasFieldOrPropertyWithValue("codeMessage", "LETTER_NOT_FOUND");
+                .isInstanceOf(BedethequeScraperException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.LETTER_NOT_FOUND);
 
         verify(authorService, never()).scrapAuthorsIndexes();
         verify(authorService, never()).scrapAuthorsIndexedByLetter(anyString());

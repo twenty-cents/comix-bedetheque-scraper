@@ -3,7 +3,7 @@ package com.comix.scrapers.bedetheque.client.scraper;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovel;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovelSideListItem;
 import com.comix.scrapers.bedetheque.client.model.serie.*;
-import com.comix.scrapers.bedetheque.exception.TechnicalException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
 import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -208,7 +208,7 @@ public class SerieScraper extends GenericScraper {
                     download(s.getCoverOriginalUrl(), s.getCoverPath());
                     s.setCoverAvailable(true);
                     s.setCoverFileSize(getMediaSize(s.getCoverPath()));
-                } catch (TechnicalException e) {
+                } catch (BedethequeScraperException e) {
                     s.setCoverAvailable(false);
                     s.setCoverFileSize(0L);
                     log.error(e.getMessage(), e);
@@ -227,7 +227,7 @@ public class SerieScraper extends GenericScraper {
                 download(serieDetails.getPageExampleThumbnailOriginalUrl(), serieDetails.getPageExampleThumbnailPath());
                 serieDetails.setPageExampleThumbnailAvailable(true);
                 serieDetails.setPageExampleThumbnailFileSize(getMediaSize(serieDetails.getPageExampleThumbnailPath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 serieDetails.setPageExampleThumbnailAvailable(false);
                 serieDetails.setPageExampleThumbnailFileSize(0L);
                 log.error(e.getMessage(), e);
@@ -245,7 +245,7 @@ public class SerieScraper extends GenericScraper {
                 download(serieDetails.getPageExampleOriginalUrl(), serieDetails.getPageExamplePath());
                 serieDetails.setPageExampleAvailable(true);
                 serieDetails.setPageExampleFileSize(getMediaSize(serieDetails.getPageExamplePath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 serieDetails.setPageExampleAvailable(false);
                 serieDetails.setPageExampleFileSize(0L);
                 log.error(e.getMessage(), e);

@@ -1,6 +1,7 @@
 package com.comix.scrapers.bedetheque.rest.controller;
 
-import com.comix.scrapers.bedetheque.exception.BusinessException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
+import com.comix.scrapers.bedetheque.exception.ErrorCode;
 import com.comix.scrapers.bedetheque.rest.v1.api.SeriesApi;
 import com.comix.scrapers.bedetheque.rest.v1.dto.SerieDetailsDto;
 import com.comix.scrapers.bedetheque.rest.v1.dto.SeriesResponseDto;
@@ -38,12 +39,12 @@ public class SerieController implements V1Controller, SeriesApi {
     public ResponseEntity<SeriesResponseDto> scrapSeries(String action, String letter) {
         // Check if the action is available
         if (!(action.equals(SCRAP_SERIES_URLS_BY_LETTER) || action.equals(SCRAP_SERIES_URLS_INDEXES))) {
-            throw new BusinessException("UNSUPPORTED_ACTION", new Object[]{action});
+            throw new BedethequeScraperException(ErrorCode.UNSUPPORTED_ACTION, new Object[]{action});
         }
 
         // Check if a letter is provided if the action is scrap the list of all series starting with a given letter
         if (action.equals(SCRAP_SERIES_URLS_BY_LETTER) && letter == null) {
-            throw new BusinessException("LETTER_NOT_FOUND", new Object[]{action});
+            throw new BedethequeScraperException(ErrorCode.LETTER_NOT_FOUND, new Object[]{action});
         }
 
         return switch (action) {
@@ -59,7 +60,7 @@ public class SerieController implements V1Controller, SeriesApi {
                         .status(HttpStatus.OK)
                         .body(serieService.scrapSeriesIndexedByLetter(letter));
             }
-            default -> throw new BusinessException("UNSUPPORTED_ACTION", new Object[]{action});
+            default -> throw new BedethequeScraperException(ErrorCode.UNSUPPORTED_ACTION, new Object[]{action});
         };
     }
 

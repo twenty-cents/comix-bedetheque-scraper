@@ -1,29 +1,31 @@
 package com.comix.scrapers.bedetheque.config;
 
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
+/**
+ * Base class for integration tests that require a PostgreSQL Docker container.
+ * Uses @ServiceConnection to automatically configure Spring Data JPA properties.
+ */
 @Testcontainers
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public abstract class AbstractIntegrationTest {
 
-    @Container
-    private static final PostgreSQLContainer<?> postgresqlContainer =
-            new PostgreSQLContainer<>("postgres:15-alpine")
-                    .withDatabaseName("testdb")
-                    .withUsername("testuser")
-                    .withPassword("testpass");
-
     /**
-     * Dynamically sets the datasource properties for Spring Boot to connect to the Testcontainer.
-     * @param registry The dynamic property registry.
+     * Using a static container without @Container and @Testcontainers 
+     * allows for "Singleton Container" pattern, which is significantly faster 
+     * as the database starts once for the entire test suite.
      */
-    @DynamicPropertySource
-    static void setDatasourceProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgresqlContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgresqlContainer::getUsername);
-        registry.add("spring.datasource.password", postgresqlContainer::getPassword);
+    @ServiceConnection
+    protected static final PostgreSQLContainer<?> postgresqlContainer =
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"))
+                    .withReuse(true);
+
+    static {
+        // Start the container manually to ensure it's ready before Spring context initializes
+        postgresqlContainer.start();
     }
 }

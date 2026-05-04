@@ -1,7 +1,7 @@
 package com.comix.scrapers.bedetheque.client.scraper;
 
-import com.comix.scrapers.bedetheque.exception.BusinessException;
-import com.comix.scrapers.bedetheque.exception.TechnicalException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
+import com.comix.scrapers.bedetheque.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +22,6 @@ import java.util.Set;
 @Slf4j
 public class GenericScraper extends Scraper {
 
-    public static final String ERR_SCR_002 = "ERR-SCR-002";
     public static final String HTML_EXTENSION = ".html";
 
     @Value("${application.downloads.localcache.hashed-directory-step:5000}")
@@ -85,19 +84,21 @@ public class GenericScraper extends Scraper {
         return size;
     }
 
-    protected void download(String originalMediaUrl, String hashedOutputMediaPath) throws TechnicalException {
+    protected void download(String originalMediaUrl, String hashedOutputMediaPath) throws BedethequeScraperException {
         // Check if the media has been already downloaded
         var f = new File(hashedOutputMediaPath);
         if (!f.exists()) {
             try {
                 boolean isCreated = f.createNewFile();
                 if (!isCreated) {
-                    log.debug("Can't create file for an unknown reason : {}", hashedOutputMediaPath);
-                    throw new TechnicalException(ERR_SCR_002, new Object[]{hashedOutputMediaPath});
+                    String message = "Can't create file for an unknown reason : " + hashedOutputMediaPath;
+                    log.debug(message);
+                    throw new BedethequeScraperException(ErrorCode.AUTOCOMPLETE_SCRAPING_ERROR, message, new Object[]{hashedOutputMediaPath});
                 }
             } catch (IOException e) {
-                log.debug("Can't create file : {}", hashedOutputMediaPath);
-                throw new TechnicalException(ERR_SCR_002, e, new Object[]{hashedOutputMediaPath});
+                String message = "Can't create the file : " + hashedOutputMediaPath;
+                log.debug(message);
+                throw new BedethequeScraperException(ErrorCode.AUTOCOMPLETE_SCRAPING_ERROR, message, new Object[]{hashedOutputMediaPath});
             }
         } else {
             return;
@@ -134,17 +135,21 @@ public class GenericScraper extends Scraper {
             output.writeTo(fos);
             log.info("Resource {} saved to {}", originalMediaUrl, hashedOutputMediaPath);
         } catch (FileNotFoundException e) {
-            log.debug("HTML resource not found : {}", originalMediaUrl);
-            throw new TechnicalException("ERR-SCR-003", e, new Object[]{originalMediaUrl});
+            String message = "HTML resource not found : " + originalMediaUrl;
+            log.debug(message);
+            throw new BedethequeScraperException(ErrorCode.MEDIA_RESOURCE_NOT_FOUND, message, e, new Object[]{originalMediaUrl});
         } catch (FileAlreadyExistsException e2) {
-            log.debug("File already exists : {}", originalMediaUrl);
-            throw new TechnicalException("ERR-SCR-004", e2, new Object[]{originalMediaUrl});
+            String message = "File already exists : " + originalMediaUrl;
+            log.debug(message);
+            throw new BedethequeScraperException(ErrorCode.MEDIA_RESOURCE_ALREADY_EXISTS, message, e2, new Object[]{originalMediaUrl});
         } catch (URISyntaxException e) {
-            log.debug("Failed to read html : {}", originalMediaUrl);
-            throw new TechnicalException("ERR-SCR-005", e, new Object[]{originalMediaUrl});
+            String message = "Failed to read html : " + originalMediaUrl;
+            log.debug(message);
+            throw new BedethequeScraperException(ErrorCode.MEDIA_SCRAPING_ERROR, message, e, new Object[]{originalMediaUrl});
         } catch (IOException e) {
-            log.debug("Cannot save media {} on local file : {}", originalMediaUrl, hashedOutputMediaPath);
-            throw new TechnicalException("ERR-SCR-006", e, new Object[]{originalMediaUrl, hashedOutputMediaPath});
+            String message = String.format("Cannot save media %s on local file : %s", originalMediaUrl, hashedOutputMediaPath);
+            log.debug(message);
+            throw new BedethequeScraperException(ErrorCode.MEDIA_RESOURCE_SAVE_ERROR,message, e, new Object[]{originalMediaUrl, hashedOutputMediaPath});
         }
     }
 
@@ -167,9 +172,7 @@ public class GenericScraper extends Scraper {
         String hashedOutputHttpMediaPath = outputHttpMediaPath + hashedDir;
         try {
             httpMediaFilename = downloadMedia(hashedOutputMediaDirectory, hashedOutputHttpMediaPath, httpMediaUrl);
-        } catch (BusinessException e) {
-            log.warn("Silent fail for the media download {} (Business Exception)", httpMediaUrl);
-        } catch (TechnicalException e) {
+        } catch (BedethequeScraperException e) {
             log.warn("Silent fail for the media download {} (Technical Exception) - outputDir={}, outputPath={},", httpMediaUrl, outputMediaDirectory, outputHttpMediaPath, e);
         }
         log.debug("Pre-cached file from {} to {}", httpMediaUrl, httpMediaFilename);
@@ -181,26 +184,26 @@ public class GenericScraper extends Scraper {
      *
      * @param outputMediaDirectory Output directory where the media will be saved.
      * @param outputHttpMediaPath  Output http path where the saved media will be accessible by the local http server.
-     * @param httpMediaUrl         The url of the media to download.
+     * @param originalMediaUrl     The url of the media to download.
      * @return The http path where the saved media is accessible by the local http server.
      */
-    public String downloadMedia(String outputMediaDirectory, String outputHttpMediaPath, String httpMediaUrl) {
-        String[] mediaUrlParts = StringUtils.split(httpMediaUrl, "/");
+    public String downloadMedia(String outputMediaDirectory, String outputHttpMediaPath, String originalMediaUrl) {
+        String[] mediaUrlParts = StringUtils.split(originalMediaUrl, "/");
         String mediaFilename = mediaUrlParts[mediaUrlParts.length - 1];
-        String mediaFilenamePath = outputMediaDirectory + File.separator + mediaFilename;
+        String hashedOutputMediaPath = outputMediaDirectory + File.separator + mediaFilename;
         String httpMediaFilename = outputHttpMediaPath + File.separator + mediaFilename;
         // Check if the media has been already downloaded
-        var f = new File(mediaFilenamePath);
+        var f = new File(hashedOutputMediaPath);
         if (!f.exists()) {
             try {
                 boolean isCreated = f.createNewFile();
                 if (!isCreated) {
-                    log.debug("Can't create file for an unknown reason : {}", mediaFilenamePath);
-                    throw new BusinessException(ERR_SCR_002, new Object[]{mediaFilenamePath});
+                    String message = "Can't create file : " + hashedOutputMediaPath;
+                    throw new BedethequeScraperException(ErrorCode.MEDIA_DOWNLOAD_ERROR, message, new Object[]{hashedOutputMediaPath});
                 }
             } catch (IOException e) {
-                log.debug("Can't create file : {}", mediaFilenamePath);
-                throw new TechnicalException(ERR_SCR_002, e, new Object[]{mediaFilenamePath});
+                String message = "Can't create file : " + hashedOutputMediaPath;
+                throw new BedethequeScraperException(ErrorCode.MEDIA_DOWNLOAD_ERROR, message, e,new Object[]{hashedOutputMediaPath});
             }
         } else {
             return httpMediaFilename;
@@ -217,14 +220,14 @@ public class GenericScraper extends Scraper {
             // others permissions removed
             perms.remove(PosixFilePermission.OTHERS_READ); // Compliant
             Files.setPosixFilePermissions(f.toPath(), perms);
-            log.debug("Permissions 777 set on file: {}", mediaFilenamePath);
+            log.debug("Permissions 777 set on file: {}", hashedOutputMediaPath);
         } catch (UnsupportedOperationException | IOException e) {
-            log.warn("Could not set file permissions for {}. This is expected on non-POSIX systems (like Windows).", mediaFilenamePath, e);
+            log.warn("Could not set file permissions for {}. This is expected on non-POSIX systems (like Windows).", hashedOutputMediaPath, e);
         }
 
         // Download the http media
-        try (var fos = new FileOutputStream(mediaFilenamePath)) {
-            var url = new URI(httpMediaUrl).toURL();
+        try (var fos = new FileOutputStream(hashedOutputMediaPath)) {
+            var url = new URI(originalMediaUrl).toURL();
             var output = new ByteArrayOutputStream();
 
             try (var inputStream = url.openStream()) {
@@ -235,19 +238,23 @@ public class GenericScraper extends Scraper {
                 }
             }
             output.writeTo(fos);
-            log.info("Resource {} saved to {}", httpMediaUrl, mediaFilenamePath);
+            log.info("Resource {} saved to {}", originalMediaUrl, hashedOutputMediaPath);
         } catch (FileNotFoundException e) {
-            log.debug("HTML resource not found : {}", httpMediaUrl);
-            throw new TechnicalException("ERR-SCR-003", e, new Object[]{httpMediaUrl});
+            String message = "HTML resource not found : " + originalMediaUrl;
+            log.debug(message);
+            throw new BedethequeScraperException(ErrorCode.MEDIA_RESOURCE_NOT_FOUND, message, e, new Object[]{originalMediaUrl});
         } catch (FileAlreadyExistsException e2) {
-            log.debug("File already exists : {}", httpMediaUrl);
-            throw new TechnicalException("ERR-SCR-004", e2, new Object[]{httpMediaUrl});
+            String message = "File already exists : " + originalMediaUrl;
+            log.debug(message);
+            throw new BedethequeScraperException(ErrorCode.MEDIA_RESOURCE_ALREADY_EXISTS, message, e2, new Object[]{originalMediaUrl});
         } catch (URISyntaxException e) {
-            log.debug("Failed to read html : {}", httpMediaUrl);
-            throw new TechnicalException("ERR-SCR-005", e, new Object[]{httpMediaUrl});
+            String message = "Failed to read html : " + originalMediaUrl;
+            log.debug(message);
+            throw new BedethequeScraperException(ErrorCode.MEDIA_SCRAPING_ERROR, message, e, new Object[]{originalMediaUrl});
         } catch (IOException e) {
-            log.debug("Cannot save media {} on local file : {}", httpMediaUrl, mediaFilenamePath);
-            throw new TechnicalException("ERR-SCR-006", e, new Object[]{httpMediaUrl, mediaFilenamePath});
+            String message = String.format("Cannot save media %s on local file : %s", originalMediaUrl, hashedOutputMediaPath);
+            log.debug(message);
+            throw new BedethequeScraperException(ErrorCode.MEDIA_RESOURCE_SAVE_ERROR,message, e, new Object[]{originalMediaUrl, hashedOutputMediaPath});
         }
         return httpMediaFilename;
     }
@@ -287,11 +294,11 @@ public class GenericScraper extends Scraper {
         try {
             Files.createDirectories(hashedDirPath);
         } catch (IOException e) {
-            log.error("Failed to create hashed directory: {}", outputMediaDirectory, e);
-            throw new TechnicalException("ERR-SCR-007", e, new Object[]{outputMediaDirectory});
+            String message = "Failed to create hashed directory: " + outputMediaDirectory;
+            throw new BedethequeScraperException(ErrorCode.MEDIA_DIRECTORY_CREATE_ERROR, message, e, new Object[]{outputMediaDirectory});
         } catch (SecurityException e) {
-            log.error("Security exception while creating directory: {}. Check permissions.", outputMediaDirectory, e);
-            throw new TechnicalException("ERR-SCR-009", e, new Object[]{outputMediaDirectory});
+            String message = "Security exception while creating directory: " + outputMediaDirectory;
+            throw new BedethequeScraperException(ErrorCode.MEDIA_DIRECTORY_CREATE_ERROR, message, e, new Object[]{outputMediaDirectory});
         }
         return hashedDirPath.toString();
     }

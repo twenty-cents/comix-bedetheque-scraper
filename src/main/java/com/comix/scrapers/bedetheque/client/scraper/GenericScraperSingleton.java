@@ -1,6 +1,7 @@
 package com.comix.scrapers.bedetheque.client.scraper;
 
-import com.comix.scrapers.bedetheque.exception.TechnicalException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
+import com.comix.scrapers.bedetheque.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -11,10 +12,10 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 @Slf4j
+@SuppressWarnings("java:S6548")
 public class GenericScraperSingleton {
 
     private static GenericScraperSingleton instance;
-    private static final String ERR_SCR_001 = "ERR-SCR-001";
 
     private OffsetDateTime lastLoading = OffsetDateTime.now();
 
@@ -43,7 +44,7 @@ public class GenericScraperSingleton {
         try {
              doc = Jsoup.connect(url).maxBodySize(0).userAgent("Mozilla").get();
         } catch (IOException e) {
-            throw new TechnicalException(ERR_SCR_001, e, new Object[]{url});
+            throw new BedethequeScraperException(ErrorCode.MEDIA_SCRAPING_ERROR, e, new Object[]{url});
         }
         lastLoading = OffsetDateTime.now();
         return doc;
@@ -66,7 +67,7 @@ public class GenericScraperSingleton {
                     .execute();
             doc = response.parse();
         } catch (IOException e) {
-            throw new TechnicalException(ERR_SCR_001, e, new Object[]{url});
+            throw new BedethequeScraperException(ErrorCode.MEDIA_SCRAPING_ERROR, e, new Object[]{url});
         }
         lastLoading = OffsetDateTime.now();
         return doc;
@@ -80,7 +81,7 @@ public class GenericScraperSingleton {
             } catch (InterruptedException e) {
                 // Restore interrupted state...
                 Thread.currentThread().interrupt();
-                throw new TechnicalException(ERR_SCR_001, e, new Object[]{url});
+                throw new BedethequeScraperException(ErrorCode.MEDIA_SCRAPING_ERROR, e, new Object[]{url});
             }
         }
     }
