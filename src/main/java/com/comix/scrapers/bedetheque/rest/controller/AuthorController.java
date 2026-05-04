@@ -1,6 +1,7 @@
 package com.comix.scrapers.bedetheque.rest.controller;
 
-import com.comix.scrapers.bedetheque.exception.BusinessException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
+import com.comix.scrapers.bedetheque.exception.ErrorCode;
 import com.comix.scrapers.bedetheque.rest.v1.api.AuthorsApi;
 import com.comix.scrapers.bedetheque.rest.v1.dto.AuthorDetailsDto;
 import com.comix.scrapers.bedetheque.rest.v1.dto.AuthorsResponseDto;
@@ -39,12 +40,12 @@ public class AuthorController implements AuthorsApi, V1Controller {
     public ResponseEntity<AuthorsResponseDto> scrapAuthors(String action, String letter) {
         // Check if the action is available
         if (!(action.equals(SCRAP_AUTHORS_URLS_BY_LETTER) || action.equals(SCRAP_AUTHORS_URLS_INDEXES))) {
-            throw new BusinessException("UNSUPPORTED_ACTION", new Object[]{action});
+            throw new BedethequeScraperException(ErrorCode.UNSUPPORTED_ACTION, new Object[]{action});
         }
 
         // Check if a letter is provided if the action is scrap the list of all authors starting with a given letter
         if (action.equals(SCRAP_AUTHORS_URLS_BY_LETTER) && letter == null) {
-            throw new BusinessException("LETTER_NOT_FOUND", new Object[]{action});
+            throw new BedethequeScraperException(ErrorCode.LETTER_NOT_FOUND, new Object[]{action});
         }
 
         return switch (action) {
@@ -60,7 +61,7 @@ public class AuthorController implements AuthorsApi, V1Controller {
                         .status(HttpStatus.OK)
                         .body(authorService.scrapAuthorsIndexedByLetter(letter));
             }
-            default -> throw new BusinessException("UNSUPPORTED_ACTION", new Object[]{action});
+            default -> throw new BedethequeScraperException(ErrorCode.UNSUPPORTED_ACTION, new Object[]{action});
         };
 
     }

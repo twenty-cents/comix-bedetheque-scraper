@@ -1,13 +1,13 @@
 package com.comix.scrapers.bedetheque.client.scraper;
 
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
+import com.comix.scrapers.bedetheque.exception.ErrorCode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.comix.scrapers.bedetheque.client.model.filter.AutocompleteSearch;
 import com.comix.scrapers.bedetheque.client.model.filter.FilteredGraphicNovelDetails;
 import com.comix.scrapers.bedetheque.client.model.filter.GraphicNovelsFilteredObject;
 import com.comix.scrapers.bedetheque.client.model.filter.GraphicNovelsFilters;
-import com.comix.scrapers.bedetheque.exception.BusinessException;
-import com.comix.scrapers.bedetheque.exception.TechnicalException;
 import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -186,11 +186,11 @@ public class FilterGraphicNovelsScraper extends Scraper {
                     .data("term", term)
                     .execute();
         } catch (IOException e) {
-            throw new TechnicalException("ERR-SCR-007", e, new Object[]{url, term});
+            throw new BedethequeScraperException(ErrorCode.AUTOCOMPLETE_SCRAPING_ERROR, e.getMessage(), e, new Object[]{url, term});
         }
 
         if(response.statusCode() != 200) {
-            throw new BusinessException("ERR-SCR-007", new Object[]{url, term});
+            throw new BedethequeScraperException(ErrorCode.AUTOCOMPLETE_SCRAPING_ERROR, new Object[]{url, term});
         }
 
         String autocomplete = (response.body().equals("riendutout") ? "" : response.body());
@@ -201,7 +201,7 @@ public class FilterGraphicNovelsScraper extends Scraper {
                 autocompleteSearches =  mapper.readValue(autocomplete, new TypeReference<>() {
                 });
             } catch (IOException e) {
-                throw new TechnicalException("ERR-SCR-008", e, new Object[]{url, term});
+                throw new BedethequeScraperException(ErrorCode.AUTOCOMPLETE_SCRAPING_ERROR, e, new Object[]{url, term});
             }
         }
         return autocompleteSearches;

@@ -3,7 +3,7 @@ package com.comix.scrapers.bedetheque.client.scraper;
 import com.comix.scrapers.bedetheque.client.model.author.*;
 import com.comix.scrapers.bedetheque.client.model.serie.SerieLanguage;
 import com.comix.scrapers.bedetheque.client.model.serie.SerieToDiscover;
-import com.comix.scrapers.bedetheque.exception.TechnicalException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
 import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -458,7 +458,7 @@ public class AuthorScraper extends GenericScraper {
                 download(author.getPhotoOriginalUrl(), author.getPhotoPath());
                 author.setPhotoAvailable(true);
                 author.setPhotoFileSize(getMediaSize(author.getPhotoPath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 author.setPhotoAvailable(false);
                 author.setPhotoFileSize(0L);
                 log.error(e.getMessage(), e);
@@ -478,7 +478,7 @@ public class AuthorScraper extends GenericScraper {
                     download(s.getCoverOriginalUrl(), s.getCoverPath());
                     s.setCoverAvailable(true);
                     s.setCoverFileSize(getMediaSize(s.getCoverPath()));
-                } catch (TechnicalException e) {
+                } catch (BedethequeScraperException e) {
                     s.setCoverAvailable(false);
                     s.setCoverFileSize(0L);
                     log.error(e.getMessage(), e);

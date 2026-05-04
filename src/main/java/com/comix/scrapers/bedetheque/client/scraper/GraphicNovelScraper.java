@@ -5,7 +5,7 @@ import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovel;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.GraphicNovelPage;
 import com.comix.scrapers.bedetheque.client.model.graphicnovel.Ratings;
 import com.comix.scrapers.bedetheque.client.model.serie.Serie;
-import com.comix.scrapers.bedetheque.exception.TechnicalException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
 import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -198,7 +198,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 download(graphicNovel.getCoverOriginalUrl(), graphicNovel.getCoverPath());
                 graphicNovel.setCoverAvailable(true);
                 graphicNovel.setCoverFileSize(getMediaSize(graphicNovel.getCoverPath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 graphicNovel.setCoverAvailable(false);
                 graphicNovel.setCoverFileSize(0L);
                 log.error(e.getMessage(), e);
@@ -217,7 +217,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 download(graphicNovel.getCoverThumbnailOriginalUrl(), graphicNovel.getCoverThumbnailPath());
                 graphicNovel.setCoverThumbnailAvailable(true);
                 graphicNovel.setCoverThumbnailFileSize(getMediaSize(graphicNovel.getCoverThumbnailPath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 graphicNovel.setCoverThumbnailAvailable(false);
                 graphicNovel.setCoverThumbnailFileSize(0L);
                 log.error(e.getMessage(), e);
@@ -236,7 +236,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 download(graphicNovel.getBackCoverOriginalUrl(), graphicNovel.getBackCoverPath());
                 graphicNovel.setBackCoverAvailable(true);
                 graphicNovel.setBackCoverFileSize(getMediaSize(graphicNovel.getBackCoverPath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 graphicNovel.setBackCoverAvailable(false);
                 graphicNovel.setBackCoverFileSize(0L);
                 log.error(e.getMessage(), e);
@@ -255,7 +255,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 download(graphicNovel.getBackCoverThumbnailOriginalUrl(), graphicNovel.getBackCoverThumbnailPath());
                 graphicNovel.setBackCoverThumbnailAvailable(true);
                 graphicNovel.setBackCoverThumbnailFileSize(getMediaSize(graphicNovel.getBackCoverThumbnailPath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 graphicNovel.setBackCoverThumbnailAvailable(false);
                 graphicNovel.setBackCoverThumbnailFileSize(0L);
                 log.error(e.getMessage(), e);
@@ -274,7 +274,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 download(graphicNovel.getPageExampleOriginalUrl(), graphicNovel.getPageExamplePath());
                 graphicNovel.setPageExampleAvailable(true);
                 graphicNovel.setPageExampleFileSize(getMediaSize(graphicNovel.getPageExamplePath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 graphicNovel.setPageExampleAvailable(false);
                 graphicNovel.setPageExampleFileSize(0L);
                 log.error(e.getMessage(), e);
@@ -293,7 +293,7 @@ public class GraphicNovelScraper extends GenericScraper {
                 download(graphicNovel.getPageExampleThumbnailOriginalUrl(), graphicNovel.getPageExampleThumbnailPath());
                 graphicNovel.setPageExampleThumbnailAvailable(true);
                 graphicNovel.setPageExampleThumbnailFileSize(getMediaSize(graphicNovel.getPageExampleThumbnailPath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 graphicNovel.setPageExampleThumbnailAvailable(false);
                 graphicNovel.setPageExampleThumbnailFileSize(0L);
                 log.error(e.getMessage(), e);

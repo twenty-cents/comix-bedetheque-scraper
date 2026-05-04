@@ -1,6 +1,7 @@
 package com.comix.scrapers.bedetheque.client.scraper;
 
-import com.comix.scrapers.bedetheque.exception.TechnicalException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
+import com.comix.scrapers.bedetheque.exception.ErrorCode;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.jsoup.nodes.Document;
@@ -128,8 +129,8 @@ class GenericScraperSingletonTest {
 
             // WHEN & THEN
             assertThatThrownBy(() -> scraper.load(invalidUrl, 0))
-                    .isInstanceOf(TechnicalException.class)
-                    .hasFieldOrPropertyWithValue("codeMessage", "ERR-SCR-001");
+                    .isInstanceOf(BedethequeScraperException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEDIA_SCRAPING_ERROR);
         }
     }
 
@@ -183,8 +184,8 @@ class GenericScraperSingletonTest {
             // THEN
             // The second call will trigger the sleep and should be interrupted
             assertThatThrownBy(() -> scraper.load(url, longLatency))
-                    .isInstanceOf(TechnicalException.class)
-                    .hasFieldOrPropertyWithValue("codeMessage", "ERR-SCR-001")
+                    .isInstanceOf(BedethequeScraperException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEDIA_SCRAPING_ERROR)
                     .hasCauseInstanceOf(InterruptedException.class);
 
             // Clear the interrupted flag for subsequent tests

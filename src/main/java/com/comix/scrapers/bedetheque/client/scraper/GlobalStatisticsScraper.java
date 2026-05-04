@@ -2,7 +2,7 @@ package com.comix.scrapers.bedetheque.client.scraper;
 
 import com.comix.scrapers.bedetheque.client.model.statistics.GlobalStatistics;
 import com.comix.scrapers.bedetheque.client.model.statistics.LastEntry;
-import com.comix.scrapers.bedetheque.exception.TechnicalException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
 import com.comix.scrapers.bedetheque.util.HTML;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -291,7 +291,7 @@ public class GlobalStatisticsScraper extends GenericScraper {
                 download(lastEntry.getCoverOriginalUrl(), lastEntry.getCoverPath());
                 lastEntry.setCoverAvailable(true);
                 lastEntry.setCoverFileSize(getMediaSize(lastEntry.getCoverPath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 lastEntry.setCoverAvailable(false);
                 lastEntry.setCoverFileSize(0L);
                 log.error(e.getMessage(), e);
@@ -310,7 +310,7 @@ public class GlobalStatisticsScraper extends GenericScraper {
                 download(lastEntry.getCoverThumbnailOriginalUrl(), lastEntry.getCoverThumbnailPath());
                 lastEntry.setCoverThumbnailAvailable(true);
                 lastEntry.setCoverThumbnailFileSize(getMediaSize(lastEntry.getCoverThumbnailPath()));
-            } catch (TechnicalException e) {
+            } catch (BedethequeScraperException e) {
                 lastEntry.setCoverThumbnailAvailable(false);
                 lastEntry.setCoverThumbnailFileSize(0L);
                 log.error(e.getMessage(), e);

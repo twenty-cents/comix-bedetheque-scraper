@@ -2,7 +2,7 @@ package com.comix.scrapers.bedetheque.client.scraper;
 
 import com.comix.scrapers.bedetheque.client.model.media.Media;
 import com.comix.scrapers.bedetheque.client.model.media.MediaType;
-import com.comix.scrapers.bedetheque.exception.TechnicalException;
+import com.comix.scrapers.bedetheque.exception.BedethequeScraperException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -150,7 +150,7 @@ public class MediaScraper extends GenericScraper {
             download(media.getOriginalUrl(), media.getPath());
             media.setAvailable(true);
             media.setFileSize(getMediaSize(media.getPath()));
-        } catch (TechnicalException e) {
+        } catch (BedethequeScraperException e) {
             media.setAvailable(false);
             media.setFileSize(0L);
             log.error(e.getMessage(), e);
