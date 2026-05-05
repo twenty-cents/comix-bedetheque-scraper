@@ -369,8 +369,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- Reference the property defined above -->
-                    <argLine>${argLine}</argLine>
                     <excludes>
                         <exclude>**/*IT.java</exclude>
                     </excludes>
@@ -407,8 +405,6 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
-                    <!-- Ensure integration tests use the same JVM fixes as unit tests -->
-                    <argLine>${argLine}</argLine>
                     <includes>
                         <include>**/*IT.java</include>
                     </includes>

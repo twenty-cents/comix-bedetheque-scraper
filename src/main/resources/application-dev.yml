@@ -79,6 +79,9 @@ outbox:
     lock-at-least-for: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_LOCK_AT_LEAST_FOR:PT5S}
     lock-at-most-for: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_LOCK_AT_MOST_FOR:PT5S}
     enabled: ${BEDETHEQUE_SCRAPER_OUTBOX_PUBLISHER_ENABLED:true}
+  purge:
+    cron: ${BEDETHEQUE_SCRAPER_OUTBOX_PURGE_CRON:0 0 2 * * ?}
+    days-to-keep: ${BEDETHEQUE_SCRAPER_OUTBOX_PURGE_DAYS_TO_KEEP:3}
   main:
     banner-mode: log
 

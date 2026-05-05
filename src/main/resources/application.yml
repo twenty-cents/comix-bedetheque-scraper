@@ -23,6 +23,10 @@ application:
       active: ${BEDETHEQUE_SCRAPER_CACHE_ACTIVE:false}
   maven:
     version: '@project.version@'
+  purge: # Configuration for purging old data
+    outbox-messages:
+      days-to-keep: 30 # Number of days to keep OutboxMessage entities (default: 30 days)
+      cron: "0 0 2 * * ?" # Cron expression for scheduling the purge (e.g., daily at 2 AM)
 
 ---
 spring.config.activate.on-profile: "dev-docker-hybrid"
